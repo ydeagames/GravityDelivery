@@ -34,8 +34,8 @@ static void Vector_ReserveLastRequired(Vector* list, size_t min_capacity)
 	Vector src = *list;
 
 	// 保存領域確保
-	list->first_capacity = (Object*)malloc(capacity * sizeof(Object));
-	list->last_capacity = list->first_capacity + capacity;
+	list->first_capacity = malloc(capacity * list->element_size);
+	list->last_capacity = (char*)list->first_capacity + (capacity * list->element_size);
 
 	// 初期化済みか確認
 	if (src.first_capacity == NULL)
@@ -49,11 +49,11 @@ static void Vector_ReserveLastRequired(Vector* list, size_t min_capacity)
 		// 元のリストのサイズを取得
 		size_t size = Vector_GetSize(&src);
 		// 先頭は元のリストの先頭と同じ位置
-		list->first = list->first_capacity + Vector_RemainingFirstT(&src);
+		list->first = (char*)list->first_capacity + (Vector_RemainingFirstT(&src) * list->element_size);
 		// 終端はこの先端からサイズ分後ろに移動
-		list->last = list->first + size;
+		list->last = (char*)list->first + (size * list->element_size);
 		// 元のリストから新たなリストへ内容をコピー
-		memcpy(Vector_GetFirst(list), Vector_GetFirst(&src), size * sizeof(Object));
+		memcpy(Vector_GetFirst(list), Vector_GetFirst(&src), size * list->element_size);
 		// 元のリストのメモリを開放
 		free(src.first_capacity);
 	}
@@ -84,26 +84,26 @@ static void Vector_ReserveFirstRequired(Vector* list, size_t min_capacity)
 	Vector src = *list;
 
 	// 保存領域確保
-	list->first_capacity = (Object*)malloc(capacity * sizeof(Object));
-	list->last_capacity = list->first_capacity + capacity;
+	list->first_capacity = malloc(capacity * list->element_size);
+	list->last_capacity = (char*)list->first_capacity + (capacity * list->element_size);
 
 	// 初期化済みか確認
 	if (src.first_capacity == NULL)
 	{
 		// 終端にカーソルを移動
-		list->first = list->last_capacity - 1;
-		list->last = list->last_capacity - 1;
+		list->first = (char*)list->last_capacity - (1 * list->element_size);
+		list->last = (char*)list->last_capacity - (1 * list->element_size);
 	}
 	else
 	{
 		// 元のリストのサイズを取得
 		size_t size = Vector_GetSize(&src);
 		// 終端は元のリストの終端と同じ位置
-		list->last = list->last_capacity - Vector_RemainingLastT(&src);
+		list->last = (char*)list->last_capacity - (Vector_RemainingLastT(&src) * list->element_size);
 		// 先頭はこの終端からサイズ分前に移動
-		list->first = list->last - size;
+		list->first = (char*)list->last - (size * list->element_size);
 		// 元のリストから新たなリストへ内容をコピー
-		memcpy(Vector_GetFirst(list), Vector_GetFirst(&src), size * sizeof(Object));
+		memcpy(Vector_GetFirst(list), Vector_GetFirst(&src), size * list->element_size);
 		// 元のリストのメモリを開放
 		free(src.first_capacity);
 	}
@@ -126,10 +126,10 @@ static void Vector_ReserveFirst(Vector* list, size_t min_capacity)
 }
 
 // コンストラクタ
-Vector Vector_Create(void)
+Vector Vector_Create(size_t element_size)
 {
 	// NULLで初期化
-	return{ NULL, NULL, NULL, NULL };
+	return{ element_size, NULL, NULL, NULL, NULL };
 }
 
 // デストラクタ
@@ -144,49 +144,48 @@ void Vector_Delete(Vector* list)
 }
 
 // 終端を取得
-Object* Vector_GetLast(const Vector* list)
+void* Vector_GetLast(const Vector* list)
 {
 	return list->last;
 }
 
 // 先頭を取得
-Object* Vector_GetFirst(const Vector* list)
+void* Vector_GetFirst(const Vector* list)
 {
-	return list->first + 1;
+	return (char*)list->first + (1 * list->element_size);
 }
 
 // 要素番号から取得
-Object* Vector_Get(const Vector* list, int index)
+void* Vector_Get(const Vector* list, int index)
 {
-	return &Vector_GetFirst(list)[index];
+	return (char*)Vector_GetFirst(list) + (index * list->element_size);
 }
 
 // 終端に追加
-void Vector_AddLast(Vector* list, const Object* element)
+void Vector_AddLast(Vector* list, const void* element)
 {
 	// 容量を確保
 	Vector_ReserveLast(list, Vector_GetSize(list) + 1);
 	// 終端に要素をコピー
-	list->last[1] = *element;
+	memcpy((char*)list->last + (1 * list->element_size), element, list->element_size);
 	// 終端カーソルを移動
-	list->last++;
+	list->last = (char*)list->last + (1 * list->element_size);
 }
 
 // 先頭に追加
-void Vector_AddFirst(Vector* list, const Object* element)
+void Vector_AddFirst(Vector* list, const void* element)
 {
 	// 容量を確保
 	Vector_ReserveFirst(list, Vector_GetSize(list) + 1);
 	// 先頭に要素をコピー
-	list->first[0] = *element;
+	memcpy((char*)list->first + (0 * list->element_size), element, list->element_size);
 	// 先頭カーソルを移動
-	list->first--;
+	list->first = (char*)list->first + (-1 * list->element_size);
 }
 
 // 要素番号へ追加
-void Vector_Add(Vector* list, int index, const Object* element)
+void Vector_Add(Vector* list, int index, const void* element)
 {
-	int i;
 	// サイズ取得
 	int size = Vector_GetSize(list);
 
@@ -199,12 +198,13 @@ void Vector_Add(Vector* list, int index, const Object* element)
 		// 容量を確保
 		Vector_ReserveFirst(list, size + 1);
 		// 先頭から要素番号までの要素をずらす
-		for (i = 0; i < index; i++)
-			Vector_GetFirst(list)[i - 1] = Vector_GetFirst(list)[i];
+		memmove((char*)Vector_GetFirst(list) + (-1 * list->element_size),
+			(char*)Vector_GetFirst(list) + (0 * list->element_size),
+			(index * list->element_size));
 		// 先頭カーソルを移動
-		list->first--;
+		list->first = (char*)list->first + (-1 * list->element_size);
 		// 先頭からの要素番号に要素をコピー
-		Vector_GetFirst(list)[index] = *element;
+		memcpy((char*)Vector_GetFirst(list) + (index * list->element_size), element, list->element_size);
 	}
 	else
 	{
@@ -213,39 +213,39 @@ void Vector_Add(Vector* list, int index, const Object* element)
 		// 容量を確保
 		Vector_ReserveLast(list, size + 1);
 		// 終端から要素番号までの要素をずらす
-		for (i = 0; i < index; i++)
-			Vector_GetLast(list)[-(i - 1)] = Vector_GetLast(list)[-i];
+		memmove((char*)Vector_GetLast(list) + ((-index + 2) * list->element_size),
+			(char*)Vector_GetLast(list) + ((-index + 1) * list->element_size),
+			(index * list->element_size));
 		// 終端カーソルを移動
-		list->last++;
+		list->last = (char*)list->last + (1 * list->element_size);
 		// 終端からの要素番号に要素をコピー
-		Vector_GetLast(list)[-index] = *element;
+		memcpy((char*)Vector_GetLast(list) + (-index * list->element_size), element, list->element_size);
 	}
 }
 
 // 要素番号の位置の要素を置き換え
-void Vector_Set(Vector* list, int index, const Object* element)
+void Vector_Set(Vector* list, int index, const void* element)
 {
-	Vector_GetFirst(list)[index] = *element;
+	memcpy((char*)Vector_GetFirst(list) + (index * list->element_size), element, list->element_size);
 }
 
 // 終端の要素を削除
 void Vector_RemoveLast(Vector* list)
 {
 	// 終端カーソルを移動
-	list->last--;
+	list->last = (char*)list->last + (-1 * list->element_size);
 }
 
 // 先頭の要素を削除
 void Vector_RemoveFirst(Vector* list)
 {
 	// 先頭カーソルを移動
-	list->first++;
+	list->first = (char*)list->first + (1 * list->element_size);
 }
 
 // 要素番号の要素を削除
 void Vector_Remove(Vector* list, int index)
 {
-	int i;
 	// サイズ取得
 	int size = Vector_GetSize(list);
 
@@ -253,20 +253,22 @@ void Vector_Remove(Vector* list, int index)
 	if (index < size / 2)
 	{
 		// 先頭から要素番号までの要素をずらす
-		for (i = index; i > 0; i--)
-			Vector_GetFirst(list)[i] = Vector_GetFirst(list)[i - 1];
+		memmove((char*)Vector_GetFirst(list) + (1 * list->element_size),
+			(char*)Vector_GetFirst(list) + (0 * list->element_size),
+			(index * list->element_size));
 		// 先頭カーソルを移動
-		list->first++;
+		list->first = (char*)list->first + (1 * list->element_size);
 	}
 	else
 	{
 		// 後ろからのインデックスを計算
 		index = size - index;
 		// 終端から要素番号までの要素をずらす
-		for (i = index; i > 0; i--)
-			Vector_GetLast(list)[1 - i] = Vector_GetLast(list)[1 - (i - 1)];
+		memmove((char*)Vector_GetLast(list) + ((1 - index) * list->element_size),
+			(char*)Vector_GetLast(list) + ((2 - index) * list->element_size),
+			(index * list->element_size));
 		// 終端カーソルを移動
-		list->last--;
+		list->last = (char*)list->last + (-1 * list->element_size);
 	}
 }
 
@@ -276,7 +278,7 @@ size_t Vector_GetSizeT(const Vector* list)
 	// 未代入の場合のサイズは0
 	if (list->first_capacity == NULL)
 		return 0;
-	return list->last - list->first;
+	return ((char*)list->last - (char*)list->first) / list->element_size;
 }
 
 // サイズを取得
@@ -291,7 +293,7 @@ size_t Vector_GetCapacityT(const Vector* list)
 	// 未代入の場合のサイズは0
 	if (list->first_capacity == NULL)
 		return 0;
-	return list->last_capacity - list->first_capacity;
+	return ((char*)list->last_capacity - (char*)list->first_capacity) / list->element_size;
 }
 
 // 先頭の空き容量を取得
@@ -299,7 +301,7 @@ size_t Vector_RemainingFirstT(const Vector* list)
 {
 	if (list->first_capacity == NULL)
 		return 0;
-	return list->first - list->first_capacity;
+	return ((char*)list->first - (char*)list->first_capacity) / list->element_size;
 }
 
 // 終端の空き容量を取得
@@ -307,7 +309,7 @@ size_t Vector_RemainingLastT(const Vector* list)
 {
 	if (list->first_capacity == NULL)
 		return 0;
-	return list->last_capacity - list->last;
+	return ((char*)list->last_capacity - (char*)list->last) / list->element_size;
 }
 
 // 昇順の反復子を作成
@@ -343,9 +345,9 @@ BOOL VectorIterator_HasNext(const VectorIterator* itr)
 }
 
 // 次へ進む
-Object* VectorIterator_Next(VectorIterator* itr)
+void* VectorIterator_Next(VectorIterator* itr)
 {
-	Object* obj = Vector_Get(itr->list, itr->current);
+	void* obj = Vector_Get(itr->list, itr->current);
 	itr->current += itr->next;
 #ifdef VECTOR_DEBUG
 	itr->current_exists = TRUE;
@@ -360,7 +362,7 @@ int VectorIterator_NextIndex(const VectorIterator* itr)
 }
 
 // 現在の要素の前に追加 (※一度のNextにつき、一度しか呼び出すことはできません)
-void VectorIterator_Add(VectorIterator* itr, const Object* element)
+void VectorIterator_Add(VectorIterator* itr, const void* element)
 {
 #ifdef VECTOR_DEBUG
 	assert(itr->current_size == Vector_GetSizeT(itr->list) && "Not a fresh iterator");
@@ -374,7 +376,7 @@ void VectorIterator_Add(VectorIterator* itr, const Object* element)
 }
 
 // 現在の要素を置き換え
-void VectorIterator_Set(VectorIterator* itr, const Object* element)
+void VectorIterator_Set(VectorIterator* itr, const void* element)
 {
 	Vector_Set(itr->list, itr->current, element);
 }

@@ -17,9 +17,6 @@
 // 多重インクルードの防止 ==================================================
 #pragma once
 
-// ヘッダファイルの読み込み ================================================
-#include "GameObject.h"
-
 // 定数の定義 ==============================================================
 
 // デバッグ
@@ -28,13 +25,13 @@
 // マクロの定義 ============================================================
 
 // 拡張for文
-#define foreach_start(vec, var) \
+#define foreach_start(vec, type, var) \
 { \
 	VectorIterator itr_##var; \
 	for (itr_##var = Vector_NextIterator(vec); VectorIterator_HasNext(&itr_##var);) \
 	{ \
 		int i_##var = VectorIterator_NextIndex(&itr_##var); \
-		Object* var = VectorIterator_Next(&itr_##var); \
+		type* var = (type*)VectorIterator_Next(&itr_##var); \
 		{
 #define foreach_end \
 		} \
@@ -43,17 +40,15 @@
 
 // 型の定義 ================================================================
 
-// このリストが扱うことのできる型
-typedef GameObject Object;
-
 // 構造体の宣言 ============================================================
 
 // リスト型
 typedef struct {
-	Object* first_capacity;
-	Object* first;
-	Object* last;
-	Object* last_capacity;
+	size_t element_size;
+	void* first_capacity;
+	void* first;
+	void* last;
+	void* last_capacity;
 } Vector;
 
 // リスト反復子型
@@ -70,31 +65,31 @@ typedef struct {
 // 関数の宣言 ==============================================================
 
 // コンストラクタ
-Vector Vector_Create(void);
+Vector Vector_Create(size_t element_size);
 
 // デストラクタ
 void Vector_Delete(Vector* list);
 
 // 終端を取得
-Object* Vector_GetLast(const Vector* list);
+void* Vector_GetLast(const Vector* list);
 
 // 先頭を取得
-Object* Vector_GetFirst(const Vector* list);
+void* Vector_GetFirst(const Vector* list);
 
 // 要素番号から取得
-Object* Vector_Get(const Vector* list, int index);
+void* Vector_Get(const Vector* list, int index);
 
 // 終端に追加
-void Vector_AddLast(Vector* list, const Object* element);
+void Vector_AddLast(Vector* list, const void* element);
 
 // 先頭に追加
-void Vector_AddFirst(Vector* list, const Object* element);
+void Vector_AddFirst(Vector* list, const void* element);
 
 // 要素番号へ追加
-void Vector_Add(Vector* list, int index, const Object* element);
+void Vector_Add(Vector* list, int index, const void* element);
 
 // 要素番号の位置の要素を置き換え
-void Vector_Set(Vector* list, int index, const Object* element);
+void Vector_Set(Vector* list, int index, const void* element);
 
 // 終端の要素を削除
 void Vector_RemoveLast(Vector* list);
@@ -133,16 +128,16 @@ VectorIterator VectorIterator_Create(Vector* list, int current, int next);
 BOOL VectorIterator_HasNext(const VectorIterator* itr);
 
 // 次へ進む
-Object* VectorIterator_Next(VectorIterator* itr);
+void* VectorIterator_Next(VectorIterator* itr);
 
 // 次の要素の要素番号
 int VectorIterator_NextIndex(const VectorIterator* itr);
 
 // 現在の要素の前に追加 (※一度のNextにつき、一度しか呼び出すことはできません)
-void VectorIterator_Add(VectorIterator* itr, const Object* element);
+void VectorIterator_Add(VectorIterator* itr, const void* element);
 
 // 現在の要素を置き換え
-void VectorIterator_Set(VectorIterator* itr, const Object* element);
+void VectorIterator_Set(VectorIterator* itr, const void* element);
 
 // 現在の要素を削除する (※一度のNextにつき、一度しか呼び出すことはできません)
 void VectorIterator_Remove(VectorIterator* itr);
