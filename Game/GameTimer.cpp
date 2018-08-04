@@ -80,7 +80,7 @@ void GameTimer_SetRemainingDefault(GameTimer* timer)
 }
 
 // <タイマー残り時間>
-float GameTimer_GetTimeRemaining(GameTimer* timer)
+float GameTimer_GetRemaining(GameTimer* timer)
 {
 	return -GameTimer_GetTime(timer);
 }

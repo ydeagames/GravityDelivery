@@ -157,8 +157,8 @@ BOOL GameObject_IsAlive(const GameObject* obj)
 // <オブジェクト座標更新>
 void GameObject_UpdatePosition(GameObject* obj)
 {
-	obj->pos.x += obj->vel.x * (g_deltamilliseconds / 17.f);
-	obj->pos.y += obj->vel.y * (g_deltamilliseconds / 17.f);
+	obj->pos.x += obj->vel.x;// *(g_deltamilliseconds / 17.f);
+	obj->pos.y += obj->vel.y;// *(g_deltamilliseconds / 17.f);
 }
 
 // <オブジェクトXオフセット>

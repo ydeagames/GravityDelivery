@@ -47,7 +47,7 @@ void GameTimer_SetRemaining(GameTimer* timer, float remaining);
 void GameTimer_SetRemainingDefault(GameTimer* timer);
 
 // <タイマー残り時間>
-float GameTimer_GetTimeRemaining(GameTimer* timer);
+float GameTimer_GetRemaining(GameTimer* timer);
 
 // <タイマー終了判定>
 BOOL GameTimer_IsFinished(GameTimer* timer);
