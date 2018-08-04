@@ -36,6 +36,7 @@ void FinalizePlay(void);    // ÉQÅ[ÉÄÇÃèIóπèàóù
 //----------------------------------------------------------------------
 void InitializePlay(void)
 {
+
 }
 
 
@@ -53,9 +54,12 @@ void UpdatePlay(void)
 		g_mouse_last = GetMousePosition();
 	if (IsMouseReleased(MOUSE_INPUT_1))
 	{
-		Vec2 pos = GetMousePosition();
-		g_ball = GameObject_Create(g_mouse_last, Vec2_Sub(&g_mouse_last, &pos));
+		Vec2 vel = Vec2_Scale(&Vec2_Sub(&g_mouse_last, &GetMousePosition()), .1f);
+		g_ball = GameObject_Create(g_mouse_last, vel, Vec2_Create(5, 5));
+		g_ball.fill = TRUE;
 	}
+
+	GameObject_UpdatePosition(&g_ball);
 }
 
 
@@ -69,7 +73,14 @@ void UpdatePlay(void)
 //----------------------------------------------------------------------
 void RenderPlay(void)
 {
-	GameObject_Render(&g_ball);
+	if (IsMouseDown(MOUSE_INPUT_1))
+	{
+		Vec2 pos = GetMousePosition();
+		Vec2 vel = Vec2_Sub(&g_mouse_last, &pos);
+		Vec2_Render(&vel, &pos, COLOR_WHITE);
+	}
+	if (GameObject_IsAlive(&g_ball))
+		GameObject_Render(&g_ball);
 }
 
 
