@@ -1,5 +1,6 @@
 #include "ScenePlay.h"
-
+#include "GameObject.h"
+#include "InputManager.h"
 
 
 // 定数の定義 ==============================================================
@@ -9,6 +10,8 @@
 
 // グローバル変数の定義 ====================================================
 
+GameObject g_ball;
+Vec2 g_mouse_last;
 
 
 
@@ -46,6 +49,13 @@ void InitializePlay(void)
 //----------------------------------------------------------------------
 void UpdatePlay(void)
 {
+	if (IsMousePressed(MOUSE_INPUT_1))
+		g_mouse_last = GetMousePosition();
+	if (IsMouseReleased(MOUSE_INPUT_1))
+	{
+		Vec2 pos = GetMousePosition();
+		g_ball = GameObject_Create(g_mouse_last, Vec2_Sub(&g_mouse_last, &pos));
+	}
 }
 
 
@@ -59,6 +69,7 @@ void UpdatePlay(void)
 //----------------------------------------------------------------------
 void RenderPlay(void)
 {
+	GameObject_Render(&g_ball);
 }
 
 

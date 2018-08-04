@@ -68,3 +68,16 @@ BOOL IsMouseReleased(int mouse)
 	return (g_mouse_state_last & mouse) && !(g_mouse_state & mouse);
 }
 
+// マウスを座標を取得
+Vec2 GetMousePosition(void)
+{
+	int mouse_x, mouse_y;
+	GetMousePoint(&mouse_x, &mouse_y);
+	return Vec2_Create((float)mouse_x, (float)mouse_y);
+}
+
+// マウスを座標を設定
+void SetMousePosition(const Vec2* pos)
+{
+	SetMousePoint((int)pos->x, (int)pos->y);
+}

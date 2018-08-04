@@ -1,4 +1,5 @@
 #pragma once
+#include "Vec2.h"
 
 // 関数の定義 ==============================================================
 
@@ -28,3 +29,9 @@ BOOL IsMousePressed(int mouse);
 
 // マウスを離した直後か
 BOOL IsMouseReleased(int mouse);
+
+// マウスを座標を取得
+Vec2 GetMousePosition(void);
+
+// マウスを座標を設定
+void SetMousePosition(const Vec2* pos);
