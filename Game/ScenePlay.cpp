@@ -16,8 +16,10 @@ GameTimer g_count;
 GameObject g_field;
 Vector g_balls;
 Vector g_planets;
+Vec2 g_goal;
 Vec2 g_mouse_last_from;
 Vec2 g_mouse_last_to;
+int g_score;
 
 
 
@@ -65,6 +67,12 @@ void InitializePlay(void)
 			Vector_AddLast(&g_planets, &obj);
 		}
 	}
+
+	g_goal = g_field.pos;
+	g_mouse_last_from = g_field.pos;
+	g_mouse_last_to = g_field.pos;
+
+	g_score = 0;
 }
 
 
@@ -96,18 +104,34 @@ void UpdatePlay(void)
 			}
 		} foreach_end;
 	}
+	if (IsMousePressed(MOUSE_INPUT_3))
+		g_goal = GetMousePosition();
 
-	foreach_start(&g_planets, GameObject, planet)
+	foreach_start(&g_balls, GameObject, ball)
 	{
-		if (planet->state)
+		GameObject* nearest = NULL;
+		float length2 = -1;
+		foreach_start(&g_planets, GameObject, planet)
 		{
-			foreach_start(&g_balls, GameObject, ball)
+			if (planet->state)
 			{
-				float length2 = Vec2_LengthSquaredTo(&ball->pos, &planet->pos);
 				if (20 * 20 < length2 && length2 < 400 * 400)
 					ball->vel = Vec2_Add(&ball->vel, &Vec2_Scale(&Vec2_Normalized(&Vec2_Sub(&planet->pos, &ball->pos)), 20 / Vec2_LengthTo(&planet->pos, &ball->pos)));
-			} foreach_end;
-		}
+			}
+		} foreach_end;
+	} foreach_end;
+
+	foreach_start(&g_balls, GameObject, ball1)
+	{
+		foreach_start(&g_balls, GameObject, ball2)
+		{
+			if (ball1 != ball2)
+				if (GameObject_IsHit(ball1, ball2))
+				{
+					VectorIterator_Remove(&itr_ball1);
+					break;
+				}
+		} foreach_end;
 	} foreach_end;
 
 	if (GameTimer_IsFinished(&g_count))
@@ -123,10 +147,21 @@ void UpdatePlay(void)
 
 	foreach_start(&g_balls, GameObject, ball)
 	{
+		GameObject field_ball = g_field;
+		field_ball.size.x *= 2;
+		field_ball.size.y *= 2;
 		GameObject_UpdatePosition(ball);
 
-		GameObject_Field_CollisionHorizontal(&g_field, ball, CONNECTION_NONE, EDGESIDE_OUTER);
-		GameObject_Field_CollisionVertical(&g_field, ball, CONNECTION_NONE, EDGESIDE_OUTER);
+		if (Vec2_LengthSquaredTo(&ball->pos, &g_goal) < 60 * 60)
+		{
+			VectorIterator_Remove(&itr_ball);
+			g_score++;
+			continue;
+		}
+
+		if (GameObject_Field_CollisionHorizontal(&field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER) ||
+			GameObject_Field_CollisionVertical(&field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER))
+			VectorIterator_Remove(&itr_ball);
 	} foreach_end;
 
 }
@@ -142,6 +177,8 @@ void UpdatePlay(void)
 //----------------------------------------------------------------------
 void RenderPlay(void)
 {
+	DrawCircleAA(g_goal.x, g_goal.y, 60, 100, COLOR_RED, TRUE);
+
 	if (IsMouseDown(MOUSE_INPUT_2))
 	{
 		Vec2 pos = GetMousePosition();
@@ -163,6 +200,9 @@ void RenderPlay(void)
 		if (GameObject_IsAlive(obj))
 			GameObject_Render(obj);
 	} foreach_end;
+
+	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP), COLOR_WHITE, "size: %d", Vector_GetSize(&g_balls));
+	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20), COLOR_WHITE, "score: %d", g_score);
 }
 
 
