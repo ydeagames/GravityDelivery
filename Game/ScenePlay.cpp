@@ -106,10 +106,13 @@ void UpdatePlay(void)
 				float length2 = Vec2_LengthSquaredTo(&ball->pos, &planet->pos);
 				if (20 * 20 < length2 && length2 < 400 * 400)
 					ball->vel = Vec2_Add(&ball->vel, &Vec2_Scale(&Vec2_Normalized(&Vec2_Sub(&planet->pos, &ball->pos)), 20 / Vec2_LengthTo(&planet->pos, &ball->pos)));
+
+				if (GameObject_IsHit(planet, ball))
+					VectorIterator_Remove(&itr_ball);
 			} foreach_end;
 		}
 	} foreach_end;
-
+	 
 	if (GameTimer_IsFinished(&g_count))
 	{
 		GameTimer_SetRemaining(&g_count, .5f);
@@ -124,6 +127,9 @@ void UpdatePlay(void)
 	foreach_start(&g_balls, GameObject, ball)
 	{
 		GameObject_UpdatePosition(ball);
+
+		ball->vel.x *= 0.998f;
+		ball->vel.y *= 0.998f;
 
 		GameObject_Field_CollisionHorizontal(&g_field, ball, CONNECTION_NONE, EDGESIDE_OUTER);
 		GameObject_Field_CollisionVertical(&g_field, ball, CONNECTION_NONE, EDGESIDE_OUTER);
