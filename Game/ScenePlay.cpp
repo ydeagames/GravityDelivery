@@ -110,18 +110,29 @@ void UpdatePlay(void)
 	foreach_start(&g_balls, GameObject, ball)
 	{
 		GameObject* nearest = NULL;
-		float length2 = -1;
+		float length2_min = -1;
 		foreach_start(&g_planets, GameObject, planet)
 		{
 			if (planet->state)
 			{
-				if (20 * 20 < length2 && length2 < 400 * 400)
-					ball->vel = Vec2_Add(&ball->vel, &Vec2_Scale(&Vec2_Normalized(&Vec2_Sub(&planet->pos, &ball->pos)), 20 / Vec2_LengthTo(&planet->pos, &ball->pos)));
+				float length2 = Vec2_LengthSquaredTo(&planet->pos, &ball->pos);
+
+				//if (20 * 20 < length2 && length2 < 400 * 400)
+				{
+					if (nearest == NULL || length2 < length2_min)
+					{
+						nearest = planet;
+						length2_min = length2;
+					}
+				}
 
 				if (GameObject_IsHit(planet, ball))
 					VectorIterator_Remove(&itr_ball);
 			}
 		} foreach_end;
+
+		if (nearest != NULL)
+			ball->vel = Vec2_Add(&ball->vel, &Vec2_Scale(&Vec2_Normalized(&Vec2_Sub(&nearest->pos, &ball->pos)), 20 / Vec2_LengthTo(&nearest->pos, &ball->pos)));
 	} foreach_end;
 
 	foreach_start(&g_balls, GameObject, ball1)
