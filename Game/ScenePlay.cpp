@@ -14,12 +14,18 @@
 
 GameTimer g_count;
 GameObject g_field;
+GameObject g_field_ball;
+GameObject g_view;
+
 Vector g_balls;
 Vector g_planets;
 Vec2 g_goal;
 Vec2 g_mouse_last_from;
 Vec2 g_mouse_last_to;
 int g_score;
+float g_scale;
+Vec2 g_offset_mouse;
+Vec2 g_offset_location;
 
 
 
@@ -49,6 +55,10 @@ void InitializePlay(void)
 	GameTimer_Resume(&g_count);
 
 	g_field = GameObject_Field_Create();
+	g_field_ball = g_field;
+	g_field_ball.size.x *= 2;
+	g_field_ball.size.y *= 2;
+	g_view = g_field;
 
 	g_balls = Vector_Create(sizeof(GameObject));
 
@@ -86,15 +96,37 @@ void InitializePlay(void)
 //----------------------------------------------------------------------
 void UpdatePlay(void)
 {
-	if (IsMousePressed(MOUSE_INPUT_2))
-		g_mouse_last_from = GetMousePosition();
-	if (IsMouseReleased(MOUSE_INPUT_2))
+	Vec2 offset;
+
 	{
-		g_mouse_last_to = GetMousePosition();
+		if (IsMousePressed(MOUSE_INPUT_3))
+		{
+			g_offset_mouse = GetMousePosition();
+			g_offset_location = g_view.pos;
+		}
+		if (IsMouseDown(MOUSE_INPUT_3))
+		{
+			Vec2 diff = Vec2_Sub(&GetMousePosition(), &g_offset_mouse);
+			g_view.pos = Vec2_Add(&g_offset_location, &diff);
+		}
+
+		GameObject_Field_CollisionVertical(&g_field_ball, &g_view, CONNECTION_BARRIER, EDGESIDE_INNER);
+		GameObject_Field_CollisionHorizontal(&g_field_ball, &g_view, CONNECTION_BARRIER, EDGESIDE_INNER);
+	}
+
+	offset = Vec2_Sub(&g_view.pos, &g_field.pos);
+
+	{
+		if (IsMousePressed(MOUSE_INPUT_2))
+			g_mouse_last_from = GetMousePosition();
+		if (IsMouseReleased(MOUSE_INPUT_2))
+		{
+			g_mouse_last_to = GetMousePosition();
+		}
 	}
 	if (IsMousePressed(MOUSE_INPUT_1))
 	{
-		Vec2 mouse = GetMousePosition();
+		Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
 		foreach_start(&g_planets, GameObject, obj)
 		{
 			if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
@@ -104,7 +136,8 @@ void UpdatePlay(void)
 			}
 		} foreach_end;
 	}
-	if (IsMousePressed(MOUSE_INPUT_3))
+
+	if (IsMousePressed(MOUSE_INPUT_4))
 		g_goal = GetMousePosition();
 
 	foreach_start(&g_balls, GameObject, ball)
@@ -161,9 +194,6 @@ void UpdatePlay(void)
 
 	foreach_start(&g_balls, GameObject, ball)
 	{
-		GameObject field_ball = g_field;
-		field_ball.size.x *= 2;
-		field_ball.size.y *= 2;
 		GameObject_UpdatePosition(ball);
 
 		if (Vec2_LengthSquaredTo(&ball->pos, &g_goal) < 60 * 60)
@@ -176,8 +206,8 @@ void UpdatePlay(void)
 		ball->vel.x *= 0.998f;
 		ball->vel.y *= 0.998f;
 
-		if (GameObject_Field_CollisionHorizontal(&field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER) ||
-			GameObject_Field_CollisionVertical(&field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER))
+		if (GameObject_Field_CollisionHorizontal(&g_field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER) ||
+			GameObject_Field_CollisionVertical(&g_field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER))
 			VectorIterator_Remove(&itr_ball);
 	} foreach_end;
 
@@ -194,28 +224,33 @@ void UpdatePlay(void)
 //----------------------------------------------------------------------
 void RenderPlay(void)
 {
-	DrawCircleAA(g_goal.x, g_goal.y, 60, 100, COLOR_RED, TRUE);
+	Vec2 offset = Vec2_Sub(&g_view.pos, &g_field.pos);
+
+	{
+		Vec2 goal = Vec2_Add(&g_goal, &offset);
+		DrawCircleAA(goal.x, goal.y, 60, 100, COLOR_RED, TRUE);
+	}
 
 	if (IsMouseDown(MOUSE_INPUT_2))
 	{
 		Vec2 pos = GetMousePosition();
 		Vec2 vel = Vec2_Sub(&pos, &g_mouse_last_from);
-		Vec2_Render(&vel, &g_mouse_last_from, COLOR_WHITE);
+		Vec2_Render(&vel, &Vec2_Add(&g_mouse_last_from, &offset), COLOR_WHITE);
 	}
 	else
 	{
 		Vec2 vel = Vec2_Sub(&g_mouse_last_to, &g_mouse_last_from);
-		Vec2_Render(&vel, &g_mouse_last_from, COLOR_WHITE);
+		Vec2_Render(&vel, &Vec2_Add(&g_mouse_last_from, &offset), COLOR_WHITE);
 	}
 	foreach_start(&g_planets, GameObject, obj)
 	{
 		if (GameObject_IsAlive(obj))
-			GameObject_Render(obj);
+			GameObject_Render(obj, &offset);
 	} foreach_end;
 	foreach_start(&g_balls, GameObject, obj)
 	{
 		if (GameObject_IsAlive(obj))
-			GameObject_Render(obj);
+			GameObject_Render(obj, &offset);
 	} foreach_end;
 
 	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP), COLOR_WHITE, "size: %d", Vector_GetSize(&g_balls));
