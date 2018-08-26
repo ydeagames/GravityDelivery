@@ -21,12 +21,13 @@ static GameObject g_view;
 
 static GameObject g_back_button;
 
-static int mode;
-
 static Vector g_balls;
 static Vector g_planets;
 
 static int g_score;
+static int g_edit_mode;
+static BOOL g_edited;
+
 static Vec2 g_mouse_last_from;
 static Vec2 g_offset_mouse;
 static Vec2 g_offset_location;
@@ -69,7 +70,7 @@ void InitializePlay(void)
 		g_back_button.sprite.color = COLOR_GRAY;
 	}
 
-	mode = -1;
+	g_edit_mode = -1;
 
 	g_balls = Vector_Create(sizeof(GameObject));
 	g_planets = Vector_Create(sizeof(GameObject));
@@ -169,9 +170,10 @@ void UpdatePlay(void)
 		if (IsMousePressed(MOUSE_INPUT_2) && IsKeyDown(PAD_INPUT_12))
 		{
 			g_mouse_last_from = GetMousePosition();
-			mode = 1;
+			g_edit_mode = 1;
+			g_edited = TRUE;
 		}
-		if (IsMouseReleased(MOUSE_INPUT_2) && mode == 1)
+		if (IsMouseReleased(MOUSE_INPUT_2) && g_edit_mode == 1)
 		{
 			Vec2 mouse_last_to = GetMousePosition();
 			GameObject obj = GameObject_Create(g_mouse_last_from, Vec2_Sub(&mouse_last_to, &g_mouse_last_from), Vec2_Create(10, 10));
@@ -187,7 +189,7 @@ void UpdatePlay(void)
 			} foreach_end;
 
 			Vector_AddLast(&g_planets, &obj);
-			mode = -1;
+			g_edit_mode = -1;
 		}
 	}
 	if (IsMousePressed(MOUSE_INPUT_2) && IsKeyDown(PAD_INPUT_13))
@@ -207,7 +209,8 @@ void UpdatePlay(void)
 		} foreach_end;
 
 		Vector_AddLast(&g_planets, &obj);
-		mode = 2;
+		g_edit_mode = 2;
+		g_edited = TRUE;
 	}
 	if (IsMousePressed(MOUSE_INPUT_2) && IsKeyDown(PAD_INPUT_14))
 	{
@@ -220,7 +223,8 @@ void UpdatePlay(void)
 		obj.sprite.color = COLOR_GRAY;
 		GameObject_Bullet_SetSize(&obj, 1);
 		Vector_AddLast(&g_planets, &obj);
-		mode = 3;
+		g_edit_mode = 3;
+		g_edited = TRUE;
 	}
 	if (IsMousePressed(MOUSE_INPUT_2) && IsKeyDown(PAD_INPUT_15))
 	{
@@ -239,17 +243,20 @@ void UpdatePlay(void)
 				}
 			}
 		} foreach_end;
-		mode = 4;
+		g_edit_mode = 4;
+		g_edited = TRUE;
 	}
 	if (IsKeyPressed(PAD_INPUT_17))
 	{
 		LoadStage();
 		DebugConsole_Log(&g_console, "stage loaded!");
+		g_edited = FALSE;
 	}
 	if (IsKeyPressed(PAD_INPUT_18))
 	{
 		SaveStage();
 		DebugConsole_Log(&g_console, "stage saved!");
+		g_edited = FALSE;
 	}
 
 	if (IsMousePressed(MOUSE_INPUT_1))
@@ -375,7 +382,7 @@ void UpdatePlay(void)
 		}
 	}
 
-	if (g_score >= 10)
+	if (g_score >= 10 && !g_edited)
 		RequestScene(SCENE_RESULT);
 }
 
@@ -399,7 +406,7 @@ void RenderPlay(void)
 			switch (obj->type)
 			{
 			case TYPE_GOAL:
-				DrawFormatStringF(GameObject_GetX(obj, LEFT) + offset.x , GameObject_GetY(obj, BOTTOM, 10) + offset.y, COLOR_WHITE, "%d / 10", g_score);
+				DrawFormatStringF(GameObject_GetX(obj, LEFT) + offset.x, GameObject_GetY(obj, BOTTOM, 10) + offset.y, COLOR_WHITE, "%d / 10", g_score);
 				GameObject_Render(obj, &offset);
 				break;
 			case TYPE_PLANET:
@@ -417,10 +424,14 @@ void RenderPlay(void)
 			GameObject_Render(obj, &offset);
 	} foreach_end;
 
-	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -0), COLOR_WHITE, "デバッグ情報");
-	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20), COLOR_WHITE, "stage: %s", g_selected_stage.filename);
-	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -40), COLOR_WHITE, "size: %d", Vector_GetSize(&g_balls));
-	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -60), COLOR_WHITE, "score: %d", g_score);
+	{
+		int pos = 0;
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, (int)(-20 * pos++)), COLOR_GRAY, "デバッグ情報 (F3-ヒットボックス F5-スタート地点 F6-ゴール地点 F7-惑星設置 F8-惑星撤去 F9-新規作成 F10-ロード F11-セーブ)");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, (int)(-20 * pos++)), COLOR_GRAY, "stage: %s", g_selected_stage.filename);
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, (int)(-20 * pos++)), COLOR_GRAY, "all: %d", Vector_GetSize(&g_balls));
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, (int)(-20 * pos++)), COLOR_GRAY, "score: %d", g_score);
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, (int)(-20 * pos++)), COLOR_GRAY, "edited: %s", g_edited ? "true" : "false");
+	}
 
 	{
 		if (GameObject_IsHitPoint(&g_back_button, &GetMousePosition()))
