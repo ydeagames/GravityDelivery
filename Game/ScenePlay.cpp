@@ -23,7 +23,6 @@ Vec2 g_goal;
 Vec2 g_mouse_last_from;
 Vec2 g_mouse_last_to;
 int g_score;
-float g_scale;
 Vec2 g_offset_mouse;
 Vec2 g_offset_location;
 
@@ -203,8 +202,8 @@ void UpdatePlay(void)
 			continue;
 		}
 
-		ball->vel.x *= 0.998f;
-		ball->vel.y *= 0.998f;
+		//ball->vel.x *= 0.998f;
+		//ball->vel.y *= 0.998f;
 
 		if (GameObject_Field_CollisionHorizontal(&g_field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER) ||
 			GameObject_Field_CollisionVertical(&g_field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER))
