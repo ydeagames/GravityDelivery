@@ -80,7 +80,7 @@ void InitializePlay(void)
 static void LoadStage(void)
 {
 	FILE* fp;
-	char* fname = g_selected_stage.filename;
+	char* fname = g_selected_stage.filepath;
 
 	errno_t err = fopen_s(&fp, fname, "r");
 
@@ -117,7 +117,7 @@ static void LoadStage(void)
 static void SaveStage(void)
 {
 	FILE* fp;
-	char* fname = g_selected_stage.filename;
+	char* fname = g_selected_stage.filepath;
 
 	errno_t err = fopen_s(&fp, fname, "w");
 	assert(err == 0 && "file not opened!");

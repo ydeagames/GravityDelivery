@@ -42,6 +42,7 @@
 
 typedef struct {
 	char filename[260];
+	char filepath[260];
 } Stage;
 
 

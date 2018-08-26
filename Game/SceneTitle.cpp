@@ -21,11 +21,11 @@ static Vector g_stages;
 
 // 関数の定義 ==============================================================
 
-void listfiles(char *path)
+void listfiles(char* path, char* filter)
 {
 	struct _finddata_t fdata;
 
-	intptr_t fh = _findfirst(path, &fdata);
+	intptr_t fh = _findfirst(filter, &fdata);
 	Vector_Clear(&g_stages);
 	if (fh != -1)
 	{
@@ -34,6 +34,7 @@ void listfiles(char *path)
 			{
 				Stage stage;
 				strcpy_s(stage.filename, fdata.name);
+				snprintf(stage.filepath, 260, "%s/%s", path, fdata.name);
 				Vector_AddLast(&g_stages, &stage);
 			}
 		} while (_findnext(fh, &fdata) == 0);
@@ -47,8 +48,8 @@ void InitializeTitle(void)
 	g_count = 0;
 	g_stages = Vector_Create(sizeof(Stage));
 
-	_mkdir("Stage");
-	listfiles("./Stage/*.dat");
+	_mkdir("./Resources/Stage");
+	listfiles("./Resources/Stage", "./Resources/Stage/*.dat");
 }
 
 // タイトルシーンの更新処理
