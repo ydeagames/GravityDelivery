@@ -59,6 +59,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetWindowIconID(IDI_ICON1);       // ウインドウアイコンの設定
 #else
 	ChangeWindowMode(FALSE);	      // フルスクリーンで実行
+	//ChangeWindowMode(TRUE);	          // ウインドウモードで実行
+	SetMainWindowText(GAME_TITLE);    // ウインドウタイトルの設定
+	SetWindowIconID(IDI_ICON1);       // ウインドウアイコンの設定
 #endif
 
 

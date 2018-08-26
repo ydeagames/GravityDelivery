@@ -79,6 +79,9 @@ void InitializeGame(void)
 		g_console = DebugConsole_Create(area, g_resources.font_menu, 20);
 	}
 
+	// カーソルを非表示
+	SetMouseDispFlag(FALSE);
+
 	// シーンマネージャーを初期化
 	InitializeSceneManager(SCENE_LOGO);
 }
@@ -128,6 +131,12 @@ void RenderGame(void)
 
 	// デバッグコンソールを描画
 	DebugConsole_Render(&g_console);
+
+	// カーソルを描画
+	{
+		Vec2 point = GetMousePosition();
+		DrawTriangleAA(point.x, point.y, point.x + 20, point.y + 10, point.x + 10, point.y + 20, COLOR_GREEN, TRUE);
+	}
 }
 
 
