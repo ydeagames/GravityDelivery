@@ -12,6 +12,7 @@
 #pragma once
 
 #include "GameResource.h"
+#include "DebugConsole.h"
 
 
 
@@ -50,6 +51,7 @@ typedef struct {
 
 extern GameResource g_resources;
 extern Stage g_selected_stage;
+extern DebugConsole g_console;
 
 
 

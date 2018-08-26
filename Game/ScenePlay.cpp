@@ -31,6 +31,7 @@ Vec2 g_offset_location;
 
 
 
+
 // 関数の宣言 ==============================================================
 
 void InitializePlay(void);  // ゲームの初期化処理
@@ -241,10 +242,12 @@ void UpdatePlay(void)
 	if (IsKeyPressed(PAD_INPUT_17))
 	{
 		LoadStage();
+		DebugConsole_Log(&g_console, "stage loaded!");
 	}
 	if (IsKeyPressed(PAD_INPUT_18))
 	{
 		SaveStage();
+		DebugConsole_Log(&g_console, "stage saved!");
 	}
 
 	if (IsMousePressed(MOUSE_INPUT_1))
@@ -376,8 +379,11 @@ void RenderPlay(void)
 		{
 			switch (obj->type)
 			{
-			case TYPE_PLANET:
 			case TYPE_GOAL:
+				DrawFormatStringF(GameObject_GetX(obj, LEFT), GameObject_GetY(obj, BOTTOM, 10), COLOR_WHITE, "%d / 10", g_score);
+				GameObject_Render(obj, &offset);
+				break;
+			case TYPE_PLANET:
 				GameObject_Render(obj, &offset);
 				break;
 			case TYPE_START:
@@ -392,9 +398,10 @@ void RenderPlay(void)
 			GameObject_Render(obj, &offset);
 	} foreach_end;
 
-	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -0), COLOR_WHITE, "stage: %s", g_selected_stage.filename);
-	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20), COLOR_WHITE, "size: %d", Vector_GetSize(&g_balls));
-	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -40), COLOR_WHITE, "score: %d", g_score);
+	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -0), COLOR_WHITE, "デバッグ情報");
+	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20), COLOR_WHITE, "stage: %s", g_selected_stage.filename);
+	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -40), COLOR_WHITE, "size: %d", Vector_GetSize(&g_balls));
+	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -60), COLOR_WHITE, "score: %d", g_score);
 }
 
 

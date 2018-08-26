@@ -27,6 +27,7 @@
 
 GameResource g_resources;
 Stage g_selected_stage;
+DebugConsole g_console;
 
 
 
@@ -59,6 +60,15 @@ void InitializeGame(void)
 
 	// リソースを読み込み
 	g_resources = GameResource_Create();
+
+	// デバッグコンソールを初期化
+	{
+		GameObject field = GameObject_Field_Create();
+		Vec2 size = Vec2_Create(200, 200);
+		GameObject area = GameObject_Create(Vec2_Create(GameObject_GetX(&field, LEFT, -size.x / 2), GameObject_GetY(&field, BOTTOM, -size.y / 2)), Vec2_Create(), size);
+
+		g_console = DebugConsole_Create(area, g_resources.font_menu, 20);
+	}
 
 	// シーンマネージャーを初期化
 	InitializeSceneManager(SCENE_LOGO);
@@ -106,6 +116,9 @@ void RenderGame(void)
 {
 	// シーンマネージャーを描画
 	RenderSceneManager();
+
+	// デバッグコンソールを描画
+	DebugConsole_Render(&g_console);
 }
 
 
