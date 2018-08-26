@@ -8,14 +8,16 @@
 
 // グローバル変数の定義 ====================================================
 
-int g_logo_count;
+static GameTimer g_logo_count;
 
 // 関数の定義 ==============================================================
 
 // ロゴシーンの初期化処理
 void InitializeLogo(void)
 {
-	g_logo_count = 0;
+	g_logo_count = GameTimer_Create();
+	GameTimer_SetRemaining(&g_logo_count, 3.f);
+	GameTimer_Resume(&g_logo_count);
 
 	// 動画再生
 	PlayMovieToGraph(g_resources.movie_logo);
@@ -24,7 +26,7 @@ void InitializeLogo(void)
 // ロゴシーンの更新処理
 void UpdateLogo(void)
 {
-	if (IsMousePressed(MOUSE_INPUT_1) || g_logo_count++ >= 60 * 3.5f)
+	if (IsMousePressed(MOUSE_INPUT_1) || GameTimer_IsFinished(&g_logo_count))
 		RequestScene(SCENE_TITLE);
 }
 
@@ -35,8 +37,8 @@ void RenderLogo(void)
 	{
 		{
 			int bright = (int) GetMinF(
-				GetPercentValue(1 - GetPercentageRange((float)g_logo_count, 60 * 3, 60 * 3.5f), 255),
-				GetPercentValue(GetPercentageRange((float)g_logo_count, 60 * 0, 60 * 1.5f), 255)
+				GetPercentValue(1 - GetPercentageRange(GameTimer_GetRemaining(&g_logo_count), .5f, 0.f), 255),
+				GetPercentValue(GetPercentageRange(GameTimer_GetElapsed(&g_logo_count), 0.f, .5f), 255)
 			);
 			SetDrawBright(bright, bright, bright);
 			DrawBox(SCREEN_LEFT, SCREEN_TOP, SCREEN_RIGHT, SCREEN_BOTTOM, COLOR_WHITE, TRUE);

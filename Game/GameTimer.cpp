@@ -11,7 +11,7 @@
 // <タイマー作成>
 GameTimer GameTimer_Create(void)
 {
-	GameTimer timer = { -1, -1, TRUE };
+	GameTimer timer = { -1, -1, TRUE, 0 };
 	// タイマーをリセット
 	GameTimer_Reset(&timer);
 	return timer;
@@ -65,6 +65,8 @@ void GameTimer_Set(GameTimer* timer, float new_time)
 	timer->start_time = GetNowCount() - new_time_in_ticks;
 	// 終了時刻を計算
 	timer->last_time = new_time_in_ticks;
+	// トータル時間をセット
+	timer->remaining = -new_time;
 }
 
 // <タイマー残り時間セット>
@@ -83,6 +85,12 @@ void GameTimer_SetRemainingDefault(GameTimer* timer)
 float GameTimer_GetRemaining(GameTimer* timer)
 {
 	return -GameTimer_GetTime(timer);
+}
+
+// <タイマー経過時間>
+float GameTimer_GetElapsed(GameTimer* timer)
+{
+	return timer->remaining - GameTimer_GetRemaining(timer);
 }
 
 // <タイマー終了判定>

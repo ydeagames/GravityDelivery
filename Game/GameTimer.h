@@ -8,6 +8,7 @@ typedef struct
 	int start_time;	// 開始時間
 	int last_time;	// 終了時間
 	BOOL paused;	// 一時停止
+	float remaining;// 終了時間
 } GameTimer;
 
 // 定数の定義 ==============================================================
@@ -48,6 +49,9 @@ void GameTimer_SetRemainingDefault(GameTimer* timer);
 
 // <タイマー残り時間>
 float GameTimer_GetRemaining(GameTimer* timer);
+
+// <タイマー経過時間>
+float GameTimer_GetElapsed(GameTimer* timer);
 
 // <タイマー終了判定>
 BOOL GameTimer_IsFinished(GameTimer* timer);
