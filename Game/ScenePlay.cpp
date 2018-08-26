@@ -1,11 +1,11 @@
 #include "ScenePlay.h"
+#include "GameMain.h"
 #include "GameObject.h"
 #include "InputManager.h"
 #include "Vector.h"
 #include "GameUtils.h"
 #include "GameObjects.h"
 #include <assert.h>
-#include <direct.h>
 
 
 // 定数の定義 ==============================================================
@@ -38,6 +38,9 @@ void UpdatePlay(void);      // ゲームの更新処理
 void RenderPlay(void);      // ゲームの描画処理
 void FinalizePlay(void);    // ゲームの終了処理
 
+static void LoadStage(void);
+static void SaveStage(void);
+
 
 
 
@@ -59,7 +62,6 @@ void InitializePlay(void)
 	g_view = g_field;
 
 	g_balls = Vector_Create(sizeof(GameObject));
-
 	g_planets = Vector_Create(sizeof(GameObject));
 
 	g_score = 0;
@@ -70,12 +72,14 @@ void InitializePlay(void)
 	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_15, KEY_INPUT_F8);
 	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_17, KEY_INPUT_F10);
 	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_18, KEY_INPUT_F11);
+
+	LoadStage();
 }
 
-void LoadStage(void)
+static void LoadStage(void)
 {
 	FILE* fp;
-	char* fname = "Stage/Stage1.dat";
+	char* fname = g_selected_stage.filename;
 
 	errno_t err = fopen_s(&fp, fname, "r");
 
@@ -109,11 +113,10 @@ void LoadStage(void)
 	}
 }
 
-void SaveStage(void)
+static void SaveStage(void)
 {
 	FILE* fp;
-	char* fname = "Stage/Stage1.dat";
-	_mkdir("Stage");
+	char* fname = g_selected_stage.filename;
 
 	errno_t err = fopen_s(&fp, fname, "w");
 	assert(err == 0 && "file not opened!");
@@ -389,8 +392,9 @@ void RenderPlay(void)
 			GameObject_Render(obj, &offset);
 	} foreach_end;
 
-	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP), COLOR_WHITE, "size: %d", Vector_GetSize(&g_balls));
-	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20), COLOR_WHITE, "score: %d", g_score);
+	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -0), COLOR_WHITE, "stage: %s", g_selected_stage.filename);
+	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20), COLOR_WHITE, "size: %d", Vector_GetSize(&g_balls));
+	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -40), COLOR_WHITE, "score: %d", g_score);
 }
 
 
@@ -404,4 +408,6 @@ void RenderPlay(void)
 //----------------------------------------------------------------------
 void FinalizePlay(void)
 {
+	Vector_Delete(&g_balls);
+	Vector_Delete(&g_planets);
 }

@@ -27,6 +27,7 @@ static BOOL GameObject_IsHitOval(GameObject* obj1, GameObject* obj2);
 static BOOL GameObject_IsHitCirclePoint(GameObject* oval, Vec2* p);
 static BOOL GameObject_IsHitCircle(GameObject* obj1, GameObject* obj2);
 static BOOL GameObject_IsHitBox(GameObject* obj1, GameObject* obj2);
+static BOOL GameObject_IsHitBoxPoint(const GameObject* obj, const Vec2* p);
 
 // 関数の定義 ==============================================================
 
@@ -216,6 +217,17 @@ static BOOL GameObject_IsHitBox(const GameObject* obj1, const GameObject* obj2)
 		);
 }
 
+// <矩形オブジェクト×点当たり判定>
+static BOOL GameObject_IsHitBoxPoint(const GameObject* obj, const Vec2* p)
+{
+	return (
+		p->x < GameObject_GetX(obj, RIGHT) &&
+		GameObject_GetX(obj, LEFT) < p->x &&
+		p->y < GameObject_GetY(obj, BOTTOM) &&
+		GameObject_GetY(obj, TOP) < p->y
+		);
+}
+
 // <楕円オブジェクト×楕円オブジェクト当たり判定> // ※未使用
 static BOOL GameObject_IsHitOval(const GameObject* obj1, const GameObject* obj2)
 {
@@ -313,6 +325,16 @@ BOOL GameObject_IsHit(const GameObject* obj1, const GameObject* obj2)
 
 		return FALSE;
 	}
+}
+
+// <オブジェクト点当たり判定>
+BOOL GameObject_IsHitPoint(const GameObject* obj, const Vec2* p)
+{
+	if (obj->shape == SHAPE_BOX)
+		return GameObject_IsHitBoxPoint(obj, p);
+	else if (obj->shape == SHAPE_CIRCLE)
+		return GameObject_IsHitCirclePoint(obj, p);
+	return FALSE;
 }
 
 // <オブジェクト描画>

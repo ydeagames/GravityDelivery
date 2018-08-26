@@ -10,6 +10,7 @@
 
 // ヘッダファイルの読み込み ================================================
 
+#include "GameMain.h"
 #include "InputManager.h"
 #include "SceneManager.h"
 #include "GameObject.h"
@@ -25,6 +26,7 @@
 // グローバル変数の定義 ====================================================
 
 GameResource g_resources;
+Stage g_selected_stage;
 
 
 
