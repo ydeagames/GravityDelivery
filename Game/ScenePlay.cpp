@@ -5,6 +5,7 @@
 #include "Vector.h"
 #include "GameUtils.h"
 #include "GameObjects.h"
+#include "SceneManager.h"
 #include <assert.h>
 
 
@@ -255,10 +256,17 @@ void UpdatePlay(void)
 		Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
 		foreach_start(&g_planets, GameObject, obj)
 		{
-			if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
+			if (GameObject_IsAlive(obj))
 			{
-				obj->state = !obj->state;
-				obj->sprite.color = obj->state ? COLOR_WHITE : COLOR_GRAY;
+				switch (obj->type)
+				{
+				case TYPE_PLANET:
+					if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
+					{
+						obj->state = !obj->state;
+						obj->sprite.color = obj->state ? COLOR_WHITE : COLOR_GRAY;
+					}
+				}
 			}
 		} foreach_end;
 	}
@@ -358,6 +366,8 @@ void UpdatePlay(void)
 			VectorIterator_Remove(&itr_ball);
 	} foreach_end;
 
+	if (g_score >= 10)
+		RequestScene(SCENE_RESULT);
 }
 
 
@@ -380,7 +390,7 @@ void RenderPlay(void)
 			switch (obj->type)
 			{
 			case TYPE_GOAL:
-				DrawFormatStringF(GameObject_GetX(obj, LEFT), GameObject_GetY(obj, BOTTOM, 10), COLOR_WHITE, "%d / 10", g_score);
+				DrawFormatStringF(GameObject_GetX(obj, LEFT) + offset.x , GameObject_GetY(obj, BOTTOM, 10) + offset.y, COLOR_WHITE, "%d / 10", g_score);
 				GameObject_Render(obj, &offset);
 				break;
 			case TYPE_PLANET:
