@@ -16,20 +16,20 @@
 
 // グローバル変数の定義 ====================================================
 
-GameObject g_field;
-GameObject g_field_ball;
-GameObject g_view;
+static GameObject g_field_ball;
+static GameObject g_view;
 
-int mode;
+static GameObject g_back_button;
 
-Vector g_balls;
-Vector g_planets;
+static int mode;
 
-int g_score;
-Vec2 g_mouse_last_from;
-Vec2 g_offset_mouse;
-Vec2 g_offset_location;
+static Vector g_balls;
+static Vector g_planets;
 
+static int g_score;
+static Vec2 g_mouse_last_from;
+static Vec2 g_offset_mouse;
+static Vec2 g_offset_location;
 
 
 
@@ -57,11 +57,19 @@ static void SaveStage(void);
 //----------------------------------------------------------------------
 void InitializePlay(void)
 {
-	g_field = GameObject_Field_Create();
 	g_field_ball = g_field;
 	g_field_ball.size.x *= 2;
 	g_field_ball.size.y *= 2;
 	g_view = g_field;
+
+	{
+		Vec2 size = Vec2_Create(150, 50);
+		g_back_button = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2 - 50), GameObject_GetY(&g_field, BOTTOM, -size.y / 2 - 50)), Vec2_Create(), size);
+		g_back_button.fill = TRUE;
+		g_back_button.sprite.color = COLOR_GRAY;
+	}
+
+	mode = -1;
 
 	g_balls = Vector_Create(sizeof(GameObject));
 	g_planets = Vector_Create(sizeof(GameObject));
@@ -366,6 +374,14 @@ void UpdatePlay(void)
 			VectorIterator_Remove(&itr_ball);
 	} foreach_end;
 
+	if (IsMousePressed(MOUSE_INPUT_1))
+	{
+		if (GameObject_IsHitPoint(&g_back_button, &GetMousePosition()))
+		{
+			RequestScene(SCENE_TITLE);
+		}
+	}
+
 	if (g_score >= 10)
 		RequestScene(SCENE_RESULT);
 }
@@ -412,6 +428,12 @@ void RenderPlay(void)
 	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20), COLOR_WHITE, "stage: %s", g_selected_stage.filename);
 	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -40), COLOR_WHITE, "size: %d", Vector_GetSize(&g_balls));
 	DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -60), COLOR_WHITE, "score: %d", g_score);
+
+	{
+		if (GameObject_IsHitPoint(&g_back_button, &GetMousePosition()))
+			GameObject_Render(&g_back_button);
+		DrawFormatStringF(GameObject_GetX(&g_back_button, LEFT, -10), GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, "タイトルへ戻る");
+	}
 }
 
 

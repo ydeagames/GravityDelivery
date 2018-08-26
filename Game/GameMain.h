@@ -52,6 +52,7 @@ typedef struct {
 
 extern GameResource g_resources;
 extern Stage g_selected_stage;
+extern GameObject g_field;
 extern DebugConsole g_console;
 
 

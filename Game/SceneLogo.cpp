@@ -24,7 +24,7 @@ void InitializeLogo(void)
 // ロゴシーンの更新処理
 void UpdateLogo(void)
 {
-	if (IsKeyPressed(PAD_INPUT_2) || g_logo_count++ >= 60 * 3.5f)
+	if (IsMousePressed(MOUSE_INPUT_1) || g_logo_count++ >= 60 * 3.5f)
 		RequestScene(SCENE_TITLE);
 }
 

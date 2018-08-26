@@ -27,8 +27,8 @@
 
 GameResource g_resources;
 Stage g_selected_stage;
+GameObject g_field;
 DebugConsole g_console;
-
 
 
 
@@ -61,11 +61,13 @@ void InitializeGame(void)
 	// リソースを読み込み
 	g_resources = GameResource_Create();
 
+	// 画面範囲
+	g_field = GameObject_Field_Create();
+
 	// デバッグコンソールを初期化
 	{
-		GameObject field = GameObject_Field_Create();
 		Vec2 size = Vec2_Create(200, 200);
-		GameObject area = GameObject_Create(Vec2_Create(GameObject_GetX(&field, LEFT, -size.x / 2), GameObject_GetY(&field, BOTTOM, -size.y / 2)), Vec2_Create(), size);
+		GameObject area = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2), GameObject_GetY(&g_field, BOTTOM, -size.y / 2)), Vec2_Create(), size);
 
 		g_console = DebugConsole_Create(area, g_resources.font_menu, 20);
 	}
