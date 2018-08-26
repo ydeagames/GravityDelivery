@@ -71,6 +71,7 @@ void InitializePlay(void)
 	}
 
 	g_edit_mode = -1;
+	g_edited = FALSE;
 
 	g_balls = Vector_Create(sizeof(GameObject));
 	g_planets = Vector_Create(sizeof(GameObject));
@@ -149,12 +150,12 @@ void UpdatePlay(void)
 	Vec2 offset;
 
 	{
-		if (IsMousePressed(MOUSE_INPUT_3))
+		if (IsMousePressed(MOUSE_INPUT_2))
 		{
 			g_offset_mouse = GetMousePosition();
 			g_offset_location = g_view.pos;
 		}
-		if (IsMouseDown(MOUSE_INPUT_3))
+		if (IsMouseDown(MOUSE_INPUT_2))
 		{
 			Vec2 diff = Vec2_Sub(&GetMousePosition(), &g_offset_mouse);
 			g_view.pos = Vec2_Add(&g_offset_location, &diff);
@@ -167,13 +168,13 @@ void UpdatePlay(void)
 	offset = Vec2_Sub(&g_view.pos, &g_field.pos);
 
 	{
-		if (IsMousePressed(MOUSE_INPUT_2) && IsKeyDown(PAD_INPUT_12))
+		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_12))
 		{
 			g_mouse_last_from = GetMousePosition();
 			g_edit_mode = 1;
 			g_edited = TRUE;
 		}
-		if (IsMouseReleased(MOUSE_INPUT_2) && g_edit_mode == 1)
+		if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == 1)
 		{
 			Vec2 mouse_last_to = GetMousePosition();
 			GameObject obj = GameObject_Create(g_mouse_last_from, Vec2_Sub(&mouse_last_to, &g_mouse_last_from), Vec2_Create(10, 10));
@@ -192,7 +193,7 @@ void UpdatePlay(void)
 			g_edit_mode = -1;
 		}
 	}
-	if (IsMousePressed(MOUSE_INPUT_2) && IsKeyDown(PAD_INPUT_13))
+	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_13))
 	{
 		Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
 		GameObject obj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(60, 60));
@@ -212,7 +213,7 @@ void UpdatePlay(void)
 		g_edit_mode = 2;
 		g_edited = TRUE;
 	}
-	if (IsMousePressed(MOUSE_INPUT_2) && IsKeyDown(PAD_INPUT_14))
+	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_14))
 	{
 		Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
 		GameObject obj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(10, 10));
@@ -226,7 +227,7 @@ void UpdatePlay(void)
 		g_edit_mode = 3;
 		g_edited = TRUE;
 	}
-	if (IsMousePressed(MOUSE_INPUT_2) && IsKeyDown(PAD_INPUT_15))
+	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_15))
 	{
 		Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
 		foreach_start(&g_planets, GameObject, obj)
