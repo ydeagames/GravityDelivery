@@ -34,14 +34,14 @@ void RenderLogo(void)
 	// ÉçÉSÉÄÅ[ÉrÅ[ï`âÊ
 	{
 		{
-			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)GetPercentValue(1 - GetPercentageRange((float)g_logo_count, 60 * 3, 60 * 3.5f), 255));
-			DrawExtendGraph(SCREEN_LEFT, SCREEN_TOP, SCREEN_WIDTH, SCREEN_HEIGHT, g_resources.movie_logo, TRUE);
-			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		}
-		{
-			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)GetPercentValue(1 - GetPercentageRange((float)g_logo_count, 60 * 0, 60 * 0.5f), 255));
-			DrawBox(SCREEN_LEFT, SCREEN_TOP, SCREEN_RIGHT, SCREEN_BOTTOM, COLOR_BLACK, TRUE);
-			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+			int bright = (int) GetMinF(
+				GetPercentValue(1 - GetPercentageRange((float)g_logo_count, 60 * 3, 60 * 3.5f), 255),
+				GetPercentValue(GetPercentageRange((float)g_logo_count, 60 * 0, 60 * 1.5f), 255)
+			);
+			SetDrawBright(bright, bright, bright);
+			DrawBox(SCREEN_LEFT, SCREEN_TOP, SCREEN_RIGHT, SCREEN_BOTTOM, COLOR_WHITE, TRUE);
+			DrawRotaGraph(SCREEN_CENTER_X, SCREEN_CENTER_Y, 1, 0, g_resources.movie_logo, TRUE);
+			SetDrawBright(255, 255, 255);
 		}
 	}
 
