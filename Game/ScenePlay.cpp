@@ -76,13 +76,6 @@ void InitializePlay(void)
 
 	g_score = 0;
 
-	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_12, KEY_INPUT_F5);
-	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_13, KEY_INPUT_F6);
-	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_14, KEY_INPUT_F7);
-	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_15, KEY_INPUT_F8);
-	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_17, KEY_INPUT_F10);
-	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_18, KEY_INPUT_F11);
-
 	LoadStage();
 }
 
