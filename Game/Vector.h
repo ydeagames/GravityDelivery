@@ -100,6 +100,9 @@ void Vector_RemoveFirst(Vector* list);
 // 要素番号の要素を削除
 void Vector_Remove(Vector* list, int index);
 
+// すべての要素を削除
+void Vector_Clear(Vector* list);
+
 // サイズを取得
 size_t Vector_GetSizeT(const Vector* list);
 

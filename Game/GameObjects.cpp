@@ -14,8 +14,8 @@
 #define PLAYER_HEIGHT 36
 
 // <弾>
-#define BULLET_WIDTH  6
-#define BULLET_HEIGHT 6
+#define BULLET_WIDTH  10
+#define BULLET_HEIGHT 10
 #define BULLET_GROW_SPEED .1f
 
 // 関数の定義 ==============================================================
@@ -43,7 +43,7 @@ GameObject GameObject_Enemy_Create(int texture)
 	};
 
 	GameObject obj = GameObject_Create(Vec2_Create(), Vec2_Create(), Vec2_Create(ENEMY_WIDTH, ENEMY_HEIGHT));
-	obj.type = TYPE_ENEMY1;
+	obj.type = TYPE_UNKNOWN;
 	obj.shape = SHAPE_CIRCLE;
 	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_enemy, Vec2_Create(0, 0), Vec2_Create(36, 36)));
 	obj.sprite.animation = GameSpriteAnimation_Create(sets[texture].start, sets[texture].end, 8, 8);
@@ -66,7 +66,7 @@ void GameObject_Enemy_SetVelDefault(GameObject* obj)
 // <敵オブジェクト更新>
 void GameObject_Enemy_Update(GameObject* obj)
 {
-	if (obj->type == TYPE_ENEMY2)
+	if (obj->type == TYPE_UNKNOWN)
 	{
 		float radius = 15;
 		obj->vel.x = cosf(obj->pos.y / radius) * radius;
@@ -79,7 +79,7 @@ void GameObject_Enemy_Update(GameObject* obj)
 GameObject GameObject_Player_Create(void)
 {
 	GameObject obj = GameObject_Create(Vec2_Create(), Vec2_Create(), Vec2_Create(PLAYER_WIDTH, PLAYER_HEIGHT));
-	obj.type = TYPE_PLAYER;
+	obj.type = TYPE_UNKNOWN;
 	return obj;
 }
 
@@ -97,7 +97,7 @@ GameObject GameObject_Bullet_Create(void)
 	GameObject obj = GameObject_Create(Vec2_Create(), Vec2_Create(), Vec2_Create(BULLET_WIDTH, BULLET_HEIGHT));
 	obj.shape = SHAPE_CIRCLE;
 	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_bullet, Vec2_Create(0, 0), Vec2_Create(32, 32)));
-	obj.type = TYPE_PLAYER_BULLET;
+	obj.type = TYPE_UNKNOWN;
 	return obj;
 }
 

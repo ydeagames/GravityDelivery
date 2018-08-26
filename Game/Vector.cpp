@@ -272,6 +272,15 @@ void Vector_Remove(Vector* list, int index)
 	}
 }
 
+// すべての要素を削除
+void Vector_Clear(Vector* list)
+{
+	while (Vector_GetSizeT(list) > 0)
+	{
+		Vector_RemoveLast(list);
+	}
+}
+
 // サイズを取得
 size_t Vector_GetSizeT(const Vector* list)
 {

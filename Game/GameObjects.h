@@ -20,11 +20,9 @@
 typedef enum
 {
 	TYPE_UNKNOWN = 0,
-	TYPE_PLAYER,
-	TYPE_PLAYER_BULLET,
-	TYPE_ENEMY1,
-	TYPE_ENEMY2,
-	TYPE_ENEMY2_DEAD
+	TYPE_PLANET,
+	TYPE_START,
+	TYPE_GOAL
 } ObjectType;
 
 // ä÷êîÇÃêÈåæ ==============================================================
