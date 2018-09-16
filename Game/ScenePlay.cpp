@@ -104,6 +104,7 @@ static void LoadStage(void)
 			Vec2 pos = Vec2_Create(pos_x, pos_y);
 			Vec2 vel = Vec2_Create(vel_x, vel_y);
 			GameObject obj = GameObject_Create(pos, vel, Vec2_Create(10, 10));
+			obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet1, Vec2_Create(), Vec2_Create()));
 			obj.shape = SHAPE_CIRCLE;
 			obj.type = type;
 			obj.fill = TRUE;

@@ -104,6 +104,37 @@ GameSprite GameSprite_CreateNone()
 	return GameSprite_Create(GameTexture_CreateNone(), 0, 0);
 }
 
+// <スプライト更新>
+void GameSprite_SetFrame(const GameSprite* sprite, const GameSprite* src, int frame)
+{
+	// アニメーションしているか
+	animate_sprite->result = ANIMATION_RUNNING;
+	// 経過時間
+	animate_sprite->elapsed_time++;
+
+	// フレーム経過
+	if (animate_sprite->elapsed_time > animate_sprite->frame_duration)
+	{
+		// 経過時間
+		animate_sprite->elapsed_time = 0;
+		// フレーム番号
+		animate_sprite->frame_index++;
+
+		// 最初に戻る
+		if (animate_sprite->frame_index > animate_sprite->frame_end)
+		{
+			// ループするなら
+			if (animate_sprite->loop_flag)
+				// 最初に戻る
+				animate_sprite->frame_index = animate_sprite->frame_start;
+			// アニメーション完了
+			animate_sprite->result = ANIMATION_FINISHED;
+		}
+	}
+
+
+}
+
 // <スプライト描画>
 void GameSprite_Render(const GameSprite* sprite, const Vec2* pos)
 {
