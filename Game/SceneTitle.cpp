@@ -83,7 +83,7 @@ void UpdateTitle(void)
 		SetKeyInputStringColor2(DX_KEYINPSTRCOLOR_NORMAL_STR, COLOR_WHITE);
 		SetKeyInputStringColor2(DX_KEYINPSTRCOLOR_NORMAL_CURSOR, COLOR_WHITE);
 		SetKeyInputStringColor2(DX_KEYINPSTRCOLOR_SELECT_STR, COLOR_WHITE);
-		if (KeyInputSingleCharString(GameObject_GetX(&g_field, CENTER_X, -200), GameObject_GetY(&g_field, BOTTOM, -200), 30, str, TRUE) == 1)
+		if (KeyInputSingleCharString((int)GameObject_GetX(&g_field, CENTER_X, -200), GameObject_GetY(&g_field, BOTTOM, -200), 30, str, TRUE) == 1)
 		{
 			strcpy_s(g_selected_stage.filename, str);
 			snprintf(g_selected_stage.filepath, 260, "%s/%s", "./Resources/Stage", str);

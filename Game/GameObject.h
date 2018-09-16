@@ -134,6 +134,9 @@ GameSprite GameSprite_Create(GameTexture texture, float scale = 1, float angle =
 // <スプライトなし>
 GameSprite GameSprite_CreateNone();
 
+// <スプライト更新>
+void GameSprite_SetFrame(GameSprite* sprite, int frame);
+
 // <スプライト描画>
 void GameSprite_Render(const GameSprite* sprite, const Vec2* pos);
 

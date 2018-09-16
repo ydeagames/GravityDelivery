@@ -105,10 +105,10 @@ GameSprite GameSprite_CreateNone()
 }
 
 // <スプライト更新>
-void GameSprite_SetFrame(GameSprite* sprite, const GameSprite* src, int frame)
+void GameSprite_SetFrame(GameSprite* sprite, int frame)
 {
 	// フレーム番号
-	sprite->frame_index++;
+	sprite->frame_index = frame;
 }
 
 // <スプライト描画>
@@ -117,7 +117,7 @@ void GameSprite_Render(const GameSprite* sprite, const Vec2* pos)
 	int column = sprite->frame_index%sprite->num_columns;
 	int row = sprite->frame_index/sprite->num_columns;
 
-	Vec2 anchor = Vec2_Add(&sprite->texture.anchor, &Vec2_Create(sprite->texture.size.x * column, sprite->texture.size.y * row));
+	Vec2 anchor = Vec2_Add(&sprite->texture.anchor, &Vec2_Create(sprite->size.x * column, sprite->size.y * row));
 
 	// スプライト描画
 	DrawRectRotaGraph2F(

@@ -103,13 +103,7 @@ static void LoadStage(void)
 		while (fscanf_s(fp, "%d %f %f %f %f %f %d", &type, &pos_x, &pos_y, &vel_x, &vel_y, &scale, &color) != EOF) {
 			Vec2 pos = Vec2_Create(pos_x, pos_y);
 			Vec2 vel = Vec2_Create(vel_x, vel_y);
-			GameObject obj = GameObject_Create(pos, vel, Vec2_Create(10, 10));
-			obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet1, Vec2_Create(), Vec2_Create()));
-			obj.shape = SHAPE_CIRCLE;
-			obj.type = type;
-			obj.fill = TRUE;
-			obj.state = 0;
-			obj.sprite.color = color;
+			GameObject obj = GameObject_Type_Create(type, &pos, &vel);
 			GameObject_SetSize(&obj, scale);
 
 			Vector_AddLast(&g_planets, &obj);
@@ -259,7 +253,7 @@ void UpdatePlay(void)
 					if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
 					{
 						obj->state = !obj->state;
-						obj->sprite.color = obj->state ? COLOR_WHITE : COLOR_GRAY;
+						GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
 					}
 				}
 			}
@@ -335,7 +329,7 @@ void UpdatePlay(void)
 			case TYPE_START:
 				if (GameTimer_IsFinished(&planet->count))
 				{
-					GameTimer_SetRemaining(&planet->count, .5f);
+					GameTimer_SetRemaining(&planet->count, .1f);
 					GameTimer_Resume(&planet->count);
 
 					Vec2 vec = Vec2_Scale(&planet->vel, .1f);

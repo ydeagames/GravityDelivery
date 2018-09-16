@@ -54,13 +54,31 @@ GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* vec)
 GameObject GameObject_Planet_Create(const Vec2* mouse)
 {
 	GameObject obj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(10, 10));
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet1, Vec2_Create(), Vec2_Create(26, 26)));
+	obj.sprite.size = Vec2_Create(26, 26);
+	obj.sprite.num_columns = 8;
+	GameSprite_SetFrame(&obj.sprite, 9);
 	obj.type = TYPE_PLANET;
-	obj.fill = TRUE;
 	obj.shape = SHAPE_CIRCLE;
 	obj.state = 0;
 	obj.sprite.color = COLOR_GRAY;
-	GameObject_SetSize(&obj, 1);
+	GameObject_SetSize(&obj, 5);
 	return obj;
+}
+
+// <オブジェクト>
+GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec)
+{
+	switch (type)
+	{
+	default:
+	case TYPE_PLANET:
+		return GameObject_Planet_Create(mouse);
+	case TYPE_START:
+		return GameObject_Start_Create(mouse, vec);
+	case TYPE_GOAL:
+		return GameObject_Goal_Create(mouse);
+	}
 }
 
 // <オブジェクトループ描画>
