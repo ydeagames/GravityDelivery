@@ -52,8 +52,3 @@ void GameController_UpdateControl(GameController* ctrl);
 
 // <デフォルトコントローラー作成>
 GameController GameController_Default_Create(GameObject* object);
-
-// <<プレイヤーコントローラー>> ----------------------------------------
-
-// <プレイヤーコントローラー作成>
-GameController GameController_Player_Create(const GameObject* field, GameObject* object, PlayerKeySet keys);

@@ -63,7 +63,6 @@ typedef struct
 	int frame_start;			// 開始フレームのインデックス
 	int frame_end;				// 終了フレームのインデックス
 	int frame_duration;			// フレーム間隔
-	int frame_index;			// 現在のフレームのインデックス
 	int elapsed_time;			// 現在のフレームの経過時間
 	BOOL loop_flag;				// アニメーションのループ
 	AnimationState result;		// 最後の状態
@@ -75,7 +74,8 @@ typedef struct
 	unsigned int color;			// <色>
 	GameTexture texture;		// <テクスチャ>
 	Vec2 size;					// <サイズ>
-	int num_columns;			// 1行あたりのフレーム数
+	int num_columns;			// <1行あたりのフレーム数>
+	int frame_index;			// <現在のフレームのインデックス>
 	Vec2 offset;				// <オフセット>
 	float scale;				// <スケール>
 	float angle;				// <回転>

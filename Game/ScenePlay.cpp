@@ -110,7 +110,7 @@ static void LoadStage(void)
 			obj.fill = TRUE;
 			obj.state = 0;
 			obj.sprite.color = color;
-			GameObject_Bullet_SetSize(&obj, scale);
+			GameObject_SetSize(&obj, scale);
 
 			Vector_AddLast(&g_planets, &obj);
 		}
@@ -180,7 +180,7 @@ void UpdatePlay(void)
 			Vec2 mouse_last_to = GetMousePosition();
 			GameObject obj = GameObject_Create(g_mouse_last_from, Vec2_Sub(&mouse_last_to, &g_mouse_last_from), Vec2_Create(10, 10));
 			obj.type = TYPE_START;
-			GameObject_Bullet_SetSize(&obj, 1);
+			GameObject_SetSize(&obj, 1);
 			GameTimer_SetRemaining(&obj.count, .5f);
 			GameTimer_Resume(&obj.count);
 
@@ -202,7 +202,7 @@ void UpdatePlay(void)
 		obj.fill = TRUE;
 		obj.shape = SHAPE_CIRCLE;
 		obj.sprite.color = COLOR_RED;
-		GameObject_Bullet_SetSize(&obj, 6);
+		GameObject_SetSize(&obj, 6);
 
 		foreach_start(&g_planets, GameObject, planet)
 		{
@@ -223,7 +223,7 @@ void UpdatePlay(void)
 		obj.shape = SHAPE_CIRCLE;
 		obj.state = 0;
 		obj.sprite.color = COLOR_GRAY;
-		GameObject_Bullet_SetSize(&obj, 1);
+		GameObject_SetSize(&obj, 1);
 		Vector_AddLast(&g_planets, &obj);
 		g_edit_mode = 3;
 		g_edited = TRUE;
@@ -428,11 +428,11 @@ void RenderPlay(void)
 
 	{
 		int pos = 0;
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, (int)(-20 * pos++)), COLOR_GRAY, "デバッグ情報 (F3-ヒットボックス F5-スタート地点 F6-ゴール地点 F7-惑星設置 F8-惑星撤去 F9-新規作成 F10-ロード F11-セーブ)");
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, (int)(-20 * pos++)), COLOR_GRAY, "stage: %s", g_selected_stage.filename);
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, (int)(-20 * pos++)), COLOR_GRAY, "all: %d", Vector_GetSize(&g_balls));
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, (int)(-20 * pos++)), COLOR_GRAY, "score: %d", g_score);
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, (int)(-20 * pos++)), COLOR_GRAY, "edited: %s", g_edited ? "true" : "false");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "デバッグ情報 (F3-ヒットボックス F5-スタート地点 F6-ゴール地点 F7-惑星設置 F8-惑星撤去 F9-新規作成 F10-ロード F11-セーブ)");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "stage: %s", g_selected_stage.filename);
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "all: %d", Vector_GetSize(&g_balls));
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "score: %d", g_score);
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "edited: %s", g_edited ? "true" : "false");
 	}
 
 	{

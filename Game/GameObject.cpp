@@ -48,46 +48,46 @@ GameTexture GameTexture_CreateNone()
 // <<スプライトアニメーション>> ----------------------------------------
 
 // <スプライトアニメーション作成>
-GameSpriteAnimation GameSpriteAnimation_Create(int frames_start, int frames_end, int num_columns, int frame_duration)
+GameSpriteAnimation GameSpriteAnimation_Create(int frames_start, int frames_end, int frame_duration)
 {
-	return{ frames_start, frames_end, num_columns, frame_duration, frames_start, 0, TRUE, ANIMATION_RUNNING };
+	return{ frames_start, frames_end, frame_duration, 0, TRUE, ANIMATION_RUNNING };
 }
 
 // <スプライトアニメーションなし>
 GameSpriteAnimation GameSpriteAnimation_CreateNone()
 {
-	return GameSpriteAnimation_Create(0, 0, 1, 1);
+	return GameSpriteAnimation_Create(0, 0, 1);
 }
 
 // <スプライトアニメーション更新>
-AnimationState GameSpriteAnimation_Update(GameSpriteAnimation* animate_sprite)
+AnimationState GameSpriteAnimation_Update(GameSprite* animate_sprite)
 {
 	// アニメーションしているか
-	animate_sprite->result = ANIMATION_RUNNING;
+	animate_sprite->animation.result = ANIMATION_RUNNING;
 	// 経過時間
-	animate_sprite->elapsed_time++;
+	animate_sprite->animation.elapsed_time++;
 	
 	// フレーム経過
-	if (animate_sprite->elapsed_time > animate_sprite->frame_duration)
+	if (animate_sprite->animation.elapsed_time > animate_sprite->animation.frame_duration)
 	{
 		// 経過時間
-		animate_sprite->elapsed_time = 0;
+		animate_sprite->animation.elapsed_time = 0;
 		// フレーム番号
 		animate_sprite->frame_index++;
 
 		// 最初に戻る
-		if (animate_sprite->frame_index > animate_sprite->frame_end)
+		if (animate_sprite->frame_index > animate_sprite->animation.frame_end)
 		{
 			// ループするなら
-			if (animate_sprite->loop_flag)
+			if (animate_sprite->animation.loop_flag)
 				// 最初に戻る
-				animate_sprite->frame_index = animate_sprite->frame_start;
+				animate_sprite->frame_index = animate_sprite->animation.frame_start;
 			// アニメーション完了
-			animate_sprite->result = ANIMATION_FINISHED;
+			animate_sprite->animation.result = ANIMATION_FINISHED;
 		}
 	}
 
-	return animate_sprite->result;
+	return animate_sprite->animation.result;
 }
 
 // <<スプライト>> ------------------------------------------------------
@@ -95,7 +95,7 @@ AnimationState GameSpriteAnimation_Update(GameSpriteAnimation* animate_sprite)
 // <スプライト作成>
 GameSprite GameSprite_Create(GameTexture texture, float scale, float angle)
 {
-	return{ COLOR_WHITE, texture, Vec2_Create(), scale, angle, GameSpriteAnimation_CreateNone() };
+	return{ COLOR_WHITE, texture, texture.size, 1, 0, Vec2_Create(), scale, angle, GameSpriteAnimation_CreateNone() };
 }
 
 // <スプライトなし>
@@ -105,41 +105,17 @@ GameSprite GameSprite_CreateNone()
 }
 
 // <スプライト更新>
-void GameSprite_SetFrame(const GameSprite* sprite, const GameSprite* src, int frame)
+void GameSprite_SetFrame(GameSprite* sprite, const GameSprite* src, int frame)
 {
-	// アニメーションしているか
-	animate_sprite->result = ANIMATION_RUNNING;
-	// 経過時間
-	animate_sprite->elapsed_time++;
-
-	// フレーム経過
-	if (animate_sprite->elapsed_time > animate_sprite->frame_duration)
-	{
-		// 経過時間
-		animate_sprite->elapsed_time = 0;
-		// フレーム番号
-		animate_sprite->frame_index++;
-
-		// 最初に戻る
-		if (animate_sprite->frame_index > animate_sprite->frame_end)
-		{
-			// ループするなら
-			if (animate_sprite->loop_flag)
-				// 最初に戻る
-				animate_sprite->frame_index = animate_sprite->frame_start;
-			// アニメーション完了
-			animate_sprite->result = ANIMATION_FINISHED;
-		}
-	}
-
-
+	// フレーム番号
+	sprite->frame_index++;
 }
 
 // <スプライト描画>
 void GameSprite_Render(const GameSprite* sprite, const Vec2* pos)
 {
-	int column = sprite->animation.frame_index%sprite->animation.num_columns;
-	int row = sprite->animation.frame_index/sprite->animation.num_columns;
+	int column = sprite->frame_index%sprite->num_columns;
+	int row = sprite->frame_index/sprite->num_columns;
 
 	Vec2 anchor = Vec2_Add(&sprite->texture.anchor, &Vec2_Create(sprite->texture.size.x * column, sprite->texture.size.y * row));
 
