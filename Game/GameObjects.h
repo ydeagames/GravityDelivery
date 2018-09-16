@@ -21,5 +21,14 @@ typedef enum
 // <弾オブジェクトサイズ変更>
 void GameObject_SetSize(GameObject* obj, float scale);
 
+// <ゴールオブジェクト>
+GameObject GameObject_Goal_Create(const Vec2* mouse);
+
+// <スタートオブジェクト>
+GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* vec);
+
+// <惑星オブジェクト>
+GameObject GameObject_Planet_Create(const Vec2* mouse);
+
 // <オブジェクトループ描画>
 void GameObject_RenderLoop(const GameObject* obj, const GameObject* tile_area, GameObject* tile_obj, const Vec2* translate);

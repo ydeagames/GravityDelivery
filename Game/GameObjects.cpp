@@ -27,6 +27,42 @@ void GameObject_SetSize(GameObject* obj, float scale)
 	obj->size = Vec2_Create(BULLET_WIDTH * scale, BULLET_HEIGHT * scale);
 }
 
+// <ゴールオブジェクト>
+GameObject GameObject_Goal_Create(const Vec2* mouse)
+{
+	GameObject obj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(60, 60));
+	obj.type = TYPE_GOAL;
+	obj.fill = TRUE;
+	obj.shape = SHAPE_CIRCLE;
+	obj.sprite.color = COLOR_RED;
+	GameObject_SetSize(&obj, 6);
+	return obj;
+}
+
+// <スタートオブジェクト>
+GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* vec)
+{
+	GameObject obj = GameObject_Create(*mouse, *vec, Vec2_Create(10, 10));
+	obj.type = TYPE_START;
+	GameObject_SetSize(&obj, 1);
+	GameTimer_SetRemaining(&obj.count, .5f);
+	GameTimer_Resume(&obj.count);
+	return obj;
+}
+
+// <惑星オブジェクト>
+GameObject GameObject_Planet_Create(const Vec2* mouse)
+{
+	GameObject obj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(10, 10));
+	obj.type = TYPE_PLANET;
+	obj.fill = TRUE;
+	obj.shape = SHAPE_CIRCLE;
+	obj.state = 0;
+	obj.sprite.color = COLOR_GRAY;
+	GameObject_SetSize(&obj, 1);
+	return obj;
+}
+
 // <オブジェクトループ描画>
 void GameObject_RenderLoop(const GameObject* obj, const GameObject* tile_area, GameObject* tile_obj, const Vec2* translate)
 {

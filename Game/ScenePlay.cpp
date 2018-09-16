@@ -178,11 +178,7 @@ void UpdatePlay(void)
 		if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == 1)
 		{
 			Vec2 mouse_last_to = GetMousePosition();
-			GameObject obj = GameObject_Create(g_mouse_last_from, Vec2_Sub(&mouse_last_to, &g_mouse_last_from), Vec2_Create(10, 10));
-			obj.type = TYPE_START;
-			GameObject_SetSize(&obj, 1);
-			GameTimer_SetRemaining(&obj.count, .5f);
-			GameTimer_Resume(&obj.count);
+			GameObject obj = GameObject_Start_Create(&g_mouse_last_from, &Vec2_Sub(&mouse_last_to, &g_mouse_last_from));
 
 			foreach_start(&g_planets, GameObject, planet)
 			{
@@ -197,12 +193,7 @@ void UpdatePlay(void)
 	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_13))
 	{
 		Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
-		GameObject obj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(60, 60));
-		obj.type = TYPE_GOAL;
-		obj.fill = TRUE;
-		obj.shape = SHAPE_CIRCLE;
-		obj.sprite.color = COLOR_RED;
-		GameObject_SetSize(&obj, 6);
+		GameObject obj = GameObject_Goal_Create(&mouse);
 
 		foreach_start(&g_planets, GameObject, planet)
 		{
@@ -217,13 +208,7 @@ void UpdatePlay(void)
 	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_14))
 	{
 		Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
-		GameObject obj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(10, 10));
-		obj.type = TYPE_PLANET;
-		obj.fill = TRUE;
-		obj.shape = SHAPE_CIRCLE;
-		obj.state = 0;
-		obj.sprite.color = COLOR_GRAY;
-		GameObject_SetSize(&obj, 1);
+		GameObject obj = GameObject_Planet_Create(&mouse);
 		Vector_AddLast(&g_planets, &obj);
 		g_edit_mode = 3;
 		g_edited = TRUE;
