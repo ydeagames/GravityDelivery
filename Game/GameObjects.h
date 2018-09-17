@@ -42,3 +42,6 @@ void GameObject_RenderLoop(const GameObject* obj, const GameObject* tile_area, G
 
 // <フィールド描画>
 void GameObject_Field_Render(const GameObject* field, const Vec2* translate, int fadeout);
+
+// <メッセージ描画>
+void GameObject_Msg_Render(const Vec2* pos, const Vec2* translate, const char* msg);

@@ -142,3 +142,19 @@ void GameObject_Field_Render(const GameObject* field, const Vec2* translate, int
 	}
 	SetDrawScreen(DX_SCREEN_BACK);
 }
+
+// <メッセージ描画>
+void GameObject_Msg_Render(const Vec2* pos, const Vec2* translate, const char* msg)
+{
+	int margin = 12;
+	int triangle = 20;
+	Vec2 size = Vec2_Create((float)(GetDrawStringWidthToHandle(msg, strlen(msg), g_resources.font_menu) + margin * 2), (float)(FONT_SIZE_MENU + margin * 2));
+	GameObject obj = GameObject_Create(Vec2_Create(pos->x + size.x / 2, pos->y - size.y / 2 - triangle + 1), Vec2_Create(), size);
+	obj.fill = TRUE;
+	GameObject_Render(&obj, translate);
+	DrawTriangleAA(pos->x + translate->x, pos->y + translate->y,
+		pos->x + translate->x, pos->y - triangle + translate->y,
+		pos->x + triangle + translate->x, pos->y - triangle + translate->y,
+		obj.sprite.color, TRUE);
+	DrawStringFToHandle(GameObject_GetX(&obj, LEFT, (float)-margin) + translate->x, GameObject_GetY(&obj, TOP, (float)-margin) + translate->y, msg, COLOR_BLACK, g_resources.font_menu);
+}

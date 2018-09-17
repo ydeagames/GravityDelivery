@@ -39,6 +39,8 @@ static BOOL g_mouse_down;
 
 static HSND g_bgm;
 
+static int g_tutorial_state = 0;
+
 
 
 // 関数の宣言 ==============================================================
@@ -308,12 +310,16 @@ void UpdatePlay(void)
 							obj->state = !obj->state;
 							//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
 							GameObject_SetSize(obj, obj->state ? 4.f : 2.f, 8);
+							if (g_tutorial_state == 0)
+								g_tutorial_state = 1;
 							PlaySoundMem(g_resources.sound_se[2], DX_PLAYTYPE_BACK);
 						}
 					}
 				}
 			} foreach_end;
 		}
+		else if (g_tutorial_state == 1)
+			g_tutorial_state = 2;
 	}
 
 	foreach_start(&g_balls, GameObject, ball)
@@ -352,6 +358,8 @@ void UpdatePlay(void)
 						VectorIterator_Remove(&itr_ball);
 						g_score++;
 						ChangeVolumeSoundMem(100, g_resources.sound_se[0]);
+						if (g_tutorial_state == 2)
+							g_tutorial_state = 3;
 						PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
 					}
 
@@ -505,27 +513,42 @@ void RenderPlay(void)
 	}
 	GameObject_Field_Render(&g_field_ball, &offset, 3);
 
-	foreach_start(&g_planets, GameObject, obj)
 	{
-		if (GameObject_IsAlive(obj))
+		BOOL first_planet = TRUE;
+		foreach_start(&g_planets, GameObject, obj)
 		{
-			switch (obj->type)
+			if (GameObject_IsAlive(obj))
 			{
-			case TYPE_GOAL:
-				DrawFormatStringF(GameObject_GetX(obj, LEFT) + offset.x, GameObject_GetY(obj, BOTTOM, 10) + offset.y, COLOR_WHITE, "%d / 10", g_score);
-				GameObject_Render(obj, &offset);
-				break;
-			case TYPE_START:
-				GameObject_Render(obj, &offset);
-				if (DEBUG_HITBOX)
-					Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
-				break;
-			default:
-				GameObject_Render(obj, &offset);
-				break;
+				switch (obj->type)
+				{
+				case TYPE_GOAL:
+					DrawFormatStringF(GameObject_GetX(obj, LEFT) + offset.x, GameObject_GetY(obj, BOTTOM, 10) + offset.y, COLOR_WHITE, "%d / 10", g_score);
+					GameObject_Render(obj, &offset);
+					if (g_tutorial_state == 2)
+						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "ゴールはここ。うまく導こう！");
+					break;
+				case TYPE_START:
+					GameObject_Render(obj, &offset);
+					if (DEBUG_HITBOX)
+						Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
+					break;
+				case TYPE_PLANET:
+					GameObject_Render(obj, &offset);
+					if (g_tutorial_state == 0 && first_planet)
+						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "惑星をクリックして重力のスイッチをON/OFFしてみよう！");
+					first_planet = FALSE;
+					break;
+				default:
+					GameObject_Render(obj, &offset);
+					break;
+				}
 			}
-		}
-	} foreach_end;
+		} foreach_end;
+	}
+
+	if (g_tutorial_state == 1)
+		GameObject_Msg_Render(&Vec2_Add(&g_raw_mouse, &Vec2_Create(0, -10)), &Vec2_Create(), "ドラッグして画面をずらすよ！");
+
 	foreach_start(&g_balls, GameObject, obj)
 	{
 		if (GameObject_IsAlive(obj))
