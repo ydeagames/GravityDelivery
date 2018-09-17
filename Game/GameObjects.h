@@ -35,3 +35,6 @@ GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec);
 
 // <オブジェクトループ描画>
 void GameObject_RenderLoop(const GameObject* obj, const GameObject* tile_area, GameObject* tile_obj, const Vec2* translate);
+
+// <フィールド描画>
+void GameObject_Field_Render(const GameObject* field, const Vec2* translate);

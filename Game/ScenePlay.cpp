@@ -61,6 +61,7 @@ void InitializePlay(void)
 	g_field_ball = g_field;
 	g_field_ball.size.x *= 2;
 	g_field_ball.size.y *= 2;
+	g_field_ball.sprite = GameSprite_Create(GameTexture_Create(MakeScreen((int)g_field_ball.size.x, (int)g_field_ball.size.y, TRUE), Vec2_Create(), g_field_ball.size));
 	g_view = g_field;
 
 	{
@@ -329,7 +330,7 @@ void UpdatePlay(void)
 			case TYPE_START:
 				if (GameTimer_IsFinished(&planet->count))
 				{
-					GameTimer_SetRemaining(&planet->count, .1f);
+					GameTimer_SetRemaining(&planet->count, .5f);
 					GameTimer_Resume(&planet->count);
 
 					Vec2 vec = Vec2_Scale(&planet->vel, .1f);
@@ -379,8 +380,9 @@ void UpdatePlay(void)
 void RenderPlay(void)
 {
 	Vec2 offset = Vec2_Sub(&g_view.pos, &g_field.pos);
+	Vec2 offset_shadow = Vec2_Create(GameObject_GetX(&g_field_ball, LEFT) - GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field_ball, TOP) - GameObject_GetY(&g_field, TOP));
 
-	GameObject_Field_Render(&g_field);
+	GameObject_Field_Render(&g_field_ball, &offset);
 
 	foreach_start(&g_planets, GameObject, obj)
 	{
@@ -404,7 +406,15 @@ void RenderPlay(void)
 	foreach_start(&g_balls, GameObject, obj)
 	{
 		if (GameObject_IsAlive(obj))
+		{
+			SetDrawScreen(g_field_ball.sprite.texture.texture);
+			{
+				Vec2 before = Vec2_Sub(&obj->pos, &obj->vel);
+				DrawLineAA(before.x - offset_shadow.x, before.y - offset_shadow.y, obj->pos.x - offset_shadow.x, obj->pos.y - offset_shadow.y, obj->sprite.color);
+			}
+			SetDrawScreen(DX_SCREEN_BACK);
 			GameObject_Render(obj, &offset);
+		}
 	} foreach_end;
 
 	{

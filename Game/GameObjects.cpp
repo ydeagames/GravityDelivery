@@ -33,7 +33,7 @@ GameObject GameObject_Goal_Create(const Vec2* mouse)
 	obj.type = TYPE_GOAL;
 	obj.shape = SHAPE_CIRCLE;
 	obj.sprite.color = COLOR_RED;
-	GameObject_SetSize(&obj, 4, 20);
+	GameObject_SetSize(&obj, 4, 16);
 	return obj;
 }
 
@@ -110,4 +110,21 @@ void GameObject_RenderLoop(const GameObject* obj, const GameObject* tile_area, G
 			}
 		}
 	}
+}
+
+// <フィールド描画>
+void GameObject_Field_Render(const GameObject* field, const Vec2* translate)
+{
+	GameObject_Render(field, translate);
+	SetDrawScreen(field->sprite.texture.texture);
+	{
+		GameObject fieldback = *field;
+		fieldback.sprite = GameSprite_CreateNone();
+		fieldback.sprite.color = COLOR_BLACK;
+		fieldback.fill = TRUE;
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 4);
+		GameObject_Render(&fieldback, translate);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	}
+	SetDrawScreen(DX_SCREEN_BACK);
 }

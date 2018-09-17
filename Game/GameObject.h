@@ -190,6 +190,3 @@ ObjectSide GameObject_Field_CollisionVertical(const GameObject* field, GameObjec
 
 // <フィールド左右衝突処理>
 ObjectSide GameObject_Field_CollisionHorizontal(const GameObject* field, GameObject* obj, ObjectConnection connection, ObjectEdgeSide edge);
-
-// <フィールド描画>
-void GameObject_Field_Render(const GameObject* field);

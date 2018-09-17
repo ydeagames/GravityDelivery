@@ -560,8 +560,3 @@ ObjectSide GameObject_Field_CollisionHorizontal(const GameObject* field, GameObj
 
 	return side_hit;
 }
-
-// <フィールド描画>
-void GameObject_Field_Render(const GameObject* field)
-{
-}
