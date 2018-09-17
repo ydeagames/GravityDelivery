@@ -18,6 +18,9 @@ GameResource GameResource_Create(void)
 {
 	GameResource res;
 
+	// ロゴ動画
+	res.movie_logo = LoadGraph("Resources/Movies/ydeagames.avi");
+
 	// フォント
 	// カスタムフォントファイルが読み込めたら使う
 	if (AddFontResourceEx(FONT_FILE_MAIN_CUSTOM, FR_PRIVATE, NULL) > 0)
@@ -27,7 +30,7 @@ GameResource GameResource_Create(void)
 	res.font_menu = CreateFontToHandle(FONT_NAME_MENU, FONT_SIZE_MENU, 16, DX_FONTTYPE_ANTIALIASING_4X4);
 
 	// サウンド
-	res.sound_bgm[0] = LoadSoundMem("Resources/Audio/Protected/bab_music_01.wav");
+	res.sound_bgm[0] = LoadSoundMem("Resources/Audio/Protected/bab_music_01.mp3");
 	res.sound_bgm[1] = LoadSoundMem("Resources/Audio/Protected/drb_music_catacomb.wav");
 	res.sound_bgm[2] = LoadSoundMem("Resources/Audio/Protected/drb_music_brick_dungeon.wav");
 	res.sound_bgm[3] = LoadSoundMem("Resources/Audio/Protected/dru_music_ishtar_theme.wav");
@@ -39,8 +42,6 @@ GameResource GameResource_Create(void)
 	res.sound_se[5] = LoadSoundMem("Resources/Audio/Protected/wonder_se_13.wav");
 
 	// テクスチャ
-	// ロゴ動画
-	res.movie_logo = LoadGraph("Resources/Movies/ydeagames.avi");
 	// タイトル
 
 	// プレイ

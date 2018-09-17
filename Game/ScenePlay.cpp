@@ -110,7 +110,7 @@ void InitializePlay(void)
 
 	LoadStage();
 
-	if (0 < g_bgm && g_bgm < NUM_BGM)
+	if (0 <= g_bgm && g_bgm < NUM_BGM)
 	{
 		ChangeVolumeSoundMem(100, g_resources.sound_bgm[g_bgm]);
 		PlaySoundMem(g_resources.sound_bgm[g_bgm], DX_PLAYTYPE_LOOP);
