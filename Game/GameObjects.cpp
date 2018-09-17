@@ -13,29 +13,27 @@
 #define PLAYER_WIDTH  42
 #define PLAYER_HEIGHT 36
 
-// <弾>
-#define BULLET_WIDTH  10
-#define BULLET_HEIGHT 10
-#define BULLET_GROW_SPEED .1f
-
 // 関数の定義 ==============================================================
 
 // <オブジェクトサイズ変更>
-void GameObject_SetSize(GameObject* obj, float scale)
+void GameObject_SetSize(GameObject* obj, float scale, float size)
 {
 	obj->sprite.scale = scale;
-	obj->size = Vec2_Create(BULLET_WIDTH * scale, BULLET_HEIGHT * scale);
+	obj->size = Vec2_Create(size * scale, size * scale);
 }
 
 // <ゴールオブジェクト>
 GameObject GameObject_Goal_Create(const Vec2* mouse)
 {
-	GameObject obj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(60, 60));
+	GameObject obj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(20, 20));
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet1, Vec2_Create(), Vec2_Create(26, 26)));
+	obj.sprite.size = Vec2_Create(26, 26);
+	obj.sprite.num_columns = 8;
+	GameSprite_SetFrame(&obj.sprite, 12);
 	obj.type = TYPE_GOAL;
-	obj.fill = TRUE;
 	obj.shape = SHAPE_CIRCLE;
 	obj.sprite.color = COLOR_RED;
-	GameObject_SetSize(&obj, 6);
+	GameObject_SetSize(&obj, 4, 20);
 	return obj;
 }
 
@@ -44,7 +42,7 @@ GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* vec)
 {
 	GameObject obj = GameObject_Create(*mouse, *vec, Vec2_Create(10, 10));
 	obj.type = TYPE_START;
-	GameObject_SetSize(&obj, 1);
+	GameObject_SetSize(&obj, 1, 5);
 	GameTimer_SetRemaining(&obj.count, .5f);
 	GameTimer_Resume(&obj.count);
 	return obj;
@@ -62,7 +60,7 @@ GameObject GameObject_Planet_Create(const Vec2* mouse)
 	obj.shape = SHAPE_CIRCLE;
 	obj.state = 0;
 	obj.sprite.color = COLOR_GRAY;
-	GameObject_SetSize(&obj, 5);
+	GameObject_SetSize(&obj, 2, 15);
 	return obj;
 }
 

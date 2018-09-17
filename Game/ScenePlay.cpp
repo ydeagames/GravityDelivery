@@ -104,7 +104,7 @@ static void LoadStage(void)
 			Vec2 pos = Vec2_Create(pos_x, pos_y);
 			Vec2 vel = Vec2_Create(vel_x, vel_y);
 			GameObject obj = GameObject_Type_Create(type, &pos, &vel);
-			GameObject_SetSize(&obj, scale);
+			//GameObject_SetSize(&obj, scale);
 
 			Vector_AddLast(&g_planets, &obj);
 		}
@@ -379,6 +379,8 @@ void UpdatePlay(void)
 void RenderPlay(void)
 {
 	Vec2 offset = Vec2_Sub(&g_view.pos, &g_field.pos);
+
+	GameObject_Field_Render(&g_field);
 
 	foreach_start(&g_planets, GameObject, obj)
 	{
