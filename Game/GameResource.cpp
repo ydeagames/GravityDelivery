@@ -36,6 +36,10 @@ GameResource GameResource_Create(void)
 
 	// プレイ
 	res.texture_planet1 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_other.png");
+	res.texture_planet2 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_enemy.png");
+	res.texture_planet3 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_enemy_big.png");
+	res.texture_planet4 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_photonTorpedo.png");
+	res.texture_planet5 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_supplyBase.png");
 
 	return res;
 }
@@ -57,7 +61,11 @@ void GameResource_Delete(GameResource* res)
 
 	// プレイ
 	DeleteGraph(res->texture_planet1);
-	
+	DeleteGraph(res->texture_planet2);
+	DeleteGraph(res->texture_planet3);
+	DeleteGraph(res->texture_planet4);
+	DeleteGraph(res->texture_planet5);
+
 	// タイトル
 
 }

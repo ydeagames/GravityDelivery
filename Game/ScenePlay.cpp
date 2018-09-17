@@ -254,7 +254,8 @@ void UpdatePlay(void)
 					if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
 					{
 						obj->state = !obj->state;
-						GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
+						//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
+						GameObject_SetSize(obj, obj->state ? 4.f : 2.f, 8);
 					}
 				}
 			}
@@ -333,10 +334,11 @@ void UpdatePlay(void)
 					GameTimer_SetRemaining(&planet->count, .5f);
 					GameTimer_Resume(&planet->count);
 
-					Vec2 vec = Vec2_Scale(&planet->vel, .1f);
-					GameObject obj = GameObject_Create(planet->pos, vec, Vec2_Create(5, 5));
-					obj.fill = TRUE;
-					Vector_AddLast(&g_balls, &obj);
+					{
+						Vec2 vec = Vec2_Scale(&planet->vel, .1f);
+						GameObject obj = GameObject_Ball_Create(&planet->pos, &vec);
+						Vector_AddLast(&g_balls, &obj);
+					}
 				}
 
 				break;
@@ -398,7 +400,9 @@ void RenderPlay(void)
 				GameObject_Render(obj, &offset);
 				break;
 			case TYPE_START:
-				Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
+				GameObject_Render(obj, &offset);
+				if (DEBUG_HITBOX)
+					Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
 				break;
 			}
 		}

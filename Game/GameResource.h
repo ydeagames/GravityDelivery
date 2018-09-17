@@ -17,6 +17,10 @@ typedef struct
 	
 	// プレイ
 	HGRP texture_planet1;
+	HGRP texture_planet2;
+	HGRP texture_planet3;
+	HGRP texture_planet4;
+	HGRP texture_planet5;
 	// リザルト
 
 	// <動画>

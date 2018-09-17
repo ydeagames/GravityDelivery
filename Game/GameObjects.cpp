@@ -22,18 +22,27 @@ void GameObject_SetSize(GameObject* obj, float scale, float size)
 	obj->size = Vec2_Create(size * scale, size * scale);
 }
 
+// <弾オブジェクト>
+GameObject GameObject_Ball_Create(const Vec2* mouse, const Vec2* vec)
+{
+	GameObject obj = GameObject_Create(*mouse, *vec, Vec2_Create(5, 5));
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet2, Vec2_Create(), Vec2_Create(26, 26)));
+	obj.sprite.num_columns = 9;
+	GameSprite_SetFrame(&obj.sprite, 11);
+	return obj;
+}
+
 // <ゴールオブジェクト>
 GameObject GameObject_Goal_Create(const Vec2* mouse)
 {
 	GameObject obj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(20, 20));
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet1, Vec2_Create(), Vec2_Create(26, 26)));
-	obj.sprite.size = Vec2_Create(26, 26);
-	obj.sprite.num_columns = 8;
-	GameSprite_SetFrame(&obj.sprite, 12);
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet3, Vec2_Create(), Vec2_Create(34, 34)));
+	obj.sprite.num_columns = 6;
+	GameSprite_SetFrame(&obj.sprite, 17);
 	obj.type = TYPE_GOAL;
 	obj.shape = SHAPE_CIRCLE;
 	obj.sprite.color = COLOR_RED;
-	GameObject_SetSize(&obj, 4, 16);
+	GameObject_SetSize(&obj, 2, 32);
 	return obj;
 }
 
@@ -41,8 +50,11 @@ GameObject GameObject_Goal_Create(const Vec2* mouse)
 GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* vec)
 {
 	GameObject obj = GameObject_Create(*mouse, *vec, Vec2_Create(10, 10));
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet1, Vec2_Create(), Vec2_Create(26, 26)));
+	obj.sprite.num_columns = 8;
+	GameSprite_SetFrame(&obj.sprite, 12);
 	obj.type = TYPE_START;
-	GameObject_SetSize(&obj, 1, 5);
+	GameObject_SetSize(&obj, 3, 5);
 	GameTimer_SetRemaining(&obj.count, .5f);
 	GameTimer_Resume(&obj.count);
 	return obj;
@@ -53,14 +65,13 @@ GameObject GameObject_Planet_Create(const Vec2* mouse)
 {
 	GameObject obj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(10, 10));
 	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet1, Vec2_Create(), Vec2_Create(26, 26)));
-	obj.sprite.size = Vec2_Create(26, 26);
 	obj.sprite.num_columns = 8;
-	GameSprite_SetFrame(&obj.sprite, 9);
+	GameSprite_SetFrame(&obj.sprite, GetRand(7));
 	obj.type = TYPE_PLANET;
 	obj.shape = SHAPE_CIRCLE;
 	obj.state = 0;
 	obj.sprite.color = COLOR_GRAY;
-	GameObject_SetSize(&obj, 2, 15);
+	GameObject_SetSize(&obj, 2, 8);
 	return obj;
 }
 
