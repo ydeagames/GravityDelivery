@@ -23,6 +23,9 @@ typedef struct
 	HGRP texture_planet5;
 	HGRP texture_cursor1;
 
+	int shader_gaussian_vertex_x;
+	int shader_gaussian_pixel_x;
+
 	// ƒŠƒUƒ‹ƒg
 
 	// <“®‰æ>

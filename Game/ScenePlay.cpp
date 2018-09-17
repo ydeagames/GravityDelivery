@@ -7,6 +7,7 @@
 #include "GameObjects.h"
 #include "SceneManager.h"
 #include <assert.h>
+#include <math.h>
 
 
 // ’è”‚Ì’è‹` ==============================================================
@@ -34,6 +35,9 @@ static Vec2 g_mouse_last_from;
 static Vec2 g_offset_mouse;
 static Vec2 g_offset_location;
 
+static VERTEX2DSHADER g_shader_vertex[4];
+static HGRP g_shader_screen1;
+static HGRP g_shader_screen2;
 
 
 // ŠÖ”‚ÌéŒ¾ ==============================================================
@@ -46,6 +50,7 @@ void FinalizePlay(void);    // ƒQ[ƒ€‚ÌI—¹ˆ—
 static void LoadStage(void);
 static void SaveStage(void);
 
+static void UpdateWeight(float dispersion);
 
 
 
@@ -74,6 +79,8 @@ void InitializePlay(void)
 			Vector_AddLast(&g_field_layers, &obj);
 		}
 	}
+	g_shader_screen1 = MakeScreen((int)g_field.size.x, (int)g_field.size.y, TRUE);
+	g_shader_screen2 = MakeScreen((int)g_field.size.x, (int)g_field.size.y, TRUE);
 	g_field_layer_timer = GameTimer_Create();
 	GameTimer_SetRemaining(&g_field_layer_timer, .5f);
 	GameTimer_Resume(&g_field_layer_timer);
@@ -94,7 +101,51 @@ void InitializePlay(void)
 
 	g_score = 0;
 
+	for (int i = 0; i < 4; i++) {
+		g_shader_vertex[i].pos = VGet((i % 2)*(float)(SCREEN_WIDTH), (i / 2)*(float)(SCREEN_HEIGHT), 0);
+		g_shader_vertex[i].rhw = 1.0f;
+		g_shader_vertex[i].dif = GetColorU8(255, 255, 255, 255);
+		g_shader_vertex[i].spc = GetColorU8(0, 0, 0, 0);
+		g_shader_vertex[i].u = g_shader_vertex[i].su = (float)(i % 2);
+		g_shader_vertex[i].v = g_shader_vertex[i].sv = (float)(i / 2);
+	}
+
+	{
+		int handle_vertex_x_width = GetConstIndexToShader("MAP_WIDTH", g_resources.shader_gaussian_vertex_x);
+		int handle_vertex_x_height = GetConstIndexToShader("MAP_HEIGHT", g_resources.shader_gaussian_vertex_x);
+		int handle_pixel_x_width = GetConstIndexToShader("MAP_WIDTH", g_resources.shader_gaussian_pixel_x);
+		int handle_pixel_x_height = GetConstIndexToShader("MAP_HEIGHT", g_resources.shader_gaussian_pixel_x);
+		SetVSConstF(handle_vertex_x_width, { SCREEN_WIDTH, SCREEN_WIDTH, SCREEN_WIDTH, SCREEN_WIDTH });
+		SetVSConstF(handle_vertex_x_height, { SCREEN_HEIGHT, SCREEN_HEIGHT, SCREEN_HEIGHT, SCREEN_HEIGHT });
+		SetPSConstF(handle_pixel_x_width, { SCREEN_WIDTH, SCREEN_WIDTH, SCREEN_WIDTH, SCREEN_WIDTH });
+		SetPSConstF(handle_pixel_x_height, { SCREEN_HEIGHT, SCREEN_HEIGHT, SCREEN_HEIGHT, SCREEN_HEIGHT });
+		UpdateWeight(4);
+	}
+
 	LoadStage();
+}
+
+static void UpdateWeight(float dispersion)
+{
+	int i;
+	enum {
+		WEIGHT_MUN = 8
+	};
+	FLOAT4 m_tbl[WEIGHT_MUN];
+	float total = 0;
+	for (i = 0; i < WEIGHT_MUN; i++) {
+		float pos = 1.0f + 2.0f*(float)i;
+		m_tbl[i] = { expf(-0.5f*(float)(pos*pos) / dispersion) };
+		total += 2.0f*m_tbl[i].x;
+	}
+	// ‹KŠi‰»
+	for (i = 0; i < WEIGHT_MUN; i++) m_tbl[i].x /= total;
+
+	{
+		int handle_vertex_x_weight = GetConstIndexToShader("weight", g_resources.shader_gaussian_vertex_x);
+		int handle_pixel_x_weight = GetConstIndexToShader("weight", g_resources.shader_gaussian_pixel_x);
+		SetVSConstFArray(handle_vertex_x_weight, m_tbl, WEIGHT_MUN);
+	}
 }
 
 static void LoadStage(void)
@@ -422,7 +473,14 @@ void RenderPlay(void)
 		foreach_start(&g_field_layers, GameObject, layer)
 		{
 			current_parallax *= parallax;
+			SetDrawScreen(g_shader_screen1);
+			ClearDrawScreen();
 			GameObject_Field_Render(layer, &Vec2_Scale(&Vec2_Add(&offset, &mouse_offset), current_parallax), 1);
+			SetDrawScreen(DX_SCREEN_BACK);
+			SetUseTextureToShader(0, g_shader_screen1);
+			SetUseVertexShader(g_resources.shader_gaussian_vertex_x);
+			SetUsePixelShader(g_resources.shader_gaussian_pixel_x);
+			DrawPrimitive2DToShader(g_shader_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
 		} foreach_end;
 	}
 	GameObject_Field_Render(&g_field_ball, &offset, 3);
@@ -531,6 +589,8 @@ void FinalizePlay(void)
 	{
 		DeleteGraph(layer->sprite.texture.texture);
 	} foreach_end;
+	DeleteGraph(g_shader_screen1);
+	DeleteGraph(g_shader_screen2);
 
 	Vector_Delete(&g_balls);
 	Vector_Delete(&g_planets);

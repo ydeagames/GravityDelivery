@@ -4,7 +4,7 @@
 // 定数の定義 ==============================================================
 
 // <フォント> ----------------------------------------------------------
-#define FONT_FILE_MAIN_CUSTOM "Resources\\Fonts\\TheSlavicFont-Regular.ttf"		// カスタムフォントファイル
+#define FONT_FILE_MAIN_CUSTOM "Resources/Fonts/TheSlavicFont-Regular.ttf"		// カスタムフォントファイル
 #define FONT_NAME_MAIN_CUSTOM "The Slavic Font"									// カスタムフォントネーム
 #define FONT_NAME "HGP創英角ｺﾞｼｯｸUB"										// フォールバック用フォントネーム
 #define FONT_NAME_MENU "HGP創英角ｺﾞｼｯｸUB"
@@ -35,12 +35,15 @@ GameResource GameResource_Create(void)
 	// タイトル
 
 	// プレイ
-	res.texture_planet1 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_other.png");
-	res.texture_planet2 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_enemy.png");
-	res.texture_planet3 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_enemy_big.png");
-	res.texture_planet4 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_photonTorpedo.png");
-	res.texture_planet5 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_supplyBase.png");
-	res.texture_cursor1 = LoadGraph("Resources\\Textures\\Protected\\Xevious_OBJ_solvalou.png");
+	res.texture_planet1 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_other.png");
+	res.texture_planet2 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_enemy.png");
+	res.texture_planet3 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_enemy_big.png");
+	res.texture_planet4 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_photonTorpedo.png");
+	res.texture_planet5 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_supplyBase.png");
+	res.texture_cursor1 = LoadGraph("Resources/Textures/Protected/Xevious_OBJ_solvalou.png");
+
+	res.shader_gaussian_pixel_x = LoadPixelShader("Resources/Shaders/gaussian_pixel_x.cso");
+	res.shader_gaussian_vertex_x = LoadPixelShader("Resources/Shaders/gaussian_vertex_x.cso");
 
 	return res;
 }
@@ -67,6 +70,9 @@ void GameResource_Delete(GameResource* res)
 	DeleteGraph(res->texture_planet4);
 	DeleteGraph(res->texture_planet5);
 	DeleteGraph(res->texture_cursor1);
+
+	DeleteShader(res->shader_gaussian_vertex_x);
+	DeleteShader(res->shader_gaussian_pixel_x);
 
 	// タイトル
 

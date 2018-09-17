@@ -68,6 +68,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// 初期状態の画面モードの設定
 	SetGraphMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32);
 
+	// 使用する Direct3D のバージョンを 9EX に設定
+	SetUseDirect3DVersion(DX_DIRECT3D_9EX);
+
 
 	// DXライブラリの初期化処理
 	if (DxLib_Init() == -1)
