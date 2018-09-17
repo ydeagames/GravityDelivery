@@ -523,7 +523,7 @@ void RenderPlay(void)
 				switch (obj->type)
 				{
 				case TYPE_GOAL:
-					DrawFormatStringF(GameObject_GetX(obj, LEFT) + offset.x, GameObject_GetY(obj, BOTTOM, 10) + offset.y, COLOR_WHITE, "%d / 10", g_score);
+					DrawFormatStringToHandle((int) (GameObject_GetX(obj, LEFT) + offset.x + 2), (int) (GameObject_GetY(obj, BOTTOM, 10) + offset.y), COLOR_WHITE, g_resources.font_main, "%d / 10", g_score);
 					GameObject_Render(obj, &offset);
 					if (g_tutorial_state == 2)
 						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "ゴールはここ。うまく導こう！");
@@ -613,7 +613,7 @@ void RenderPlay(void)
 	{
 		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
 			GameObject_Render(&g_back_button);
-		DrawFormatStringToHandle((int) GameObject_GetX(&g_back_button, LEFT, -10), (int) GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_menu, "タイトルへ戻る");
+		DrawFormatStringToHandle((int) GameObject_GetX(&g_back_button, LEFT, -10), (int) GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "タイトルへ戻る");
 	}
 }
 

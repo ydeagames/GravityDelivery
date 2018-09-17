@@ -96,10 +96,10 @@ void RenderResult(void)
 	}
 	GameObject_Render(&g_title_logo);
 
-	DrawFormatStringToHandle(SCREEN_RIGHT - 250, SCREEN_BOTTOM + 20 * pos++, COLOR_WHITE, g_resources.font_menu, "プレイいただき\n   ありがとうございます。");
+	DrawFormatStringToHandle(SCREEN_RIGHT - 270, SCREEN_BOTTOM + 20 * pos++, COLOR_WHITE, g_resources.font_main, "プレイいただき\n   ありがとうございます。");
 	pos++;
 	pos++;
-	DrawFormatStringToHandle(SCREEN_RIGHT - 250, SCREEN_BOTTOM + 20 * pos++, COLOR_WHITE, g_resources.font_menu, "引き続き次のステージを\n   お楽しみください。");
+	DrawFormatStringToHandle(SCREEN_RIGHT - 270, SCREEN_BOTTOM + 20 * pos++, COLOR_WHITE, g_resources.font_main, "引き続き次のステージを\n   お楽しみください。");
 	pos++;
 
 	if (GameTimer_IsFinished(&g_field_layer_timer))
@@ -135,15 +135,15 @@ void RenderResult(void)
 			lastdot = strrchr(name, '.');
 			if (lastdot != NULL)
 				*lastdot = '\0';
-			DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_CENTER_Y - 20 + 20 * pos++, COLOR_WHITE, g_resources.font_menu, "ステージクリア");
-			DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_CENTER_Y - 20 + 20 * pos++, COLOR_WHITE, g_resources.font_menu, "%s", name);
+			DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_CENTER_Y - 20 + 20 * pos++, COLOR_WHITE, g_resources.font_main, "ステージクリア");
+			DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_CENTER_Y - 20 + 20 * pos++, COLOR_WHITE, g_resources.font_main, "%s", name);
 		}
 	}
 
 	{
 		if (GameObject_IsHitPoint(&g_back_button, &GetMousePosition()))
 			GameObject_Render(&g_back_button);
-		DrawFormatStringToHandle((int)GameObject_GetX(&g_back_button, LEFT, -10), (int)GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_menu, "タイトルへ戻る");
+		DrawFormatStringToHandle((int)GameObject_GetX(&g_back_button, LEFT, -10), (int)GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "タイトルへ戻る");
 	}
 }
 

@@ -79,7 +79,7 @@ void InitializeGame(void)
 		Vec2 size = Vec2_Create(200, 200);
 		GameObject area = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2), GameObject_GetY(&g_field, BOTTOM, -size.y / 2)), Vec2_Create(), size);
 
-		g_console = DebugConsole_Create(area, g_resources.font_menu, 20);
+		g_console = DebugConsole_Create(area, g_resources.font_main, 20);
 	}
 
 	// カーソルを非表示

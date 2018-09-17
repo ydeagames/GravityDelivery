@@ -164,12 +164,12 @@ void RenderTitle(void)
 	}
 	GameObject_Render(&g_title_logo);
 
-	DrawFormatStringToHandle((int) GameObject_GetX(&g_title_logo, LEFT, -120), (int) GameObject_GetY(&g_title_logo, BOTTOM, 180), COLOR_WHITE, g_resources.font_menu, 
+	DrawFormatStringToHandle((int) GameObject_GetX(&g_title_logo, LEFT, -120), (int) GameObject_GetY(&g_title_logo, BOTTOM, 180), COLOR_WHITE, g_resources.font_main, 
 		"重力スイッチにようこそ\n"
 		"星の引力を操作してゴールを目指そう！\n"
 		"ステージを選択してゲームスタート\n");
 
-	DrawFormatStringToHandle(SCREEN_RIGHT - 250, SCREEN_BOTTOM + 20 * pos++, COLOR_WHITE, g_resources.font_menu, "ステージ選択");
+	DrawFormatStringToHandle(SCREEN_RIGHT - 250, SCREEN_BOTTOM + 20 * pos++, COLOR_WHITE, g_resources.font_main, "ステージ選択");
 	pos++;
 
 	foreach_start(&g_stages, Stage, stage)
@@ -191,7 +191,7 @@ void RenderTitle(void)
 			lastdot = strrchr(name, '.');
 			if (lastdot != NULL)
 				*lastdot = '\0';
-			DrawFormatStringToHandle(SCREEN_RIGHT - 250, SCREEN_BOTTOM + 20 * pos, COLOR_WHITE, g_resources.font_menu, name);
+			DrawFormatStringToHandle(SCREEN_RIGHT - 250, SCREEN_BOTTOM + 20 * pos, COLOR_WHITE, g_resources.font_main, name);
 		}
 		pos++;
 	} foreach_end;

@@ -4,10 +4,9 @@
 // 定数の定義 ==============================================================
 
 // <フォント> ----------------------------------------------------------
-#define FONT_FILE_MAIN_CUSTOM "Resources\\Fonts\\TheSlavicFont-Regular.ttf"		// カスタムフォントファイル
-#define FONT_NAME_MAIN_CUSTOM "The Slavic Font"									// カスタムフォントネーム
-#define FONT_NAME "HGP創英角ｺﾞｼｯｸUB"										// フォールバック用フォントネーム
-#define FONT_NAME_MENU "HGP創英角ｺﾞｼｯｸUB"
+#define FONT_FILE_MAIN_CUSTOM "Resources\\Fonts\\uzura.ttf"						// カスタムフォントファイル
+#define FONT_NAME_MAIN_CUSTOM "うずらフォント"									// カスタムフォントネーム
+#define FONT_NAME "HGP創英角ｺﾞｼｯｸUB"											// フォールバック用フォントネーム
 
 // 関数の定義 ==============================================================
 
@@ -24,10 +23,9 @@ GameResource GameResource_Create(void)
 	// フォント
 	// カスタムフォントファイルが読み込めたら使う
 	if (AddFontResourceEx(FONT_FILE_MAIN_CUSTOM, FR_PRIVATE, NULL) > 0)
-		res.font_main = CreateFontToHandle(FONT_NAME_MAIN_CUSTOM, FONT_SIZE_MAIN, 3, DX_FONTTYPE_ANTIALIASING_4X4);
+		res.font_main = CreateFontToHandle(FONT_NAME_MAIN_CUSTOM, FONT_SIZE_MAIN, 1, DX_FONTTYPE_ANTIALIASING_4X4);
 	else
-		res.font_main = CreateFontToHandle(FONT_NAME, FONT_SIZE_MAIN, 3, DX_FONTTYPE_ANTIALIASING_4X4);
-	res.font_menu = CreateFontToHandle(FONT_NAME_MENU, FONT_SIZE_MENU, 16, DX_FONTTYPE_ANTIALIASING_4X4);
+		res.font_main = CreateFontToHandle(FONT_NAME, FONT_SIZE_MAIN, 1, DX_FONTTYPE_ANTIALIASING_4X4);
 
 	// サウンド
 	res.sound_bgm[0] = LoadSoundMem("Resources/Audio/Protected/bab_music_01.mp3");
@@ -77,6 +75,7 @@ void GameResource_Delete(GameResource* res)
 	// テクスチャ
 	// ロゴ動画
 	DeleteGraph(res->movie_logo);
+
 	// タイトル
 	DeleteGraph(res->texture_title1);
 
@@ -87,7 +86,4 @@ void GameResource_Delete(GameResource* res)
 	DeleteGraph(res->texture_planet4);
 	DeleteGraph(res->texture_planet5);
 	DeleteGraph(res->texture_cursor1);
-
-	// タイトル
-
 }

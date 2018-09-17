@@ -4,8 +4,7 @@
 
 // <フォント> ----------------------------------------------------------
 
-#define FONT_SIZE_MAIN 80			// フォントサイズ
-#define FONT_SIZE_MENU 20
+#define FONT_SIZE_MAIN 20			// フォントサイズ
 
 // <リソース> ----------------------------------------------------------
 
@@ -19,7 +18,6 @@ typedef struct
 {
 	// <フォント>
 	HFNT font_main;
-	HFNT font_menu;
 
 	// <サウンド>
 	HSND sound_bgm[NUM_BGM];

@@ -122,10 +122,10 @@ void FinalizeSceneManager(void)
 // ÉVÅ[ÉìóvãÅ
 void RequestScene(SceneID scene_id, unsigned int color, float time, float endtime)
 {
-	g_next_scene = scene_id;
-
 	if (g_fade_phase == FADE_IDLE)
 	{
+		g_next_scene = scene_id;
+
 		GameTimer_SetRemaining(&g_fade_timer, time);
 		GameTimer_Resume(&g_fade_timer);
 		g_fade_phase = FADE_OUT;
