@@ -94,6 +94,8 @@ void InitializePlay(void)
 
 	g_score = 0;
 
+	g_offset_mouse = Vec2_Create();
+
 	LoadStage();
 }
 
@@ -176,6 +178,11 @@ void UpdatePlay(void)
 			g_offset_location = g_view.pos;
 		}
 		if (IsMouseDown(MOUSE_INPUT_1))
+		{
+			Vec2 diff = Vec2_Sub(&GetMousePosition(), &g_offset_mouse);
+			g_view.pos = Vec2_Add(&g_offset_location, &diff);
+		}
+		if (IsMouseReleased(MOUSE_INPUT_1))
 		{
 			Vec2 diff = Vec2_Sub(&GetMousePosition(), &g_offset_mouse);
 			g_view.pos = Vec2_Add(&g_offset_location, &diff);
@@ -332,7 +339,7 @@ void UpdatePlay(void)
 		} foreach_end;
 
 		if (nearest != NULL)
-			ball->vel = Vec2_Add(&ball->vel, &Vec2_Scale(&Vec2_Normalized(&Vec2_Sub(&nearest->pos, &ball->pos)), 20 / Vec2_LengthTo(&nearest->pos, &ball->pos)));
+			ball->vel = Vec2_Add(&ball->vel, &Vec2_Scale(&Vec2_Normalized(&Vec2_Sub(&nearest->pos, &ball->pos)), .1f));
 	} foreach_end;
 
 	/*
