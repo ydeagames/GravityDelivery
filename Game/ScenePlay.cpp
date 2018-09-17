@@ -17,6 +17,8 @@
 // グローバル変数の定義 ====================================================
 
 static GameObject g_field_ball;
+static Vector g_field_layers;
+static GameTimer g_field_layer_timer;
 static GameObject g_view;
 
 static GameObject g_back_button;
@@ -62,6 +64,19 @@ void InitializePlay(void)
 	g_field_ball.size.x *= 2;
 	g_field_ball.size.y *= 2;
 	g_field_ball.sprite = GameSprite_Create(GameTexture_Create(MakeScreen((int)g_field_ball.size.x, (int)g_field_ball.size.y, TRUE), Vec2_Create(), g_field_ball.size));
+	{
+		int i;
+		g_field_layers = Vector_Create(sizeof(GameObject));
+		for (i = 0; i < 3; i++)
+		{
+			GameObject obj = g_field_ball;
+			obj.sprite = GameSprite_Create(GameTexture_Create(MakeScreen((int)g_field_ball.size.x, (int)g_field_ball.size.y, TRUE), Vec2_Create(), g_field_ball.size));
+			Vector_AddLast(&g_field_layers, &obj);
+		}
+	}
+	g_field_layer_timer = GameTimer_Create();
+	GameTimer_SetRemaining(&g_field_layer_timer, .5f);
+	GameTimer_Resume(&g_field_layer_timer);
 	g_view = g_field;
 
 	{
@@ -143,7 +158,16 @@ static void SaveStage(void)
 //----------------------------------------------------------------------
 void UpdatePlay(void)
 {
-	Vec2 offset;
+	Vec2 offset = Vec2_Sub(&g_view.pos, &g_field.pos);
+	Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
+
+	{
+		float current_parallax = .2f;
+		float parallax = .8f;
+		Vec2 mouse_offset = Vec2_Scale(&mouse, -.02f);
+		offset = Vec2_Add(&offset, &mouse_offset);
+		mouse = Vec2_Sub(&GetMousePosition(), &offset);
+	}
 
 	{
 		if (IsMousePressed(MOUSE_INPUT_2))
@@ -160,8 +184,6 @@ void UpdatePlay(void)
 		GameObject_Field_CollisionVertical(&g_field_ball, &g_view, CONNECTION_BARRIER, EDGESIDE_INNER);
 		GameObject_Field_CollisionHorizontal(&g_field_ball, &g_view, CONNECTION_BARRIER, EDGESIDE_INNER);
 	}
-
-	offset = Vec2_Sub(&g_view.pos, &g_field.pos);
 
 	{
 		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_12))
@@ -389,8 +411,21 @@ void RenderPlay(void)
 {
 	Vec2 offset = Vec2_Sub(&g_view.pos, &g_field.pos);
 	Vec2 offset_shadow = Vec2_Create(GameObject_GetX(&g_field_ball, LEFT) - GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field_ball, TOP) - GameObject_GetY(&g_field, TOP));
+	Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
 
-	GameObject_Field_Render(&g_field_ball, &offset);
+	{
+		float current_parallax = .2f;
+		float parallax = .8f;
+		Vec2 mouse_offset = Vec2_Scale(&mouse, -.02f);
+		offset = Vec2_Add(&offset, &mouse_offset);
+		mouse = Vec2_Sub(&GetMousePosition(), &offset);
+		foreach_start(&g_field_layers, GameObject, layer)
+		{
+			current_parallax *= parallax;
+			GameObject_Field_Render(layer, &Vec2_Scale(&Vec2_Add(&offset, &mouse_offset), current_parallax), 1);
+		} foreach_end;
+	}
+	GameObject_Field_Render(&g_field_ball, &offset, 3);
 
 	foreach_start(&g_planets, GameObject, obj)
 	{
@@ -426,28 +461,42 @@ void RenderPlay(void)
 			GameObject_Render(obj, &offset);
 		}
 	} foreach_end;
+	if (GameTimer_IsFinished(&g_field_layer_timer))
 	{
-		Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
-		foreach_start(&g_planets, GameObject, obj)
+		GameTimer_SetRemaining(&g_field_layer_timer, .3f);
+		GameTimer_Resume(&g_field_layer_timer);
+
+		foreach_start(&g_field_layers, GameObject, layer)
 		{
-			if (GameObject_IsAlive(obj))
+			SetDrawScreen(layer->sprite.texture.texture);
 			{
-				switch (obj->type)
-				{
-				case TYPE_PLANET:
-					if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
-					{
-						GameObject cursor = *obj;
-						cursor.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_cursor1, Vec2_Create(), Vec2_Create(18, 18)));
-						cursor.sprite.num_columns = 5;
-						GameSprite_SetFrame(&cursor.sprite, obj->state ? 5 : 7);
-						GameObject_SetSize(&cursor, 4);
-						GameObject_Render(&cursor, &offset);
-					}
-				}
+				unsigned int color = GetColor(GetRand(255), GetRand(255), GetRand(255));
+				Vec2 pos = Vec2_Create(GetRandRangeF(GameObject_GetX(layer, LEFT), GameObject_GetX(layer, RIGHT)),
+					GetRandRangeF(GameObject_GetY(layer, TOP), GameObject_GetY(layer, BOTTOM)));
+				DrawCircleAA(pos.x - offset_shadow.x, pos.y - offset_shadow.y, 2, 4, color);
 			}
+			SetDrawScreen(DX_SCREEN_BACK);
 		} foreach_end;
 	}
+	foreach_start(&g_planets, GameObject, obj)
+	{
+		if (GameObject_IsAlive(obj))
+		{
+			switch (obj->type)
+			{
+			case TYPE_PLANET:
+				if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
+				{
+					GameObject cursor = *obj;
+					cursor.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_cursor1, Vec2_Create(), Vec2_Create(18, 18)));
+					cursor.sprite.num_columns = 5;
+					GameSprite_SetFrame(&cursor.sprite, obj->state ? 5 : 7);
+					GameObject_SetSize(&cursor, 4);
+					GameObject_Render(&cursor, &offset);
+				}
+			}
+		}
+	} foreach_end;
 
 	if (DEBUG_HITBOX)
 	{
@@ -477,6 +526,12 @@ void RenderPlay(void)
 //----------------------------------------------------------------------
 void FinalizePlay(void)
 {
+	DeleteGraph(g_field_ball.sprite.texture.texture);
+	foreach_start(&g_field_layers, GameObject, layer)
+	{
+		DeleteGraph(layer->sprite.texture.texture);
+	} foreach_end;
+
 	Vector_Delete(&g_balls);
 	Vector_Delete(&g_planets);
 }

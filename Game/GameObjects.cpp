@@ -126,7 +126,7 @@ void GameObject_RenderLoop(const GameObject* obj, const GameObject* tile_area, G
 }
 
 // <フィールド描画>
-void GameObject_Field_Render(const GameObject* field, const Vec2* translate)
+void GameObject_Field_Render(const GameObject* field, const Vec2* translate, int fadeout)
 {
 	GameObject_Render(field, translate);
 	SetDrawScreen(field->sprite.texture.texture);
@@ -135,8 +135,9 @@ void GameObject_Field_Render(const GameObject* field, const Vec2* translate)
 		fieldback.sprite = GameSprite_CreateNone();
 		fieldback.sprite.color = COLOR_BLACK;
 		fieldback.fill = TRUE;
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 2);
-		GameObject_Render(&fieldback, translate);
+		fieldback.pos = Vec2_Scale(&fieldback.size, .5f);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, fadeout);
+		GameObject_Render(&fieldback);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 	SetDrawScreen(DX_SCREEN_BACK);
