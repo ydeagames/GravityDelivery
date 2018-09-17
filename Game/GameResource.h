@@ -27,6 +27,7 @@ typedef struct
 
 	// <テクスチャ>
 	// タイトル
+	HGRP texture_title1;
 	
 	// プレイ
 	HGRP texture_planet1;

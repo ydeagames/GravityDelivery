@@ -44,6 +44,7 @@ GameResource GameResource_Create(void)
 
 	// テクスチャ
 	// タイトル
+	res.texture_title1 = LoadGraph("Resources/Textures/gravity_switch.png");
 
 	// プレイ
 	res.texture_planet1 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_other.png");
@@ -76,6 +77,7 @@ void GameResource_Delete(GameResource* res)
 	// ロゴ動画
 	DeleteGraph(res->movie_logo);
 	// タイトル
+	DeleteGraph(res->texture_title1);
 
 	// プレイ
 	DeleteGraph(res->texture_planet1);
