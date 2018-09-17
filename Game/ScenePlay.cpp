@@ -417,6 +417,7 @@ void RenderPlay(void)
 		}
 	} foreach_end;
 
+	if (DEBUG_HITBOX)
 	{
 		int pos = 0;
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "デバッグ情報 (F3-ヒットボックス F5-スタート地点 F6-ゴール地点 F7-惑星設置 F8-惑星撤去 F9-新規作成 F10-ロード F11-セーブ)");

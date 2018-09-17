@@ -106,7 +106,6 @@ void UpdateGame(void)
 	if (IsKeyPressed(PAD_INPUT_11))
 	{
 		// デバッグモードをトグル
-		extern BOOL g_debug_mode;
 		g_debug_mode = !g_debug_mode;
 	}
 

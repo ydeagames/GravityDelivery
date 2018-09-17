@@ -122,7 +122,7 @@ void GameObject_Field_Render(const GameObject* field, const Vec2* translate)
 		fieldback.sprite = GameSprite_CreateNone();
 		fieldback.sprite.color = COLOR_BLACK;
 		fieldback.fill = TRUE;
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 4);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 2);
 		GameObject_Render(&fieldback, translate);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
