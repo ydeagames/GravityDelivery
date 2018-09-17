@@ -27,20 +27,27 @@ GameResource GameResource_Create(void)
 	res.font_menu = CreateFontToHandle(FONT_NAME_MENU, FONT_SIZE_MENU, 16, DX_FONTTYPE_ANTIALIASING_4X4);
 
 	// サウンド
-
+	res.sound_bgm[0] = LoadSoundMem("Resources/Audio/Protected/bab_music_01.wav");
+	res.sound_bgm[1] = LoadSoundMem("Resources/Audio/Protected/bab_music_03.wav");
+	res.sound_bgm[2] = LoadSoundMem("Resources/Audio/Protected/drb_music_brick_dungeon.wav");
+	res.sound_bgm[3] = LoadSoundMem("Resources/Audio/Protected/dru_music_ishtar_theme.wav");
+	res.sound_se[0] = LoadSoundMem("Resources/Audio/Protected/bab_se_02.wav");
+	res.sound_se[1] = LoadSoundMem("Resources/Audio/Protected/bc_se_17.wav");
+	res.sound_se[2] = LoadSoundMem("Resources/Audio/Protected/genpei_se_06.wav");
+	res.sound_se[3] = LoadSoundMem("Resources/Audio/Protected/wgl_se_08.wav");
 
 	// テクスチャ
 	// ロゴ動画
-	res.movie_logo = LoadGraph("Resources\\Movies\\ydeagames.avi");
+	res.movie_logo = LoadGraph("Resources/Movies/ydeagames.avi");
 	// タイトル
 
 	// プレイ
-	res.texture_planet1 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_other.png");
-	res.texture_planet2 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_enemy.png");
-	res.texture_planet3 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_enemy_big.png");
-	res.texture_planet4 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_photonTorpedo.png");
-	res.texture_planet5 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_supplyBase.png");
-	res.texture_cursor1 = LoadGraph("Resources\\Textures\\Protected\\Xevious_OBJ_solvalou.png");
+	res.texture_planet1 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_other.png");
+	res.texture_planet2 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_enemy.png");
+	res.texture_planet3 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_enemy_big.png");
+	res.texture_planet4 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_photonTorpedo.png");
+	res.texture_planet5 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_supplyBase.png");
+	res.texture_cursor1 = LoadGraph("Resources/Textures/Protected/Xevious_OBJ_solvalou.png");
 
 	return res;
 }
@@ -53,7 +60,13 @@ void GameResource_Delete(GameResource* res)
 	RemoveFontResourceEx(FONT_FILE_MAIN_CUSTOM, FR_PRIVATE, NULL);
 
 	// サウンド
-
+	{
+		int i;
+		for (i = 0; i < NUM_BGM; i++)
+			DeleteSoundMem(res->sound_bgm[i]);
+		for (i = 0; i < NUM_SE; i++)
+			DeleteSoundMem(res->sound_se[i]);
+	}
 
 	// テクスチャ
 	// ロゴ動画
