@@ -19,6 +19,8 @@
 static int g_count;
 static Vector g_stages;
 
+static int g_last_select = -1;
+
 // 関数の定義 ==============================================================
 
 void listfiles(char* path, char* filter)
@@ -69,6 +71,7 @@ void UpdateTitle(void)
 			if (GameObject_IsHitPoint(&rect, &GetMousePosition()))
 			{
 				g_selected_stage = *stage;
+				PlaySoundMem(g_resources.sound_se[4], DX_PLAYTYPE_BACK);
 				RequestScene(SCENE_PLAY);
 			}
 			pos++;
@@ -95,6 +98,7 @@ void UpdateTitle(void)
 // タイトルシーンの描画処理
 void RenderTitle(void)
 {
+	int select = -1;
 	int pos = 0;
 	DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_TOP + 200 + 20 * pos++, COLOR_WHITE, g_resources.font_menu, "★重力スイッチ★");
 	DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_TOP + 200 + 20 * pos++, COLOR_WHITE, g_resources.font_menu, "①星をクリックすると重力を切り替えられます。");
@@ -111,10 +115,17 @@ void RenderTitle(void)
 		rect.fill = TRUE;
 		rect.sprite.color = COLOR_GRAY;
 		if (GameObject_IsHitPoint(&rect, &GetMousePosition()))
+		{
 			GameObject_Render(&rect);
+			select = pos;
+		}
 		DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_TOP + 400 + 20 * pos, COLOR_WHITE, g_resources.font_menu, stage->filename);
 		pos++;
 	} foreach_end;
+
+	if (select != g_last_select)
+		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
+	g_last_select = select;
 }
 
 // タイトルシーンの終了処理

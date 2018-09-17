@@ -37,6 +37,11 @@ static Vec2 g_offset_location;
 static Vec2 g_raw_mouse;
 static Vec2 g_raw_mouse_last;
 
+static BOOL g_mouse_on_last;
+static BOOL g_mouse_down;
+
+static HSND g_bgm;
+
 
 
 // ä÷êîÇÃêÈåæ ==============================================================
@@ -98,8 +103,18 @@ void InitializePlay(void)
 	g_score = 0;
 
 	g_offset_mouse = Vec2_Create();
+	g_mouse_on_last = FALSE;
+	g_mouse_down = FALSE;
+
+	g_bgm = 0;
 
 	LoadStage();
+
+	if (0 < g_bgm && g_bgm < NUM_BGM)
+	{
+		ChangeVolumeSoundMem(100, g_resources.sound_bgm[g_bgm]);
+		PlaySoundMem(g_resources.sound_bgm[g_bgm], DX_PLAYTYPE_LOOP);
+	}
 }
 
 static void LoadStage(void)
@@ -121,6 +136,7 @@ static void LoadStage(void)
 		Vector_Clear(&g_balls);
 		Vector_Clear(&g_planets);
 
+		fscanf_s(fp, "%d", &g_bgm);
 		while (fscanf_s(fp, "%d %f %f %f %f %f %d", &type, &pos_x, &pos_y, &vel_x, &vel_y, &scale, &color) != EOF) {
 			Vec2 pos = Vec2_Create(pos_x, pos_y);
 			Vec2 vel = Vec2_Create(vel_x, vel_y);
@@ -143,6 +159,8 @@ static void SaveStage(void)
 	assert(err == 0 && "file not opened!");
 
 	{
+		fprintf_s(fp, "%d", g_bgm);
+
 		foreach_start(&g_planets, GameObject, obj)
 		{
 			fprintf_s(fp, "%d %f %f %f %f %f %d\n", obj->type, obj->pos.x, obj->pos.y, obj->vel.x, obj->vel.y, obj->sprite.scale, obj->sprite.color);
@@ -163,12 +181,13 @@ static void SaveStage(void)
 //----------------------------------------------------------------------
 void UpdatePlay(void)
 {
-	Vec2 offset, mouse;
+	Vec2 offset, mouse, mouse_last;
 
 	g_raw_mouse_last = g_raw_mouse;
 	g_raw_mouse = GetMousePosition();
 	offset = Vec2_Sub(&g_view.pos, &g_field.pos);
 	mouse = Vec2_Sub(&g_raw_mouse, &offset);
+	mouse_last = Vec2_Sub(&g_raw_mouse_last, &offset);
 
 	{
 		float current_parallax = .2f;
@@ -183,16 +202,19 @@ void UpdatePlay(void)
 		{
 			g_offset_mouse = g_raw_mouse;
 			g_offset_location = g_view.pos;
+			g_mouse_down = TRUE;
 		}
 		if (IsMouseDown(MOUSE_INPUT_1))
 		{
-			Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
-			g_view.pos = Vec2_Add(&g_offset_location, &diff);
+			if (g_mouse_down)
+			{
+				Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
+				g_view.pos = Vec2_Add(&g_offset_location, &diff);
+			}
 		}
 		if (IsMouseReleased(MOUSE_INPUT_1))
 		{
-			Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
-			g_view.pos = Vec2_Add(&g_offset_location, &diff);
+			g_mouse_down = FALSE;
 		}
 
 		GameObject_Field_CollisionVertical(&g_field_ball, &g_view, CONNECTION_BARRIER, EDGESIDE_INNER);
@@ -223,7 +245,6 @@ void UpdatePlay(void)
 	}
 	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_13))
 	{
-		Vec2 mouse = Vec2_Sub(&g_raw_mouse, &offset);
 		GameObject obj = GameObject_Goal_Create(&mouse);
 
 		foreach_start(&g_planets, GameObject, planet)
@@ -238,7 +259,6 @@ void UpdatePlay(void)
 	}
 	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_14))
 	{
-		Vec2 mouse = Vec2_Sub(&g_raw_mouse, &offset);
 		GameObject obj = GameObject_Planet_Create(&mouse);
 		Vector_AddLast(&g_planets, &obj);
 		g_edit_mode = 3;
@@ -246,7 +266,6 @@ void UpdatePlay(void)
 	}
 	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_15))
 	{
-		Vec2 mouse = Vec2_Sub(&g_raw_mouse, &offset);
 		foreach_start(&g_planets, GameObject, obj)
 		{
 			if (GameObject_IsAlive(obj))
@@ -282,7 +301,6 @@ void UpdatePlay(void)
 		Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
 		if (Vec2_LengthSquared(&diff) < 5 * 5)
 		{
-			Vec2 mouse = Vec2_Sub(&g_raw_mouse, &offset);
 			foreach_start(&g_planets, GameObject, obj)
 			{
 				if (GameObject_IsAlive(obj))
@@ -295,13 +313,13 @@ void UpdatePlay(void)
 							obj->state = !obj->state;
 							//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
 							GameObject_SetSize(obj, obj->state ? 4.f : 2.f, 8);
+							PlaySoundMem(g_resources.sound_se[2], DX_PLAYTYPE_BACK);
 						}
 					}
 				}
 			} foreach_end;
 		}
 	}
-
 
 	foreach_start(&g_balls, GameObject, ball)
 	{
@@ -338,6 +356,8 @@ void UpdatePlay(void)
 					{
 						VectorIterator_Remove(&itr_ball);
 						g_score++;
+						ChangeVolumeSoundMem(100, g_resources.sound_se[0]);
+						PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
 					}
 
 					break;
@@ -409,7 +429,29 @@ void UpdatePlay(void)
 		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
 		{
 			RequestScene(SCENE_TITLE);
+			PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
 		}
+	}
+	if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse) && !GameObject_IsHitPoint(&g_back_button, &g_raw_mouse_last))
+		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
+
+	{
+		BOOL mouse_on = FALSE;
+		foreach_start(&g_planets, GameObject, obj)
+		{
+			if (GameObject_IsAlive(obj))
+			{
+				switch (obj->type)
+				{
+				case TYPE_PLANET:
+					if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
+						mouse_on = TRUE;
+				}
+			}
+		} foreach_end;
+		if (mouse_on && !g_mouse_on_last)
+			PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
+		g_mouse_on_last = mouse_on;
 	}
 
 	if (g_score >= 10 && !g_edited)
@@ -549,6 +591,11 @@ void FinalizePlay(void)
 	{
 		DeleteGraph(layer->sprite.texture.texture);
 	} foreach_end;
+	{
+		int i;
+		for (i = 0; i < NUM_BGM; i++)
+			StopSoundMem(g_resources.sound_bgm[i]);
+	}
 
 	Vector_Delete(&g_field_layers);
 	Vector_Delete(&g_balls);
