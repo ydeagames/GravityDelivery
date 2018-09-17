@@ -431,7 +431,7 @@ void UpdatePlay(void)
 	{
 		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
 		{
-			RequestScene(SCENE_TITLE);
+			RequestScene(SCENE_TITLE, COLOR_GRAY, .5f);
 			PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
 		}
 	}
@@ -476,7 +476,7 @@ void UpdatePlay(void)
 					break;
 				case TYPE_GOAL_DOOM:
 					if (GameSpriteAnimation_Update(&obj->sprite) == ANIMATION_FINISHED)
-						RequestScene(SCENE_RESULT);
+						RequestScene(SCENE_RESULT, COLOR_WHITE, 1.5f);
 					break;
 				}
 			}

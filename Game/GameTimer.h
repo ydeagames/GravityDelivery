@@ -47,6 +47,15 @@ void GameTimer_SetRemaining(GameTimer* timer, float remaining);
 // <ゲーム時間制限でタイマー残り時間セット>
 void GameTimer_SetRemainingDefault(GameTimer* timer);
 
+// <タイマー残り時間リセット>
+void GameTimer_ResetRemaining(GameTimer* timer);
+
+// <トータル時間取得>
+float GameTimer_GetTotal(GameTimer* timer);
+
+// <進捗取得>
+float GameTimer_GetProgress(GameTimer* timer);
+
 // <タイマー残り時間>
 float GameTimer_GetRemaining(GameTimer* timer);
 

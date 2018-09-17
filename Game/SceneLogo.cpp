@@ -27,7 +27,7 @@ void InitializeLogo(void)
 void UpdateLogo(void)
 {
 	if (IsMousePressed(MOUSE_INPUT_1) || GameTimer_IsFinished(&g_logo_count))
-		RequestScene(SCENE_TITLE);
+		RequestScene(SCENE_TITLE, COLOR_BLACK, 0, 1);
 }
 
 // ƒƒSƒV[ƒ“‚Ì•`‰æˆ—

@@ -30,4 +30,4 @@ void RenderSceneManager(void);
 void FinalizeSceneManager(void);
 
 // ƒV[ƒ“—v‹
-void RequestScene(SceneID scene_id);
+void RequestScene(SceneID scene_id, unsigned int color = COLOR_WHITE, float time = 0.f, float endtime = -1.f);

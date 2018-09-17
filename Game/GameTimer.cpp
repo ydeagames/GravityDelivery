@@ -87,10 +87,28 @@ float GameTimer_GetRemaining(GameTimer* timer)
 	return -GameTimer_GetTime(timer);
 }
 
+// <タイマー残り時間リセット>
+void GameTimer_ResetRemaining(GameTimer* timer)
+{
+	return GameTimer_SetRemaining(timer, GameTimer_GetTotal(timer));
+}
+
+// <トータル時間取得>
+float GameTimer_GetTotal(GameTimer* timer)
+{
+	return timer->remaining;
+}
+
+// <進捗取得>
+float GameTimer_GetProgress(GameTimer* timer)
+{
+	return GameTimer_GetElapsed(timer) / GameTimer_GetTotal(timer);
+}
+
 // <タイマー経過時間>
 float GameTimer_GetElapsed(GameTimer* timer)
 {
-	return timer->remaining - GameTimer_GetRemaining(timer);
+	return GameTimer_GetTotal(timer) - GameTimer_GetRemaining(timer);
 }
 
 // <タイマー終了判定>

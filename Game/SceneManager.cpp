@@ -6,10 +6,28 @@
 #include "ScenePlay.h"
 #include "SceneResult.h"
 
+#include "GameMain.h"
+#include "GameTimer.h"
+#include "GameUtils.h"
+
+// 列挙の定義 ==============================================================
+
+typedef enum {
+	FADE_IDLE = 0,
+	FADE_OUT,
+	FADE_IN,
+	FADE_FINISHED
+} FadeState;
+
 // グローバル変数の定義 ====================================================
 
 SceneID g_active_scene;
 SceneID g_next_scene;
+
+static GameTimer g_fade_timer;
+static FadeState g_fade_phase;
+static float g_fade_endtime;
+static unsigned int g_fade_color;
 
 // 関数の宣言 ==============================================================
 
@@ -25,6 +43,10 @@ void InitializeSceneManager(SceneID start_scene_id)
 {
 	g_active_scene = SCENE_NONE;
 	g_next_scene = start_scene_id;
+
+	g_fade_timer = GameTimer_Create();
+	g_fade_phase = FADE_OUT;
+	g_fade_endtime = 0;
 }
 
 // <シーンの更新処理>
@@ -32,10 +54,34 @@ void UpdateSceneManager(void)
 {
 	if (g_next_scene != SCENE_NONE)
 	{
-		FinalizeScene(g_active_scene);
-		InitializeScene(g_next_scene);
-		g_active_scene = g_next_scene;
-		g_next_scene = SCENE_NONE;
+		switch (g_fade_phase)
+		{
+		case FADE_OUT:
+			if (GameTimer_IsFinished(&g_fade_timer))
+			{
+				GameTimer_SetRemaining(&g_fade_timer, g_fade_endtime);
+				g_fade_phase = FADE_IN;
+
+				FinalizeScene(g_active_scene);
+				InitializeScene(g_next_scene);
+				g_active_scene = g_next_scene;
+			}
+			break;
+		case FADE_IN:
+			if (GameTimer_IsFinished(&g_fade_timer))
+			{
+				GameTimer_SetRemaining(&g_fade_timer, 0);
+				GameTimer_Pause(&g_fade_timer);
+				g_fade_phase = FADE_FINISHED;
+			}
+			break;
+		case FADE_FINISHED:
+			g_fade_phase = FADE_IDLE;
+
+			g_active_scene = g_next_scene;
+			g_next_scene = SCENE_NONE;
+			break;
+		}
 	}
 
 	UpdateScene(g_active_scene);
@@ -45,6 +91,26 @@ void UpdateSceneManager(void)
 void RenderSceneManager(void)
 {
 	RenderScene(g_active_scene);
+
+	switch (g_fade_phase)
+	{
+	case FADE_OUT:
+	{
+		float opacity = GameTimer_GetProgress(&g_fade_timer);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)(opacity * 255));
+		DrawBox(SCREEN_LEFT, SCREEN_TOP, SCREEN_RIGHT, SCREEN_BOTTOM, g_fade_color, TRUE);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		break;
+	}
+	case FADE_IN:
+	{
+		float opacity = 1 - GameTimer_GetProgress(&g_fade_timer);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)(opacity * 255));
+		DrawBox(SCREEN_LEFT, SCREEN_TOP, SCREEN_RIGHT, SCREEN_BOTTOM, g_fade_color, TRUE);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		break;
+	}
+	}
 }
 
 // <シーンの終了処理>
@@ -54,9 +120,21 @@ void FinalizeSceneManager(void)
 }
 
 // シーン要求
-void RequestScene(SceneID scene_id)
+void RequestScene(SceneID scene_id, unsigned int color, float time, float endtime)
 {
 	g_next_scene = scene_id;
+
+	if (g_fade_phase == FADE_IDLE)
+	{
+		GameTimer_SetRemaining(&g_fade_timer, time);
+		GameTimer_Resume(&g_fade_timer);
+		g_fade_phase = FADE_OUT;
+		g_fade_color = color;
+		if (endtime >= 0)
+			g_fade_endtime = endtime;
+		else
+			g_fade_endtime = time;
+	}
 }
 
 // シーンを初期化

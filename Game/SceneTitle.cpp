@@ -95,7 +95,7 @@ void UpdateTitle(void)
 			Stage* stage = (Stage*)Vector_Get(&g_stages, g_last_select);
 			g_selected_stage = *stage;
 			PlaySoundMem(g_resources.sound_se[4], DX_PLAYTYPE_BACK);
-			RequestScene(SCENE_PLAY);
+			RequestScene(SCENE_PLAY, COLOR_GRAY, 1);
 		}
 	}
 
@@ -111,7 +111,7 @@ void UpdateTitle(void)
 		{
 			strcpy_s(g_selected_stage.filename, str);
 			snprintf(g_selected_stage.filepath, 260, "%s/%s", "./Resources/Stage", str);
-			RequestScene(SCENE_PLAY);
+			RequestScene(SCENE_PLAY, COLOR_GRAY, 1);
 		}
 	}
 }

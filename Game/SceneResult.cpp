@@ -35,7 +35,7 @@ void UpdateResult(void)
 	{
 		if (GameObject_IsHitPoint(&g_back_button, &GetMousePosition()))
 		{
-			RequestScene(SCENE_TITLE);
+			RequestScene(SCENE_TITLE, COLOR_GRAY, .5f);
 			PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
 		}
 	}
