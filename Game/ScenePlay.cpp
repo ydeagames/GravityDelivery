@@ -170,12 +170,12 @@ void UpdatePlay(void)
 	}
 
 	{
-		if (IsMousePressed(MOUSE_INPUT_2))
+		if (IsMousePressed(MOUSE_INPUT_1))
 		{
 			g_offset_mouse = GetMousePosition();
 			g_offset_location = g_view.pos;
 		}
-		if (IsMouseDown(MOUSE_INPUT_2))
+		if (IsMouseDown(MOUSE_INPUT_1))
 		{
 			Vec2 diff = Vec2_Sub(&GetMousePosition(), &g_offset_mouse);
 			g_view.pos = Vec2_Add(&g_offset_location, &diff);
@@ -263,25 +263,29 @@ void UpdatePlay(void)
 		g_edited = FALSE;
 	}
 
-	if (IsMousePressed(MOUSE_INPUT_1))
+	if (IsMouseReleased(MOUSE_INPUT_1))
 	{
-		Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
-		foreach_start(&g_planets, GameObject, obj)
+		Vec2 diff = Vec2_Sub(&GetMousePosition(), &g_offset_mouse);
+		if (Vec2_LengthSquared(&diff) < 5 * 5)
 		{
-			if (GameObject_IsAlive(obj))
+			Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
+			foreach_start(&g_planets, GameObject, obj)
 			{
-				switch (obj->type)
+				if (GameObject_IsAlive(obj))
 				{
-				case TYPE_PLANET:
-					if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
+					switch (obj->type)
 					{
-						obj->state = !obj->state;
-						//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
-						GameObject_SetSize(obj, obj->state ? 4.f : 2.f, 8);
+					case TYPE_PLANET:
+						if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
+						{
+							obj->state = !obj->state;
+							//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
+							GameObject_SetSize(obj, obj->state ? 4.f : 2.f, 8);
+						}
 					}
 				}
-			}
-		} foreach_end;
+			} foreach_end;
+		}
 	}
 
 
