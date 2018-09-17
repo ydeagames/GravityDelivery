@@ -36,8 +36,11 @@ void UpdateResult(void)
 		if (GameObject_IsHitPoint(&g_back_button, &GetMousePosition()))
 		{
 			RequestScene(SCENE_TITLE);
+			PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
 		}
 	}
+	if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse) && !GameObject_IsHitPoint(&g_back_button, &g_raw_mouse_last))
+		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
 }
 
 // タイトルシーンの描画処理

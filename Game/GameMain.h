@@ -55,6 +55,8 @@ extern Stage g_selected_stage;
 extern GameObject g_field;
 extern DebugConsole g_console;
 
+extern Vec2 g_raw_mouse;
+extern Vec2 g_raw_mouse_last;
 
 
 

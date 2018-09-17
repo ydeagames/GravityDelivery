@@ -34,9 +34,6 @@ static Vec2 g_mouse_last_from;
 static Vec2 g_offset_mouse;
 static Vec2 g_offset_location;
 
-static Vec2 g_raw_mouse;
-static Vec2 g_raw_mouse_last;
-
 static BOOL g_mouse_on_last;
 static BOOL g_mouse_down;
 
@@ -183,8 +180,6 @@ void UpdatePlay(void)
 {
 	Vec2 offset, mouse, mouse_last;
 
-	g_raw_mouse_last = g_raw_mouse;
-	g_raw_mouse = GetMousePosition();
 	offset = Vec2_Sub(&g_view.pos, &g_field.pos);
 	mouse = Vec2_Sub(&g_raw_mouse, &offset);
 	mouse_last = Vec2_Sub(&g_raw_mouse_last, &offset);
@@ -455,7 +450,30 @@ void UpdatePlay(void)
 	}
 
 	if (g_score >= 10 && !g_edited)
-		RequestScene(SCENE_RESULT);
+	{
+		foreach_start(&g_planets, GameObject, obj)
+		{
+			if (GameObject_IsAlive(obj))
+			{
+				switch (obj->type)
+				{
+				case TYPE_GOAL:
+					obj->sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet1, Vec2_Create(), Vec2_Create(26, 26)));
+					obj->sprite.num_columns = 8;
+					obj->sprite.animation = GameSpriteAnimation_Create(19, 22, 8);
+					obj->sprite.animation.loop_flag = FALSE;
+					GameObject_SetSize(obj, 2, 32);
+					obj->type = TYPE_GOAL_DOOM;
+					PlaySoundMem(g_resources.sound_se[6], DX_PLAYTYPE_BACK);
+					break;
+				case TYPE_GOAL_DOOM:
+					if (GameSpriteAnimation_Update(&obj->sprite) == ANIMATION_FINISHED)
+						RequestScene(SCENE_RESULT);
+					break;
+				}
+			}
+		} foreach_end;
+	}
 }
 
 
@@ -497,13 +515,13 @@ void RenderPlay(void)
 				DrawFormatStringF(GameObject_GetX(obj, LEFT) + offset.x, GameObject_GetY(obj, BOTTOM, 10) + offset.y, COLOR_WHITE, "%d / 10", g_score);
 				GameObject_Render(obj, &offset);
 				break;
-			case TYPE_PLANET:
-				GameObject_Render(obj, &offset);
-				break;
 			case TYPE_START:
 				GameObject_Render(obj, &offset);
 				if (DEBUG_HITBOX)
 					Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
+				break;
+			default:
+				GameObject_Render(obj, &offset);
 				break;
 			}
 		}

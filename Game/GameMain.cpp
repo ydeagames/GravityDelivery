@@ -30,6 +30,9 @@ Stage g_selected_stage;
 GameObject g_field;
 DebugConsole g_console;
 
+Vec2 g_raw_mouse;
+Vec2 g_raw_mouse_last;
+
 
 
 // 関数の宣言 ==============================================================
@@ -108,6 +111,10 @@ void UpdateGame(void)
 		// デバッグモードをトグル
 		g_debug_mode = !g_debug_mode;
 	}
+
+	// マウスの更新
+	g_raw_mouse_last = g_raw_mouse;
+	g_raw_mouse = GetMousePosition();
 
 	// シーンマネージャーを更新
 	UpdateSceneManager();

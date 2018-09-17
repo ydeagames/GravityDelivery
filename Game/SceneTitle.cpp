@@ -119,7 +119,15 @@ void RenderTitle(void)
 			GameObject_Render(&rect);
 			select = pos;
 		}
-		DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_TOP + 400 + 20 * pos, COLOR_WHITE, g_resources.font_menu, stage->filename);
+		{
+			char name[260];
+			char *lastdot;
+			strcpy(name, stage->filename);
+			lastdot = strrchr(name, '.');
+			if (lastdot != NULL)
+				*lastdot = '\0';
+			DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_TOP + 400 + 20 * pos, COLOR_WHITE, g_resources.font_menu, name);
+		}
 		pos++;
 	} foreach_end;
 

@@ -13,7 +13,8 @@ typedef enum
 	TYPE_UNKNOWN = 0,
 	TYPE_PLANET,
 	TYPE_START,
-	TYPE_GOAL
+	TYPE_GOAL,
+	TYPE_GOAL_DOOM
 } ObjectType;
 
 // ä÷êîÇÃêÈåæ ==============================================================

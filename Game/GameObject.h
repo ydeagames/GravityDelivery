@@ -127,13 +127,13 @@ GameTexture GameTexture_CreateNone();
 // <<スプライトアニメーション>> ----------------------------------------
 
 // <スプライトアニメーション作成>
-GameSpriteAnimation GameSpriteAnimation_Create(int frames_start, int frames_end, int num_columns, int frame_duration);
+GameSpriteAnimation GameSpriteAnimation_Create(int frames_start, int frames_end, int frame_duration);
 
 // <スプライトアニメーションなし>
 GameSpriteAnimation GameSpriteAnimation_CreateNone();
 
 // <スプライトアニメーション更新>
-AnimationState GameSpriteAnimation_Update(GameSpriteAnimation* obj);
+AnimationState GameSpriteAnimation_Update(GameSprite* obj);
 
 // <<スプライト>> ------------------------------------------------------
 

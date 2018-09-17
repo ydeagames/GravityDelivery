@@ -34,12 +34,13 @@ GameResource GameResource_Create(void)
 	res.sound_bgm[1] = LoadSoundMem("Resources/Audio/Protected/drb_music_catacomb.wav");
 	res.sound_bgm[2] = LoadSoundMem("Resources/Audio/Protected/drb_music_brick_dungeon.wav");
 	res.sound_bgm[3] = LoadSoundMem("Resources/Audio/Protected/dru_music_ishtar_theme.wav");
-	res.sound_se[0] = LoadSoundMem("Resources/Audio/Protected/bab_se_02.wav");
+	res.sound_se[0] = LoadSoundMem("Resources/Audio/Protected/xev_se_Zakato_DethoutSound.wav");
 	res.sound_se[1] = LoadSoundMem("Resources/Audio/Protected/bc_se_17.wav");
 	res.sound_se[2] = LoadSoundMem("Resources/Audio/Protected/genpei_se_06.wav");
 	res.sound_se[3] = LoadSoundMem("Resources/Audio/Protected/wgl_se_08.wav");
 	res.sound_se[4] = LoadSoundMem("Resources/Audio/Protected/bc_se_16.wav");
 	res.sound_se[5] = LoadSoundMem("Resources/Audio/Protected/wonder_se_13.wav");
+	res.sound_se[6] = LoadSoundMem("Resources/Audio/Protected/xev_se_Miss.wav");
 
 	// テクスチャ
 	// タイトル

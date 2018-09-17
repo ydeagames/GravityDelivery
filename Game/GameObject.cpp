@@ -61,6 +61,8 @@ AnimationState GameSpriteAnimation_Update(GameSprite* animate_sprite)
 	animate_sprite->animation.result = ANIMATION_RUNNING;
 	// 経過時間
 	animate_sprite->animation.elapsed_time++;
+	// 最初のフレーム以上
+	animate_sprite->frame_index = GetMax(animate_sprite->frame_index, animate_sprite->animation.frame_start);
 	
 	// フレーム経過
 	if (animate_sprite->animation.elapsed_time > animate_sprite->animation.frame_duration)
