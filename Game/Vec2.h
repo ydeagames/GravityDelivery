@@ -23,6 +23,9 @@ float Vec2_LengthSquared(const Vec2* vec);
 // <もう一方のベクトルとの内積>
 float Vec2_Dot(const Vec2* vec, const Vec2* other);
 
+// <もう一方のベクトルとの外積>
+float Vec2_Cross(const Vec2* vec, const Vec2* other);
+
 // <もう一方のベクトルとの距離>
 float Vec2_LengthTo(const Vec2* vec, const Vec2* other);
 

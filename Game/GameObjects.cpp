@@ -77,6 +77,15 @@ GameObject GameObject_Planet_Create(const Vec2* mouse)
 	return obj;
 }
 
+// <ビームオブジェクト>
+GameObject GameObject_Beam_Create(const Vec2* mouse, const Vec2* next)
+{
+	GameObject obj = GameObject_Create(*mouse, *next, Vec2_Create(10, 10));
+	obj.type = TYPE_BEAM;
+	obj.sprite.color = COLOR_YELLOW;
+	return obj;
+}
+
 // <オブジェクト>
 GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec)
 {
@@ -89,6 +98,8 @@ GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec)
 		return GameObject_Start_Create(mouse, vec);
 	case TYPE_GOAL:
 		return GameObject_Goal_Create(mouse);
+	case TYPE_BEAM:
+		return GameObject_Beam_Create(mouse, vec);
 	}
 }
 

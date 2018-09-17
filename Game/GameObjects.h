@@ -14,7 +14,10 @@ typedef enum
 	TYPE_PLANET,
 	TYPE_START,
 	TYPE_GOAL,
-	TYPE_GOAL_DOOM
+	TYPE_GOAL_DOOM,
+	TYPE_BEAM,
+	TYPE_WARP,
+	TYPE_VEL
 } ObjectType;
 
 // 関数の宣言 ==============================================================
@@ -33,6 +36,9 @@ GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* vec);
 
 // <惑星オブジェクト>
 GameObject GameObject_Planet_Create(const Vec2* mouse);
+
+// <ビームオブジェクト>
+GameObject GameObject_Beam_Create(const Vec2* mouse, const Vec2* next);
 
 // <オブジェクト>
 GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec);

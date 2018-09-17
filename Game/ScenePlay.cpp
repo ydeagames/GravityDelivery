@@ -53,6 +53,7 @@ void FinalizePlay(void);    // ゲームの終了処理
 static void LoadStage(void);
 static void SaveStage(void);
 
+static BOOL collisionLineCircle(const GameObject* circle, Vec2 pointA, Vec2 pointB);
 
 
 
@@ -240,6 +241,22 @@ void UpdatePlay(void)
 			g_edit_mode = -1;
 		}
 	}
+	{
+		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_16))
+		{
+			g_mouse_last_from = g_raw_mouse;
+			g_edit_mode = 5;
+			g_edited = TRUE;
+		}
+		if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == 5)
+		{
+			Vec2 mouse_last_to = g_raw_mouse;
+			GameObject obj = GameObject_Beam_Create(&g_mouse_last_from, &mouse_last_to);
+
+			Vector_AddLast(&g_planets, &obj);
+			g_edit_mode = -1;
+		}
+	}
 	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_13))
 	{
 		GameObject obj = GameObject_Goal_Create(&mouse);
@@ -270,6 +287,7 @@ void UpdatePlay(void)
 				switch (obj->type)
 				{
 				case TYPE_PLANET:
+				case TYPE_BEAM:
 					if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
 					{
 						VectorIterator_Remove(&itr_obj);
@@ -351,6 +369,10 @@ void UpdatePlay(void)
 							VectorIterator_Remove(&itr_ball);
 					}
 
+					break;
+				case TYPE_BEAM:
+					if (collisionLineCircle(ball, planet->pos, planet->vel))
+						VectorIterator_Remove(&itr_ball);
 					break;
 				case TYPE_GOAL:
 					if (GameObject_IsHit(ball, planet))
@@ -485,6 +507,51 @@ void UpdatePlay(void)
 	}
 }
 
+static BOOL collisionLineCircle(const GameObject* circle, Vec2 pointA, Vec2 pointB)
+{
+	//ベクトルを生成
+	Vec2 vecAB = Vec2_Sub(&pointB, &pointA);
+	Vec2 vecAP = Vec2_Sub(&circle->pos, &pointA);
+	Vec2 vecBP = Vec2_Sub(&circle->pos, &pointB);
+
+	//ABの単位ベクトルを計算
+	Vec2 normalAB = Vec2_Normalized(&vecAB);
+
+	//AからXまでの距離を
+	//単位ベクトルABとベクトルAPの内積で求める
+	float lenAX = Vec2_Dot(&normalAB, &vecAP);
+
+	float shortestDistance;  //線分APとPの最短距離
+	if (lenAX < 0) {
+		//AXが負なら APが円の中心までの最短距離
+		shortestDistance = Vec2_Length(&vecAP);
+	}
+	else if (lenAX > Vec2_Length(&vecAB)) {
+		//AXがAPよりも長い場合は、BPが円の中心
+		//までの最短距離
+		shortestDistance = Vec2_Length(&vecBP);
+	}
+	else {
+		//PがAB上にあるので、PXが最短距離
+		//単位ベクトルABとベクトルAPの外積で求める
+		shortestDistance = GetAbsF(Vec2_Cross(&normalAB, &vecAP));
+	}
+
+	{
+		//Xの座標を求める(AXの長さより計算）
+		Vec2 pointX = Vec2_Create(pointA.x + (normalAB.x * lenAX),
+			pointA.y + (normalAB.y * lenAX));
+		float r1 = GetMinF(circle->size.x, circle->size.y) / 2;
+
+		BOOL hit = FALSE;
+		if (shortestDistance < r1) {
+			//最短距離が円の半径よりも小さい場合は、当たり
+			hit = TRUE;
+		}
+		return hit;
+	}
+}
+
 
 
 //----------------------------------------------------------------------
@@ -532,6 +599,9 @@ void RenderPlay(void)
 					GameObject_Render(obj, &offset);
 					if (DEBUG_HITBOX)
 						Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
+					break;
+				case TYPE_BEAM:
+					DrawLineAA(obj->pos.x + offset.x, obj->pos.y + offset.y, obj->vel.x + offset.x, obj->vel.y + offset.y, obj->sprite.color, 3);
 					break;
 				case TYPE_PLANET:
 					GameObject_Render(obj, &offset);
@@ -603,7 +673,7 @@ void RenderPlay(void)
 	if (DEBUG_HITBOX)
 	{
 		int pos = 0;
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "デバッグ情報 (F5-スタート地点 F6-ゴール地点 F7-惑星設置 F8-惑星撤去 F9-新規作成 F10-ロード F11-セーブ)");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "デバッグ情報 (F5-スタート地点 F6-ゴール地点 F7-惑星設置 F8-惑星撤去 F9-ビーム F10-ロード F11-セーブ)");
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "stage: %s", g_selected_stage.filename);
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "all: %d", Vector_GetSize(&g_balls));
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "score: %d", g_score);
