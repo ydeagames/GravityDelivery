@@ -17,12 +17,13 @@ static GameObject g_back_button;
 // タイトルシーンの初期化処理
 void InitializeResult(void)
 {
-	{
-		Vec2 size = Vec2_Create(150, 50);
-		g_back_button = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2 - 50), GameObject_GetY(&g_field, BOTTOM, -size.y / 2 - 50)), Vec2_Create(), size);
-		g_back_button.fill = TRUE;
-		g_back_button.sprite.color = COLOR_GRAY;
-	}
+	Vec2 size = Vec2_Create(150, 50);
+	g_back_button = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2 - 50), GameObject_GetY(&g_field, BOTTOM, -size.y / 2 - 50)), Vec2_Create(), size);
+	g_back_button.fill = TRUE;
+	g_back_button.sprite.color = COLOR_GRAY;
+
+	ChangeVolumeSoundMem(150, g_resources.sound_se[7]);
+	PlaySoundMem(g_resources.sound_se[7], DX_PLAYTYPE_BACK);
 }
 
 // タイトルシーンの更新処理

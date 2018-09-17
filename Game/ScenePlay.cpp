@@ -472,6 +472,7 @@ void UpdatePlay(void)
 					obj->sprite.animation.loop_flag = FALSE;
 					GameObject_SetSize(obj, 2, 32);
 					obj->type = TYPE_GOAL_DOOM;
+					ChangeVolumeSoundMem(150, g_resources.sound_se[6]);
 					PlaySoundMem(g_resources.sound_se[6], DX_PLAYTYPE_BACK);
 					break;
 				case TYPE_GOAL_DOOM:
