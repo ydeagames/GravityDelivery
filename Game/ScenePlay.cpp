@@ -613,7 +613,7 @@ void RenderPlay(void)
 	{
 		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
 			GameObject_Render(&g_back_button);
-		DrawFormatStringF(GameObject_GetX(&g_back_button, LEFT, -10), GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, "タイトルへ戻る");
+		DrawFormatStringToHandle((int) GameObject_GetX(&g_back_button, LEFT, -10), (int) GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_menu, "タイトルへ戻る");
 	}
 }
 
