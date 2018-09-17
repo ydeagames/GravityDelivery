@@ -21,6 +21,8 @@ typedef struct
 	HGRP texture_planet3;
 	HGRP texture_planet4;
 	HGRP texture_planet5;
+	HGRP texture_cursor1;
+
 	// ƒŠƒUƒ‹ƒg
 
 	// <“®‰æ>

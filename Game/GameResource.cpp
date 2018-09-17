@@ -40,6 +40,7 @@ GameResource GameResource_Create(void)
 	res.texture_planet3 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_enemy_big.png");
 	res.texture_planet4 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_photonTorpedo.png");
 	res.texture_planet5 = LoadGraph("Resources\\Textures\\Protected\\StarLuster_OBJ_supplyBase.png");
+	res.texture_cursor1 = LoadGraph("Resources\\Textures\\Protected\\Xevious_OBJ_solvalou.png");
 
 	return res;
 }
@@ -65,6 +66,7 @@ void GameResource_Delete(GameResource* res)
 	DeleteGraph(res->texture_planet3);
 	DeleteGraph(res->texture_planet4);
 	DeleteGraph(res->texture_planet5);
+	DeleteGraph(res->texture_cursor1);
 
 	// ƒ^ƒCƒgƒ‹
 

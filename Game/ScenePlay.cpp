@@ -309,6 +309,7 @@ void UpdatePlay(void)
 			ball->vel = Vec2_Add(&ball->vel, &Vec2_Scale(&Vec2_Normalized(&Vec2_Sub(&nearest->pos, &ball->pos)), 20 / Vec2_LengthTo(&nearest->pos, &ball->pos)));
 	} foreach_end;
 
+	/*
 	foreach_start(&g_balls, GameObject, ball1)
 	{
 		foreach_start(&g_balls, GameObject, ball2)
@@ -321,6 +322,7 @@ void UpdatePlay(void)
 				}
 		} foreach_end;
 	} foreach_end;
+	/**/
 
 	foreach_start(&g_planets, GameObject, planet)
 	{
@@ -328,6 +330,10 @@ void UpdatePlay(void)
 		{
 			switch (planet->type)
 			{
+			case TYPE_PLANET:
+				if (planet->state)
+					planet->sprite.angle += ToRadians(1);
+				break;
 			case TYPE_START:
 				if (GameTimer_IsFinished(&planet->count))
 				{
@@ -420,6 +426,28 @@ void RenderPlay(void)
 			GameObject_Render(obj, &offset);
 		}
 	} foreach_end;
+	{
+		Vec2 mouse = Vec2_Sub(&GetMousePosition(), &offset);
+		foreach_start(&g_planets, GameObject, obj)
+		{
+			if (GameObject_IsAlive(obj))
+			{
+				switch (obj->type)
+				{
+				case TYPE_PLANET:
+					if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
+					{
+						GameObject cursor = *obj;
+						cursor.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_cursor1, Vec2_Create(), Vec2_Create(18, 18)));
+						cursor.sprite.num_columns = 5;
+						GameSprite_SetFrame(&cursor.sprite, obj->state ? 5 : 7);
+						GameObject_SetSize(&cursor, 4);
+						GameObject_Render(&cursor, &offset);
+					}
+				}
+			}
+		} foreach_end;
+	}
 
 	if (DEBUG_HITBOX)
 	{

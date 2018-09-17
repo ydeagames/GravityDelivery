@@ -65,6 +65,8 @@ GameObject GameObject_Planet_Create(const Vec2* mouse)
 {
 	GameObject obj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(10, 10));
 	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet1, Vec2_Create(), Vec2_Create(26, 26)));
+	obj.sprite.texture.center.x -= 0;
+	obj.sprite.texture.center.y += 1.5f;
 	obj.sprite.num_columns = 8;
 	GameSprite_SetFrame(&obj.sprite, GetRand(7));
 	obj.type = TYPE_PLANET;
