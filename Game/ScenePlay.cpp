@@ -69,8 +69,7 @@ static BOOL collisionLineCircle(const GameObject* circle, Vec2 pointA, Vec2 poin
 void InitializePlay(void)
 {
 	g_field_ball = g_field;
-	g_field_ball.size.x *= 2;
-	g_field_ball.size.y *= 2;
+	g_field_ball.size = Vec2_Create(3200, 1600);
 	g_field_ball.sprite = GameSprite_Create(GameTexture_Create(MakeScreen((int)g_field_ball.size.x, (int)g_field_ball.size.y, TRUE), Vec2_Create(), g_field_ball.size));
 	{
 		int i;
@@ -159,8 +158,7 @@ static void SaveStage(void)
 	assert(err == 0 && "file not opened!");
 
 	{
-		fprintf_s(fp, "%d", g_bgm);
-
+		fprintf_s(fp, "%d\n", g_bgm);
 		foreach_start(&g_planets, GameObject, obj)
 		{
 			fprintf_s(fp, "%d %f %f %f %f %f %d\n", obj->type, obj->pos.x, obj->pos.y, obj->vel.x, obj->vel.y, obj->sprite.scale, obj->sprite.color);
