@@ -54,8 +54,6 @@ void FinalizePlay(void);    // ゲームの終了処理
 static void LoadStage(void);
 static void SaveStage(void);
 
-static BOOL collisionLineCircle(const GameObject* circle, Vec2 pointA, Vec2 pointB);
-
 
 
 // 関数の定義 ==============================================================
@@ -343,6 +341,7 @@ void UpdatePlay(void)
 	{
 		GameObject* nearest = NULL;
 		float length2_min = -1;
+		BOOL request_ballloop = FALSE;
 
 		foreach_start(&g_planets, GameObject, planet)
 		{
@@ -364,14 +363,22 @@ void UpdatePlay(void)
 							}
 						}
 
-						if (GameObject_IsHit(planet, ball))
+						if (GameObject_IsHit(planet, ball)) {
 							VectorIterator_Remove(&itr_ball);
+							request_ballloop = TRUE;
+						}
 					}
 
 					break;
 				case TYPE_BEAM:
-					if (collisionLineCircle(ball, planet->pos, planet->vel))
+					GameObject line1 = GameObject_CreateLine(planet->pos, planet->vel);
+					GameObject line2 = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
+					//GameObject line1 = GameObject_CreateLine(Vec2_Create(0, 0), Vec2_Create(8, 8));
+					//GameObject line2 = GameObject_CreateLine(Vec2_Create(0, 8), Vec2_Create(8, 0));
+					if (GameObject_IsHit(&line1, &line2)) {
 						VectorIterator_Remove(&itr_ball);
+						request_ballloop = TRUE;
+					}
 					break;
 				case TYPE_GOAL:
 					if (GameObject_IsHit(ball, planet))
@@ -382,10 +389,13 @@ void UpdatePlay(void)
 						if (g_tutorial_state == 2)
 							g_tutorial_state = 3;
 						PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
+						request_ballloop = TRUE;
 					}
-
 					break;
 				}
+
+				if (request_ballloop)
+					break;
 			}
 		} foreach_end;
 
@@ -506,50 +516,6 @@ void UpdatePlay(void)
 	}
 }
 
-static BOOL collisionLineCircle(const GameObject* circle, Vec2 pointA, Vec2 pointB)
-{
-	//ベクトルを生成
-	Vec2 vecAB = Vec2_Sub(&pointB, &pointA);
-	Vec2 vecAP = Vec2_Sub(&circle->pos, &pointA);
-	Vec2 vecBP = Vec2_Sub(&circle->pos, &pointB);
-
-	//ABの単位ベクトルを計算
-	Vec2 normalAB = Vec2_Normalized(&vecAB);
-
-	//AからXまでの距離を
-	//単位ベクトルABとベクトルAPの内積で求める
-	float lenAX = Vec2_Dot(&normalAB, &vecAP);
-
-	float shortestDistance;  //線分APとPの最短距離
-	if (lenAX < 0) {
-		//AXが負なら APが円の中心までの最短距離
-		shortestDistance = Vec2_Length(&vecAP);
-	}
-	else if (lenAX > Vec2_Length(&vecAB)) {
-		//AXがAPよりも長い場合は、BPが円の中心
-		//までの最短距離
-		shortestDistance = Vec2_Length(&vecBP);
-	}
-	else {
-		//PがAB上にあるので、PXが最短距離
-		//単位ベクトルABとベクトルAPの外積で求める
-		shortestDistance = GetAbsF(Vec2_Cross(&normalAB, &vecAP));
-	}
-
-	{
-		//Xの座標を求める(AXの長さより計算）
-		Vec2 pointX = Vec2_Create(pointA.x + (normalAB.x * lenAX),
-			pointA.y + (normalAB.y * lenAX));
-		float r1 = GetMinF(circle->size.x, circle->size.y) / 2;
-
-		BOOL hit = FALSE;
-		if (shortestDistance < r1) {
-			//最短距離が円の半径よりも小さい場合は、当たり
-			hit = TRUE;
-		}
-		return hit;
-	}
-}
 
 
 
@@ -589,7 +555,7 @@ void RenderPlay(void)
 				switch (obj->type)
 				{
 				case TYPE_GOAL:
-					DrawFormatStringToHandle((int) (GameObject_GetX(obj, LEFT) + offset.x + 2), (int) (GameObject_GetY(obj, BOTTOM, 10) + offset.y), COLOR_WHITE, g_resources.font_main, "%d / 10", g_score);
+					DrawFormatStringToHandle((int)(GameObject_GetX(obj, LEFT) + offset.x + 2), (int)(GameObject_GetY(obj, BOTTOM, 10) + offset.y), COLOR_WHITE, g_resources.font_main, "%d / 10", g_score);
 					GameObject_Render(obj, &offset);
 					if (g_tutorial_state == 2)
 						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "ゴールはここ。うまく導こう！");
@@ -682,7 +648,7 @@ void RenderPlay(void)
 	{
 		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
 			GameObject_Render(&g_back_button);
-		DrawFormatStringToHandle((int) GameObject_GetX(&g_back_button, LEFT, -10), (int) GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "タイトルへ戻る");
+		DrawFormatStringToHandle((int)GameObject_GetX(&g_back_button, LEFT, -10), (int)GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "タイトルへ戻る");
 	}
 }
 

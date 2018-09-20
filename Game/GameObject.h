@@ -160,6 +160,9 @@ void GameTick_Update(void);
 // <オブジェクト作成>
 GameObject GameObject_Create(Vec2 pos = Vec2_Create(), Vec2 vel = Vec2_Create(), Vec2 size = Vec2_Create());
 
+// <線オブジェクト作成>
+GameObject GameObject_CreateLine(Vec2 pos1, Vec2 pos2, Vec2 vel = Vec2_Create());
+
 // <オブジェクト削除>
 void GameObject_Dispose(GameObject* obj);
 
@@ -180,6 +183,18 @@ float GameObject_GetX(const GameObject* obj, ObjectSide side, float margin = 0.f
 
 // <オブジェクトY位置ゲット>
 float GameObject_GetY(const GameObject* obj, ObjectSide side, float margin = 0.f);
+
+// <オブジェクトXオフセット>
+float GameObject_OffsetRawX(const GameObject* obj, ObjectSide side, float pos, float padding = 0.f);
+
+// <オブジェクトXオフセット>
+float GameObject_OffsetRawY(const GameObject* obj, ObjectSide side, float pos, float padding = 0.f);
+
+// <オブジェクトX位置ゲット>
+float GameObject_GetRawX(const GameObject* obj, ObjectSide side, float padding = 0.f);
+
+// <オブジェクトY位置ゲット>
+float GameObject_GetRawY(const GameObject* obj, ObjectSide side, float padding = 0.f);
 
 // <オブジェクト描画>
 void GameObject_Render(const GameObject* obj, const Vec2* translate = &Vec2_Create());

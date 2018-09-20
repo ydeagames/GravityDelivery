@@ -31,7 +31,7 @@ static BOOL GameObject_IsHitBoxPoint(const GameObject* obj, const Vec2* p)
 // <円オブジェクト×点当たり判定>
 static BOOL GameObject_IsHitCirclePoint(const GameObject* circle, const Vec2* p)
 {
-	float r1 = GetMinF(circle->size.x, circle->size.y) / 2;
+	float r1 = GetMinF(GetAbsF(circle->size.x), GetAbsF(circle->size.y)) / 2;
 
 	return Vec2_LengthSquaredTo(&circle->pos, p) < r1*r1;
 }
@@ -70,9 +70,9 @@ static BOOL GameObject_IsHitBox(const GameObject* obj1, const GameObject* obj2)
 static BOOL GameObject_IsHitBoxCircle(const GameObject* box, const GameObject* circle)
 {
 	if (GameObject_GetX(box, LEFT) <= circle->pos.x && circle->pos.x <= GameObject_GetX(box, RIGHT))
-		return box->size.y / 2 + circle->size.y / 2 > GetAbsF(circle->pos.y - box->pos.y);
+		return (GetAbsF(box->size.y) + GetAbsF(circle->size.y)) / 2 > GetAbsF(circle->pos.y - box->pos.y);
 	else if (GameObject_GetY(box, TOP) <= circle->pos.y && circle->pos.y <= GameObject_GetY(box, BOTTOM))
-		return box->size.x / 2 + circle->size.x / 2 > GetAbsF(circle->pos.x - box->pos.x);
+		return (GetAbsF(box->size.x) + GetAbsF(circle->size.x)) / 2 > GetAbsF(circle->pos.x - box->pos.x);
 	else
 	{
 		float diagonal = Vec2_Length(&box->size);
@@ -84,8 +84,8 @@ static BOOL GameObject_IsHitBoxCircle(const GameObject* box, const GameObject* c
 // <円オブジェクト×円オブジェクト当たり判定>
 static BOOL GameObject_IsHitCircle(const GameObject* obj1, const GameObject* obj2)
 {
-	float r1 = GetMinF(obj1->size.x, obj1->size.y) / 2;
-	float r2 = GetMinF(obj2->size.x, obj2->size.y) / 2;
+	float r1 = GetMinF(GetAbsF(obj1->size.x), GetAbsF(obj1->size.y)) / 2;
+	float r2 = GetMinF(GetAbsF(obj2->size.x), GetAbsF(obj2->size.y)) / 2;
 
 	return Vec2_LengthSquaredTo(&obj1->pos, &obj2->pos) < (r1 + r2)*(r1 + r2);
 }
@@ -93,8 +93,8 @@ static BOOL GameObject_IsHitCircle(const GameObject* obj1, const GameObject* obj
 // <線オブジェクト×円オブジェクト当たり判定>
 static BOOL GameObject_IsHitLineCircle(const GameObject* line, const GameObject* circle)
 {
-	Vec2 pointA = Vec2_Create(GameObject_GetX(line, LEFT), GameObject_GetY(line, TOP));
-	Vec2 pointB = Vec2_Create(GameObject_GetX(line, RIGHT), GameObject_GetY(line, BOTTOM));
+	Vec2 pointA = Vec2_Create(GameObject_GetRawX(line, LEFT), GameObject_GetRawY(line, TOP));
+	Vec2 pointB = Vec2_Create(GameObject_GetRawX(line, RIGHT), GameObject_GetRawY(line, BOTTOM));
 
 	//ベクトルを生成
 	Vec2 vecAB = Vec2_Sub(&pointB, &pointA);
@@ -129,7 +129,7 @@ static BOOL GameObject_IsHitLineCircle(const GameObject* line, const GameObject*
 		Vec2 pointX = Vec2_Create(pointA.x + (normalAB.x * lenAX),
 			pointA.y + (normalAB.y * lenAX));
 
-		float r1 = GetMinF(circle->size.x, circle->size.y) / 2;
+		float r1 = GetMinF(GetAbsF(circle->size.x), GetAbsF(circle->size.y)) / 2;
 		float r2 = line->edge / 2;
 
 		BOOL hit = FALSE;

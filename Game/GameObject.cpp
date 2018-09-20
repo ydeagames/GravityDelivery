@@ -137,6 +137,16 @@ GameObject GameObject_Create(Vec2 pos, Vec2 vel, Vec2 size)
 	return{ pos, vel, size, SHAPE_BOX, GameSprite_CreateNone(), FALSE, 0, CONNECTION_NONE, TRUE, 1, 0, GameTimer_Create() };
 }
 
+// <線オブジェクト作成>
+GameObject GameObject_CreateLine(Vec2 pos1, Vec2 pos2, Vec2 vel)
+{
+	Vec2 pos = Vec2_Scale(&Vec2_Add(&pos1, &pos2), .5f);
+	Vec2 size = Vec2_Sub(&pos2, &pos1);
+	GameObject obj = GameObject_Create(pos, vel, size);
+	obj.shape = SHAPE_LINE;
+	return obj;
+}
+
 // <オブジェクト削除>
 void GameObject_Dispose(GameObject* obj)
 {
@@ -163,10 +173,10 @@ float GameObject_OffsetX(const GameObject* obj, ObjectSide side, float pos, floa
 	switch (side)
 	{
 	case LEFT:
-		offset = -(padding + obj->size.x / 2.f);
+		offset = -(padding + GetAbsF(obj->size.x) / 2.f);
 		break;
 	case RIGHT:
-		offset = (padding + obj->size.x / 2.f);
+		offset = (padding + GetAbsF(obj->size.x) / 2.f);
 		break;
 	}
 	return pos + offset;
@@ -179,10 +189,10 @@ float GameObject_OffsetY(const GameObject* obj, ObjectSide side, float pos, floa
 	switch (side)
 	{
 	case TOP:
-		offset = -(padding + obj->size.y / 2.f);
+		offset = -(padding + GetAbsF(obj->size.y) / 2.f);
 		break;
 	case BOTTOM:
-		offset = (padding + obj->size.y / 2.f);
+		offset = (padding + GetAbsF(obj->size.y) / 2.f);
 		break;
 	}
 	return pos + offset;
@@ -200,15 +210,59 @@ float GameObject_GetY(const GameObject* obj, ObjectSide side, float padding)
 	return GameObject_OffsetY(obj, side, obj->pos.y, padding);
 }
 
+// <オブジェクトXオフセット>
+float GameObject_OffsetRawX(const GameObject* obj, ObjectSide side, float pos, float padding)
+{
+	float offset = 0;
+	switch (side)
+	{
+	case LEFT:
+		offset = -(padding + obj->size.x / 2.f);
+		break;
+	case RIGHT:
+		offset = (padding + obj->size.x / 2.f);
+		break;
+	}
+	return pos + offset;
+}
+
+// <オブジェクトXオフセット>
+float GameObject_OffsetRawY(const GameObject* obj, ObjectSide side, float pos, float padding)
+{
+	float offset = 0;
+	switch (side)
+	{
+	case TOP:
+		offset = -(padding + obj->size.y / 2.f);
+		break;
+	case BOTTOM:
+		offset = (padding + obj->size.y / 2.f);
+		break;
+	}
+	return pos + offset;
+}
+
+// <オブジェクトX位置ゲット>
+float GameObject_GetRawX(const GameObject* obj, ObjectSide side, float padding)
+{
+	return GameObject_OffsetRawX(obj, side, obj->pos.x, padding);
+}
+
+// <オブジェクトY位置ゲット>
+float GameObject_GetRawY(const GameObject* obj, ObjectSide side, float padding)
+{
+	return GameObject_OffsetRawY(obj, side, obj->pos.y, padding);
+}
+
 // <オブジェクト描画>
 void GameObject_Render(const GameObject* obj, const Vec2* translate)
 {
-	float box_xl = GameObject_GetX(obj, LEFT) + translate->x;
-	float box_xc = GameObject_GetX(obj, CENTER_X) + translate->x;
-	float box_xr = GameObject_GetX(obj, RIGHT) + translate->x;
-	float box_yt = GameObject_GetY(obj, TOP) + translate->y;
-	float box_ym = GameObject_GetY(obj, CENTER_Y) + translate->y;
-	float box_yb = GameObject_GetY(obj, BOTTOM) + translate->y;
+	float box_xl = GameObject_GetRawX(obj, LEFT) + translate->x;
+	float box_xc = GameObject_GetRawX(obj, CENTER_X) + translate->x;
+	float box_xr = GameObject_GetRawX(obj, RIGHT) + translate->x;
+	float box_yt = GameObject_GetRawY(obj, TOP) + translate->y;
+	float box_ym = GameObject_GetRawY(obj, CENTER_Y) + translate->y;
+	float box_yb = GameObject_GetRawY(obj, BOTTOM) + translate->y;
 	Vec2 box_t = Vec2_Create(box_xc, box_ym);
 
 	// テクスチャを確認
@@ -299,7 +353,7 @@ void GameObject_Render(const GameObject* obj, const Vec2* translate)
 		break;
 	case SHAPE_CIRCLE:
 	{
-		float r1 = GetMinF(obj->size.x, obj->size.y) / 2;
+		float r1 = GetMinF(GetAbsF(obj->size.x), GetAbsF(obj->size.y)) / 2;
 		// 円
 		if (obj->fill)
 			DrawCircleAA(box_xc, box_ym, r1, 120, obj->sprite.color, TRUE);
