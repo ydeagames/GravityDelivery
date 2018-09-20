@@ -1,6 +1,7 @@
 #include "ScenePlay.h"
 #include "GameMain.h"
 #include "GameObject.h"
+#include "GameObjectHit.h"
 #include "InputManager.h"
 #include "Vector.h"
 #include "GameUtils.h"

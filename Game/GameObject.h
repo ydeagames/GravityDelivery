@@ -181,12 +181,6 @@ float GameObject_GetX(const GameObject* obj, ObjectSide side, float margin = 0.f
 // <オブジェクトY位置ゲット>
 float GameObject_GetY(const GameObject* obj, ObjectSide side, float margin = 0.f);
 
-// <オブジェクト当たり判定>
-BOOL GameObject_IsHit(const GameObject* obj1, const GameObject* obj2);
-
-// <オブジェクト点当たり判定>
-BOOL GameObject_IsHitPoint(const GameObject* obj, const Vec2* p);
-
 // <オブジェクト描画>
 void GameObject_Render(const GameObject* obj, const Vec2* translate = &Vec2_Create());
 

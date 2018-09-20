@@ -3,6 +3,7 @@
 #include "InputManager.h"
 #include "GameMain.h"
 #include "GameObject.h"
+#include "GameObjectHit.h"
 #include "GameObjects.h"
 #include "GameUtils.h"
 #include "Easings.h"
