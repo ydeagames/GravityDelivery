@@ -46,6 +46,7 @@ typedef enum
 {
 	SHAPE_BOX,					// 長方形
 	SHAPE_CIRCLE,				// 円
+	SHAPE_LINE,					// 線
 } ObjectShape;
 
 // <アニメーションの結果> ----------------------------------------------
@@ -188,6 +189,9 @@ BOOL GameObject_IsHitPoint(const GameObject* obj, const Vec2* p);
 
 // <オブジェクト描画>
 void GameObject_Render(const GameObject* obj, const Vec2* translate = &Vec2_Create());
+
+// <弾オブジェクトサイズ変更>
+void GameObject_SetSize(GameObject* obj, float scale, float size = 10);
 
 // <<フィールドオブジェクト>> ------------------------------------------
 

@@ -22,9 +22,6 @@ typedef enum
 
 // 関数の宣言 ==============================================================
 
-// <弾オブジェクトサイズ変更>
-void GameObject_SetSize(GameObject* obj, float scale, float size = 10);
-
 // <弾オブジェクト>
 GameObject GameObject_Ball_Create(const Vec2* mouse, const Vec2* vec);
 
