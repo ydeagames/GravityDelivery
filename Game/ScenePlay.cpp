@@ -660,15 +660,15 @@ void RenderPlay(void)
 				switch (obj->shape)
 				{
 				case SHAPE_LINE:
-					GameObject line = GameObject_CreateLine(Vec2_Add(&mouse, &Vec2_Create(10, -10)), Vec2_Add(&mouse, &Vec2_Create(-10, 10)));
-					BOOL hit = GameObject_IsHit(&line, obj);
-					line.edge = 1;
-					GameObject_Render(&line, &offset);
+					GameObject rect = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(10, 10));
+					BOOL hit = GameObject_IsHit(&rect, obj);
+					rect.fill = TRUE;
+					GameObject_Render(&rect, &offset);
 					DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "hit: %s", hit ? "true" : "false");
 					
 					{
-						Vec2 a1 = Vec2_Create(GameObject_GetRawX(&line, LEFT), GameObject_GetRawY(&line, TOP));
-						Vec2 a2 = Vec2_Create(GameObject_GetRawX(&line, RIGHT), GameObject_GetRawY(&line, BOTTOM));
+						Vec2 a1 = Vec2_Create(GameObject_GetRawX(&rect, LEFT), GameObject_GetRawY(&rect, TOP));
+						Vec2 a2 = Vec2_Create(GameObject_GetRawX(&rect, RIGHT), GameObject_GetRawY(&rect, BOTTOM));
 						Vec2 b1 = Vec2_Create(GameObject_GetRawX(obj, LEFT), GameObject_GetRawY(obj, TOP));
 						Vec2 b2 = Vec2_Create(GameObject_GetRawX(obj, RIGHT), GameObject_GetRawY(obj, BOTTOM));
 						DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "line-a1: (%.4f, %.4f)", a1.x, a1.y);

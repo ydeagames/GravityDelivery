@@ -152,8 +152,8 @@ static int ccw(const Vec2* p0, const Vec2* p1, const Vec2* p2)
 	int sw = 0;
 	float EPS = 1.0e-8f;
 
-	Vec2 a = Vec2_Create(p1->x - p0->x, p1->y - p0->y);
-	Vec2 b = Vec2_Create(p2->x - p0->x, p2->y - p0->y);
+	Vec2 a = Vec2_Sub(p1, p0);
+	Vec2 b = Vec2_Sub(p2, p0);
 
 	float cross = Vec2_Cross(&a, &b);
 	if (cross > EPS)
@@ -186,7 +186,7 @@ static BOOL GameObject_IsHitLineBox(const GameObject* line, const GameObject* bo
 		ccw(&p2, &p3, &p5) * ccw(&p2, &p3, &p6) <= 0 && l2p1 * l2p2 <= 0 ||
 		ccw(&p3, &p4, &p5) * ccw(&p3, &p4, &p6) <= 0 && l2p2 * l2p3 <= 0 ||
 		ccw(&p4, &p1, &p5) * ccw(&p4, &p1, &p6) <= 0 && l2p3 * l2p0 <= 0)
-		TRUE;
+		return TRUE;
 
 	return FALSE;
 }
