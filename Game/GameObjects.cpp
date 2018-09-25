@@ -73,7 +73,7 @@ GameObject GameObject_Planet_Create(const Vec2* mouse)
 // <ビームオブジェクト>
 GameObject GameObject_Beam_Create(const Vec2* mouse, const Vec2* next)
 {
-	GameObject obj = GameObject_Create(*mouse, *next, Vec2_Create(10, 10));
+	GameObject obj = GameObject_CreateLine(*mouse, *next);
 	obj.type = TYPE_BEAM;
 	obj.sprite.color = COLOR_YELLOW;
 	return obj;

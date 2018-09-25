@@ -174,8 +174,8 @@ static BOOL GameObject_IsHitLineBox(const GameObject* line, const GameObject* bo
 	Vec2 p2 = Vec2_Create(GameObject_GetX(box, LEFT), GameObject_GetY(box, BOTTOM));
 	Vec2 p3 = Vec2_Create(GameObject_GetX(box, RIGHT), GameObject_GetY(box, BOTTOM));
 	Vec2 p4 = Vec2_Create(GameObject_GetX(box, RIGHT), GameObject_GetY(box, TOP));
-	Vec2 p5 = Vec2_Create(GameObject_GetX(line, LEFT), GameObject_GetY(line, TOP));
-	Vec2 p6 = Vec2_Create(GameObject_GetX(line, RIGHT), GameObject_GetY(line, BOTTOM));
+	Vec2 p5 = Vec2_Create(GameObject_GetRawX(line, LEFT), GameObject_GetRawY(line, TOP));
+	Vec2 p6 = Vec2_Create(GameObject_GetRawX(line, RIGHT), GameObject_GetRawY(line, BOTTOM));
 
 	int l2p0 = ccw(&p5, &p6, &p1);
 	int l2p1 = ccw(&p5, &p6, &p2);
@@ -196,20 +196,20 @@ static BOOL GameObject_IsHitLine(const GameObject* line1, const GameObject* line
 {
 	float EPS = 1.0e-8f;
 
-	Vec2 a1 = Vec2_Create(GameObject_GetX(line1, LEFT), GameObject_GetY(line1, TOP));
-	Vec2 a2 = Vec2_Create(GameObject_GetX(line1, RIGHT), GameObject_GetY(line1, BOTTOM));
-	Vec2 b1 = Vec2_Create(GameObject_GetX(line2, LEFT), GameObject_GetY(line2, TOP));
-	Vec2 b2 = Vec2_Create(GameObject_GetX(line2, RIGHT), GameObject_GetY(line2, BOTTOM));
+	Vec2 seg1_s = Vec2_Create(GameObject_GetRawX(line1, LEFT), GameObject_GetRawY(line1, TOP));
+	Vec2 seg1_s1 = Vec2_Create(GameObject_GetRawX(line1, RIGHT), GameObject_GetRawY(line1, BOTTOM));
+	Vec2 seg2_s = Vec2_Create(GameObject_GetRawX(line2, LEFT), GameObject_GetRawY(line2, TOP));
+	Vec2 seg2_s1 = Vec2_Create(GameObject_GetRawX(line2, RIGHT), GameObject_GetRawY(line2, BOTTOM));
 
-	Vec2 v = Vec2_Sub(&a1, &b1);
-	Vec2 v1 = Vec2_Sub(&a2, &a1);
-	Vec2 v2 = Vec2_Sub(&b2, &b1);
+	Vec2 v = Vec2_Sub(&seg2_s, &seg1_s);
+	Vec2 seg1_v = Vec2_Sub(&seg1_s1, &seg1_s);
+	Vec2 seg2_v = Vec2_Sub(&seg2_s1, &seg2_s);
 
-	float Crs_v1_v2 = Vec2_Cross(&v1, &v2);
+	float Crs_v1_v2 = Vec2_Cross(&seg1_v, &seg2_v);
 
 	if (Crs_v1_v2 != 0.0f) {
-		float Crs_v_v1 = Vec2_Cross(&v, &v1);
-		float Crs_v_v2 = Vec2_Cross(&v, &v2);
+		float Crs_v_v1 = Vec2_Cross(&v, &seg1_v);
+		float Crs_v_v2 = Vec2_Cross(&v, &seg2_v);
 
 		float t1 = Crs_v_v2 / Crs_v1_v2;
 		float t2 = Crs_v_v1 / Crs_v1_v2;

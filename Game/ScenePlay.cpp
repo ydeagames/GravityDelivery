@@ -371,14 +371,14 @@ void UpdatePlay(void)
 
 					break;
 				case TYPE_BEAM:
-					GameObject line1 = GameObject_CreateLine(planet->pos, planet->vel);
-					GameObject line2 = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
+					//GameObject line1 = GameObject_CreateLine(planet->pos, planet->vel);
+					////GameObject line2 = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
 					//GameObject line1 = GameObject_CreateLine(Vec2_Create(0, 0), Vec2_Create(8, 8));
 					//GameObject line2 = GameObject_CreateLine(Vec2_Create(0, 8), Vec2_Create(8, 0));
-					if (GameObject_IsHit(&line1, &line2)) {
-						VectorIterator_Remove(&itr_ball);
-						request_ballloop = TRUE;
-					}
+					//if (GameObject_IsHit(&line1, &line2)) {
+					//	VectorIterator_Remove(&itr_ball);
+					//	request_ballloop = TRUE;
+					//}
 					break;
 				case TYPE_GOAL:
 					if (GameObject_IsHit(ball, planet))
@@ -566,7 +566,7 @@ void RenderPlay(void)
 						Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
 					break;
 				case TYPE_BEAM:
-					DrawLineAA(obj->pos.x + offset.x, obj->pos.y + offset.y, obj->vel.x + offset.x, obj->vel.y + offset.y, obj->sprite.color, 3);
+					GameObject_Render(obj, &offset);
 					break;
 				case TYPE_PLANET:
 					GameObject_Render(obj, &offset);
@@ -649,6 +649,37 @@ void RenderPlay(void)
 		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
 			GameObject_Render(&g_back_button);
 		DrawFormatStringToHandle((int)GameObject_GetX(&g_back_button, LEFT, -10), (int)GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "ƒ^ƒCƒgƒ‹‚Ö–ß‚é");
+	}
+
+	{
+		int pos = 8;
+		foreach_start(&g_planets, GameObject, obj)
+		{
+			if (GameObject_IsAlive(obj))
+			{
+				switch (obj->shape)
+				{
+				case SHAPE_LINE:
+					GameObject line = GameObject_CreateLine(Vec2_Add(&mouse, &Vec2_Create(10, -10)), Vec2_Add(&mouse, &Vec2_Create(-10, 10)));
+					BOOL hit = GameObject_IsHit(&line, obj);
+					line.edge = 1;
+					GameObject_Render(&line, &offset);
+					DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "hit: %s", hit ? "true" : "false");
+					
+					{
+						Vec2 a1 = Vec2_Create(GameObject_GetRawX(&line, LEFT), GameObject_GetRawY(&line, TOP));
+						Vec2 a2 = Vec2_Create(GameObject_GetRawX(&line, RIGHT), GameObject_GetRawY(&line, BOTTOM));
+						Vec2 b1 = Vec2_Create(GameObject_GetRawX(obj, LEFT), GameObject_GetRawY(obj, TOP));
+						Vec2 b2 = Vec2_Create(GameObject_GetRawX(obj, RIGHT), GameObject_GetRawY(obj, BOTTOM));
+						DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "line-a1: (%.4f, %.4f)", a1.x, a1.y);
+						DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "line-a2: (%.4f, %.4f)", a2.x, a2.y);
+						DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "line-b1: (%.4f, %.4f)", b1.x, b1.y);
+						DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "line-b2: (%.4f, %.4f)", b2.x, b2.y);
+					}
+					break;
+				}
+			}
+		} foreach_end;
 	}
 }
 

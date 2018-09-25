@@ -373,7 +373,7 @@ void GameObject_Render(const GameObject* obj, const Vec2* translate)
 		float r1 = obj->edge;
 		// ü
 		if (DEBUG_HITBOX)
-			Vec2_Render(&obj->size, &obj->pos, obj->sprite.color, .5f);
+			Vec2_Render(&obj->size, &Vec2_Create(box_xl, box_yt), obj->sprite.color, .5f);
 		DrawLineAA(box_xl, box_yt, box_xr, box_yb, obj->sprite.color, r1);
 		break;
 	}
