@@ -40,6 +40,7 @@ GameResource GameResource_Create(void)
 	res.sound_se[5] = LoadSoundMem("Resources/Audio/Protected/wonder_se_13.wav");
 	res.sound_se[6] = LoadSoundMem("Resources/Audio/Protected/xev_se_Miss.wav");
 	res.sound_se[7] = LoadSoundMem("Resources/Audio/Protected/dig_music_StageClear.wav");
+	res.sound_se[8] = LoadSoundMem("Resources/Audio/Protected/genpei_se_12.wav");
 
 	// テクスチャ
 	// タイトル
