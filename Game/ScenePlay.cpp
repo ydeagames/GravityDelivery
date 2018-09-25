@@ -246,13 +246,13 @@ void UpdatePlay(void)
 	{
 		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_16))
 		{
-			g_mouse_last_from = g_raw_mouse;
+			g_mouse_last_from = mouse;
 			g_edit_mode = 5;
 			g_edited = TRUE;
 		}
 		if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == 5)
 		{
-			Vec2 mouse_last_to = g_raw_mouse;
+			Vec2 mouse_last_to = mouse;
 			GameObject obj = GameObject_Beam_Create(&g_mouse_last_from, &mouse_last_to);
 
 			Vector_AddLast(&g_planets, &obj);
