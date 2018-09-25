@@ -12,12 +12,22 @@
 
 // 定数の定義 ==============================================================
 
+#define screen_start(screen) \
+{ \
+	HGRP screen_stack = GetDrawScreen(); \
+	SetDrawScreen(screen); \
+	{
+#define screen_end \
+	} \
+	SetDrawScreen(screen_stack); \
+}
 
 
 
 // グローバル変数の定義 ====================================================
 
 static GameObject g_field_ball;
+static GameObject g_field_layer_top;
 static Vector g_field_layers;
 static GameTimer g_field_layer_timer;
 static GameObject g_view;
@@ -72,6 +82,8 @@ void InitializePlay(void)
 	g_field_ball = g_field;
 	g_field_ball.size = Vec2_Create(3200, 1600);
 	g_field_ball.sprite = GameSprite_Create(GameTexture_Create(MakeScreen((int)g_field_ball.size.x, (int)g_field_ball.size.y, TRUE), Vec2_Create(), g_field_ball.size));
+	g_field_layer_top = g_field_ball;
+	g_field_layer_top.sprite = GameSprite_Create(GameTexture_Create(MakeScreen((int)g_field_ball.size.x, (int)g_field_ball.size.y, TRUE), Vec2_Create(), g_field_ball.size));
 	{
 		int i;
 		g_field_layers = Vector_Create(sizeof(GameObject));
@@ -544,11 +556,12 @@ void RenderPlay(void)
 		foreach_start(&g_field_layers, GameObject, layer)
 		{
 			current_parallax *= parallax;
-			SetDrawScreen(g_filter_screen.sprite.texture.texture);
-			ClearDrawScreen();
-			GameObject_Field_Render(layer, &Vec2_Scale(&Vec2_Add(&offset, &mouse_offset), current_parallax), 1);
-			GraphFilter(g_filter_screen.sprite.texture.texture, DX_GRAPH_FILTER_GAUSS, 16, 128);
-			SetDrawScreen(DX_SCREEN_BACK);
+			screen_start(g_filter_screen.sprite.texture.texture)
+			{
+				ClearDrawScreen();
+				GameObject_Field_Render(layer, &Vec2_Scale(&Vec2_Add(&offset, &mouse_offset), current_parallax), 1);
+				GraphFilter(g_filter_screen.sprite.texture.texture, DX_GRAPH_FILTER_GAUSS, 16, 128);
+			} screen_end;
 			GameObject_Render(&g_filter_screen);
 		} foreach_end;
 	}
@@ -597,12 +610,11 @@ void RenderPlay(void)
 	{
 		if (GameObject_IsAlive(obj))
 		{
-			SetDrawScreen(g_field_ball.sprite.texture.texture);
+			screen_start(g_field_ball.sprite.texture.texture)
 			{
 				Vec2 before = Vec2_Sub(&obj->pos, &obj->vel);
 				DrawLineAA(before.x - offset_shadow.x, before.y - offset_shadow.y, obj->pos.x - offset_shadow.x, obj->pos.y - offset_shadow.y, obj->sprite.color);
-			}
-			SetDrawScreen(DX_SCREEN_BACK);
+			} screen_end;
 			GameObject_Render(obj, &offset);
 		}
 	} foreach_end;
@@ -613,14 +625,13 @@ void RenderPlay(void)
 
 		foreach_start(&g_field_layers, GameObject, layer)
 		{
-			SetDrawScreen(layer->sprite.texture.texture);
+			screen_start(layer->sprite.texture.texture)
 			{
 				unsigned int color = GetColor(GetRand(255), GetRand(255), GetRand(255));
 				Vec2 pos = Vec2_Create(GetRandRangeF(GameObject_GetX(layer, LEFT), GameObject_GetX(layer, RIGHT)),
 					GetRandRangeF(GameObject_GetY(layer, TOP), GameObject_GetY(layer, BOTTOM)));
 				DrawCircleAA(pos.x - offset_shadow.x, pos.y - offset_shadow.y, 6, 4, color);
-			}
-			SetDrawScreen(DX_SCREEN_BACK);
+			} screen_end;
 		} foreach_end;
 	}
 	foreach_start(&g_planets, GameObject, obj)
