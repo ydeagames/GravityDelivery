@@ -608,7 +608,7 @@ void RenderPlay(void)
 	} foreach_end;
 	if (GameTimer_IsFinished(&g_field_layer_timer))
 	{
-		GameTimer_SetRemaining(&g_field_layer_timer, .3f);
+		GameTimer_SetRemaining(&g_field_layer_timer, .05f);
 		GameTimer_Resume(&g_field_layer_timer);
 
 		foreach_start(&g_field_layers, GameObject, layer)
@@ -618,7 +618,7 @@ void RenderPlay(void)
 				unsigned int color = GetColor(GetRand(255), GetRand(255), GetRand(255));
 				Vec2 pos = Vec2_Create(GetRandRangeF(GameObject_GetX(layer, LEFT), GameObject_GetX(layer, RIGHT)),
 					GetRandRangeF(GameObject_GetY(layer, TOP), GameObject_GetY(layer, BOTTOM)));
-				DrawCircleAA(pos.x - offset_shadow.x, pos.y - offset_shadow.y, 8, 4, color);
+				DrawCircleAA(pos.x - offset_shadow.x, pos.y - offset_shadow.y, 6, 4, color);
 			}
 			SetDrawScreen(DX_SCREEN_BACK);
 		} foreach_end;
