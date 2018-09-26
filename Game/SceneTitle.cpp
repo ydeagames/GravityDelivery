@@ -100,7 +100,7 @@ void UpdateTitle(void)
 		}
 	}
 
-	if (IsKeyPressed(PAD_INPUT_16))
+	if (IsJoypadPressed(PAD_INPUT_16))
 	{
 		char str[260];
 

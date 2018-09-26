@@ -107,7 +107,7 @@ void UpdateGame(void)
 	GameTick_Update();
 
 	// F11キーが押されていたら
-	if (IsKeyPressed(PAD_INPUT_10))
+	if (IsJoypadPressed(PAD_INPUT_10))
 	{
 		// デバッグモードをトグル
 		g_debug_mode = !g_debug_mode;

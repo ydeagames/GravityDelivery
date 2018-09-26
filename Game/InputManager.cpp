@@ -27,25 +27,25 @@ void UpdateInputManager(void)
 }
 
 // キーが押されているか
-BOOL IsKeyDown(int key)
+BOOL IsJoypadDown(int key)
 {
 	return g_input_state & key;
 }
 
 // キーが離されているか
-BOOL IsKeyUp(int key)
+BOOL IsJoypadUp(int key)
 {
-	return !IsKeyDown(key);
+	return !IsJoypadDown(key);
 }
 
 // キーを押した直後か
-BOOL IsKeyPressed(int key)
+BOOL IsJoypadPressed(int key)
 {
 	return !(s_input_state_last & key) && (g_input_state & key);
 }
 
 // キーを離した直後か
-BOOL IsKeyReleased(int key)
+BOOL IsJoypadReleased(int key)
 {
 	return (s_input_state_last & key) && !(g_input_state & key);
 }

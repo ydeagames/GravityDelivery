@@ -7,16 +7,16 @@
 void UpdateInputManager(void);
 
 // キーが押されているか
-BOOL IsKeyDown(int key);
+BOOL IsJoypadDown(int key);
 
 // キーが離されているか
-BOOL IsKeyUp(int key);
+BOOL IsJoypadUp(int key);
 
 // キーを押した直後か
-BOOL IsKeyPressed(int key);
+BOOL IsJoypadPressed(int key);
 
 // キーを離した直後か
-BOOL IsKeyReleased(int key);
+BOOL IsJoypadReleased(int key);
 
 // マウスが押されているか
 BOOL IsMouseDown(int mouse);

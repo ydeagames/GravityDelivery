@@ -234,7 +234,7 @@ void UpdatePlay(void)
 	}
 
 	{
-		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_12))
+		if (IsMousePressed(MOUSE_INPUT_3) && IsJoypadDown(PAD_INPUT_12))
 		{
 			g_mouse_last_from = g_raw_mouse;
 			g_edit_mode = 1;
@@ -256,7 +256,7 @@ void UpdatePlay(void)
 		}
 	}
 	{
-		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_16))
+		if (IsMousePressed(MOUSE_INPUT_3) && IsJoypadDown(PAD_INPUT_16))
 		{
 			g_mouse_last_from = mouse;
 			g_edit_mode = 5;
@@ -272,7 +272,7 @@ void UpdatePlay(void)
 		}
 	}
 	{
-		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_11))
+		if (IsMousePressed(MOUSE_INPUT_3) && IsJoypadDown(PAD_INPUT_11))
 		{
 			g_mouse_last_from = mouse;
 			g_edit_mode = 6;
@@ -286,7 +286,7 @@ void UpdatePlay(void)
 			g_edit_mode = -1;
 		}
 	}
-	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_13))
+	if (IsMousePressed(MOUSE_INPUT_3) && IsJoypadDown(PAD_INPUT_13))
 	{
 		GameObject obj = GameObject_Goal_Create(&mouse);
 
@@ -300,14 +300,14 @@ void UpdatePlay(void)
 		g_edit_mode = 2;
 		g_edited = TRUE;
 	}
-	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_14))
+	if (IsMousePressed(MOUSE_INPUT_3) && IsJoypadDown(PAD_INPUT_14))
 	{
 		GameObject obj = GameObject_Planet_Create(&mouse);
 		Vector_AddLast(&g_planets, &obj);
 		g_edit_mode = 3;
 		g_edited = TRUE;
 	}
-	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_15))
+	if (IsMousePressed(MOUSE_INPUT_3) && IsJoypadDown(PAD_INPUT_15))
 	{
 		foreach_start(&g_planets, GameObject, obj)
 		{
@@ -329,13 +329,13 @@ void UpdatePlay(void)
 		g_edit_mode = 4;
 		g_edited = TRUE;
 	}
-	if (IsKeyPressed(PAD_INPUT_17))
+	if (IsJoypadPressed(PAD_INPUT_17))
 	{
 		LoadStage();
 		DebugConsole_Log(&g_console, "stage loaded!");
 		g_edited = FALSE;
 	}
-	if (IsKeyPressed(PAD_INPUT_18))
+	if (IsJoypadPressed(PAD_INPUT_18))
 	{
 		SaveStage();
 		DebugConsole_Log(&g_console, "stage saved!");
