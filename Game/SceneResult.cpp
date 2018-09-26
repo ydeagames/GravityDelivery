@@ -45,7 +45,7 @@ void InitializeResult(void)
 	GameTimer_Resume(&g_field_layer_timer);
 
 	g_title_logo = GameObject_Create(g_field.pos, Vec2_Create(), Vec2_Create(617, 193));
-	g_title_logo.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_title1, Vec2_Create(), Vec2_Create(617, 193)));
+	g_title_logo.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[6], Vec2_Create(), Vec2_Create(617, 193)));
 	g_title_logo.pos.x -= 150;
 	g_title_logo.pos.y -= 200;
 

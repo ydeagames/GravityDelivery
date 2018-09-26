@@ -37,6 +37,9 @@ GameObject GameObject_Planet_Create(const Vec2* mouse);
 // <ビームオブジェクト>
 GameObject GameObject_Beam_Create(const Vec2* mouse, const Vec2* next);
 
+// <ワープオブジェクト>
+GameObject GameObject_Warp_Create(const Vec2* mouse, const Vec2* next);
+
 // <オブジェクト>
 GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec);
 

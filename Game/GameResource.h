@@ -9,7 +9,9 @@
 // <リソース> ----------------------------------------------------------
 
 #define NUM_BGM 4
-#define NUM_SE 9
+#define NUM_SE 10
+
+#define NUM_TEXTURE 7
 
 // 構造体の宣言 ============================================================
 
@@ -24,18 +26,7 @@ typedef struct
 	HSND sound_se[NUM_SE];
 
 	// <テクスチャ>
-	// タイトル
-	HGRP texture_title1;
-	
-	// プレイ
-	HGRP texture_planet1;
-	HGRP texture_planet2;
-	HGRP texture_planet3;
-	HGRP texture_planet4;
-	HGRP texture_planet5;
-	HGRP texture_cursor1;
-
-	// リザルト
+	HGRP texture[NUM_TEXTURE];
 
 	// <動画>
 	HGRP movie_logo;

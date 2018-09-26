@@ -19,7 +19,7 @@
 GameObject GameObject_Ball_Create(const Vec2* mouse, const Vec2* vec)
 {
 	GameObject obj = GameObject_Create(*mouse, *vec, Vec2_Create(5, 5));
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet2, Vec2_Create(), Vec2_Create(26, 26)));
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[1], Vec2_Create(), Vec2_Create(26, 26)));
 	obj.sprite.num_columns = 9;
 	GameSprite_SetFrame(&obj.sprite, 11);
 	return obj;
@@ -29,7 +29,7 @@ GameObject GameObject_Ball_Create(const Vec2* mouse, const Vec2* vec)
 GameObject GameObject_Goal_Create(const Vec2* mouse)
 {
 	GameObject obj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(20, 20));
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet3, Vec2_Create(), Vec2_Create(34, 34)));
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[2], Vec2_Create(), Vec2_Create(34, 34)));
 	obj.sprite.num_columns = 6;
 	GameSprite_SetFrame(&obj.sprite, 17);
 	obj.type = TYPE_GOAL;
@@ -43,7 +43,7 @@ GameObject GameObject_Goal_Create(const Vec2* mouse)
 GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* vec)
 {
 	GameObject obj = GameObject_Create(*mouse, *vec, Vec2_Create(10, 10));
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet1, Vec2_Create(), Vec2_Create(26, 26)));
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
 	obj.sprite.num_columns = 8;
 	GameSprite_SetFrame(&obj.sprite, 12);
 	obj.type = TYPE_START;
@@ -57,7 +57,7 @@ GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* vec)
 GameObject GameObject_Planet_Create(const Vec2* mouse)
 {
 	GameObject obj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(10, 10));
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet1, Vec2_Create(), Vec2_Create(26, 26)));
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
 	obj.sprite.texture.center.x -= 0;
 	obj.sprite.texture.center.y += 1.5f;
 	obj.sprite.num_columns = 8;
@@ -79,6 +79,17 @@ GameObject GameObject_Beam_Create(const Vec2* mouse, const Vec2* next)
 	return obj;
 }
 
+// <ワープオブジェクト>
+GameObject GameObject_Warp_Create(const Vec2* mouse, const Vec2* next)
+{
+	GameObject obj = GameObject_Create(*mouse, Vec2_Sub(next, mouse), Vec2_Create(10, 10));
+	obj.type = TYPE_WARP;
+	GameObject_SetSize(&obj, 10);
+	obj.shape = SHAPE_CIRCLE;
+	obj.fill = TRUE;
+	return obj;
+}
+
 // <オブジェクト>
 GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec)
 {
@@ -93,6 +104,8 @@ GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec)
 		return GameObject_Goal_Create(mouse);
 	case TYPE_BEAM:
 		return GameObject_Beam_Create(mouse, vec);
+	case TYPE_WARP:
+		return GameObject_Warp_Create(mouse, vec);
 	}
 }
 

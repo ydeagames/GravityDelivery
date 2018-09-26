@@ -59,7 +59,8 @@ void InitializeGame(void)
 	//SetUpMemoryLeakDetector();
 
 	// ファンクションキー
-	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_11, KEY_INPUT_F3);
+	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_10, KEY_INPUT_F3);
+	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_11, KEY_INPUT_F4);
 	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_12, KEY_INPUT_F5);
 	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_13, KEY_INPUT_F6);
 	SetJoypadInputToKeyInput(DX_INPUT_KEY_PAD1, PAD_INPUT_14, KEY_INPUT_F7);
@@ -106,7 +107,7 @@ void UpdateGame(void)
 	GameTick_Update();
 
 	// F11キーが押されていたら
-	if (IsKeyPressed(PAD_INPUT_11))
+	if (IsKeyPressed(PAD_INPUT_10))
 	{
 		// デバッグモードをトグル
 		g_debug_mode = !g_debug_mode;

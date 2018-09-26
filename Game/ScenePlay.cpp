@@ -271,6 +271,21 @@ void UpdatePlay(void)
 			g_edit_mode = -1;
 		}
 	}
+	{
+		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_11))
+		{
+			g_mouse_last_from = mouse;
+			g_edit_mode = 6;
+			g_edited = TRUE;
+		}
+		if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == 6)
+		{
+			Vec2 mouse_last_to = mouse;
+			GameObject obj = GameObject_Warp_Create(&g_mouse_last_from, &mouse_last_to);
+			Vector_AddLast(&g_planets, &obj);
+			g_edit_mode = -1;
+		}
+	}
 	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(PAD_INPUT_13))
 	{
 		GameObject obj = GameObject_Goal_Create(&mouse);
@@ -349,6 +364,10 @@ void UpdatePlay(void)
 					}
 				}
 			} foreach_end;
+			foreach_start(&g_balls, GameObject, obj)
+			{
+				VectorIterator_Remove(&itr_obj);
+			} foreach_end;
 		}
 		else if (g_tutorial_state == 1)
 			g_tutorial_state = 2;
@@ -393,6 +412,15 @@ void UpdatePlay(void)
 						VectorIterator_Remove(&itr_ball);
 						request_ballloop = TRUE;
 						PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
+					}
+					break;
+				case TYPE_WARP:
+					GameObject line3 = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
+					if (GameObject_IsHit(planet, &line3)) {
+						ball->pos = Vec2_Add(&planet->pos, &planet->vel);
+						request_ballloop = TRUE;
+						ChangeVolumeSoundMem(150, g_resources.sound_se[9]);
+						PlaySoundMem(g_resources.sound_se[9], DX_PLAYTYPE_BACK);
 					}
 					break;
 				case TYPE_GOAL:
@@ -512,7 +540,7 @@ void UpdatePlay(void)
 				switch (obj->type)
 				{
 				case TYPE_GOAL:
-					obj->sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_planet1, Vec2_Create(), Vec2_Create(26, 26)));
+					obj->sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
 					obj->sprite.num_columns = 8;
 					obj->sprite.animation = GameSpriteAnimation_Create(19, 22, 8);
 					obj->sprite.animation.loop_flag = FALSE;
@@ -589,6 +617,11 @@ void RenderPlay(void)
 				case TYPE_BEAM:
 					GameObject_Render(obj, &offset);
 					break;
+				case TYPE_WARP:
+					GameObject_Render(obj, &offset);
+					if (DEBUG_HITBOX)
+						Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
+					break;
 				case TYPE_PLANET:
 					GameObject_Render(obj, &offset);
 					if (g_tutorial_state == 0 && first_planet)
@@ -644,7 +677,7 @@ void RenderPlay(void)
 				if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
 				{
 					GameObject cursor = *obj;
-					cursor.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture_cursor1, Vec2_Create(), Vec2_Create(18, 18)));
+					cursor.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[5], Vec2_Create(), Vec2_Create(18, 18)));
 					cursor.sprite.num_columns = 5;
 					GameSprite_SetFrame(&cursor.sprite, obj->state ? 5 : 7);
 					GameObject_SetSize(&cursor, 4);
@@ -657,7 +690,7 @@ void RenderPlay(void)
 	if (DEBUG_HITBOX)
 	{
 		int pos = 0;
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "デバッグ情報 (F5-スタート地点 F6-ゴール地点 F7-惑星設置 F8-惑星撤去 F9-ビーム F10-ロード F11-セーブ)");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "デバッグ情報 (F4-ワープ F5-スタート地点 F6-ゴール地点 F7-惑星設置 F8-惑星撤去 F9-ビーム F10-ロード F11-セーブ)");
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "stage: %s", g_selected_stage.filename);
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "all: %d", Vector_GetSize(&g_balls));
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "score: %d", g_score);

@@ -33,26 +33,24 @@ GameResource GameResource_Create(void)
 	res.sound_bgm[2] = LoadSoundMem("Resources/Audio/Protected/drb_music_brick_dungeon.wav");
 	res.sound_bgm[3] = LoadSoundMem("Resources/Audio/Protected/dru_music_ishtar_theme.wav");
 	res.sound_se[0] = LoadSoundMem("Resources/Audio/Protected/xev_se_Zakato_DethoutSound.wav");
-	res.sound_se[1] = LoadSoundMem("Resources/Audio/Protected/bc_se_17.wav");
+	res.sound_se[1] = LoadSoundMem("Resources/Audio/Protected/bc_se_14.wav");
 	res.sound_se[2] = LoadSoundMem("Resources/Audio/Protected/genpei_se_06.wav");
 	res.sound_se[3] = LoadSoundMem("Resources/Audio/Protected/wgl_se_08.wav");
-	res.sound_se[4] = LoadSoundMem("Resources/Audio/Protected/bc_se_16.wav");
+	res.sound_se[4] = LoadSoundMem("Resources/Audio/Protected/bc_se_15.wav");
 	res.sound_se[5] = LoadSoundMem("Resources/Audio/Protected/wonder_se_13.wav");
 	res.sound_se[6] = LoadSoundMem("Resources/Audio/Protected/xev_se_Miss.wav");
 	res.sound_se[7] = LoadSoundMem("Resources/Audio/Protected/dig_music_StageClear.wav");
 	res.sound_se[8] = LoadSoundMem("Resources/Audio/Protected/genpei_se_12.wav");
+	res.sound_se[9] = LoadSoundMem("Resources/Audio/Protected/map_se_trampoline_jump.wav");
 
 	// テクスチャ
-	// タイトル
-	res.texture_title1 = LoadGraph("Resources/Textures/gravity_switch.png");
-
-	// プレイ
-	res.texture_planet1 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_other.png");
-	res.texture_planet2 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_enemy.png");
-	res.texture_planet3 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_enemy_big.png");
-	res.texture_planet4 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_photonTorpedo.png");
-	res.texture_planet5 = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_supplyBase.png");
-	res.texture_cursor1 = LoadGraph("Resources/Textures/Protected/Xevious_OBJ_solvalou.png");
+	res.texture[0] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_other.png");
+	res.texture[1] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_enemy.png");
+	res.texture[2] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_enemy_big.png");
+	res.texture[3] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_photonTorpedo.png");
+	res.texture[4] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_supplyBase.png");
+	res.texture[5] = LoadGraph("Resources/Textures/Protected/Xevious_OBJ_solvalou.png");
+	res.texture[6] = LoadGraph("Resources/Textures/gravity_switch.png");
 
 	return res;
 }
@@ -77,14 +75,10 @@ void GameResource_Delete(GameResource* res)
 	// ロゴ動画
 	DeleteGraph(res->movie_logo);
 
-	// タイトル
-	DeleteGraph(res->texture_title1);
-
-	// プレイ
-	DeleteGraph(res->texture_planet1);
-	DeleteGraph(res->texture_planet2);
-	DeleteGraph(res->texture_planet3);
-	DeleteGraph(res->texture_planet4);
-	DeleteGraph(res->texture_planet5);
-	DeleteGraph(res->texture_cursor1);
+	// テクスチャ
+	{
+		int i;
+		for (i = 0; i < NUM_TEXTURE; i++)
+			DeleteSoundMem(res->texture[i]);
+	}
 }
