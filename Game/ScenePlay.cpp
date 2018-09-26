@@ -317,10 +317,10 @@ void UpdatePlay(void)
 				{
 				case TYPE_PLANET:
 				case TYPE_BEAM:
+				case TYPE_WARP:
 					if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
-					{
 						VectorIterator_Remove(&itr_obj);
-					}
+					break;
 				}
 			}
 		} foreach_end;
@@ -619,6 +619,9 @@ void RenderPlay(void)
 					break;
 				case TYPE_WARP:
 					GameObject_Render(obj, &offset);
+					SetDrawBright(255-10, 255-140, 255-140);
+					GameObject_Render(obj, &Vec2_Add(&obj->vel, &offset));
+					SetDrawBright(255, 255, 255);
 					if (DEBUG_HITBOX)
 						Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
 					break;
