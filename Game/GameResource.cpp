@@ -18,7 +18,7 @@ GameResource GameResource_Create(void)
 	GameResource res;
 
 	// ロゴ動画
-	res.movie_logo = LoadGraph("Resources/Movies/ydeagames.avi");
+	res.movie_logo = LoadGraph("Resources/Movies/ydeagames.mp4");
 
 	// フォント
 	// カスタムフォントファイルが読み込めたら使う
