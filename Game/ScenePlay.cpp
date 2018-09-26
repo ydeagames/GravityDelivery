@@ -211,6 +211,7 @@ void UpdatePlay(void)
 		mouse = Vec2_Sub(&g_raw_mouse, &offset);
 	}
 
+	// ドラッグ&ドロップ パン
 	{
 		if (IsMousePressed(MOUSE_INPUT_1))
 		{
@@ -235,8 +236,10 @@ void UpdatePlay(void)
 		GameObject_Field_CollisionHorizontal(&g_field_ball, &g_view, CONNECTION_BARRIER, EDGESIDE_INNER);
 	}
 
+	// エディット
 	UpdateStageEdit(&mouse);
 
+	// 惑星 ON/OFF
 	if (IsMouseReleased(MOUSE_INPUT_1))
 	{
 		Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
@@ -261,6 +264,7 @@ void UpdatePlay(void)
 					}
 				}
 			} foreach_end;
+			g_score = 0;
 			foreach_start(&g_balls, GameObject, obj)
 			{
 				VectorIterator_Remove(&itr_obj);
@@ -270,6 +274,7 @@ void UpdatePlay(void)
 			g_tutorial_state = 2;
 	}
 
+	// 惑星, ボール作用
 	foreach_start(&g_balls, GameObject, ball)
 	{
 		GameObject* nearest = NULL;
@@ -283,6 +288,7 @@ void UpdatePlay(void)
 				switch (planet->type)
 				{
 				case TYPE_PLANET:
+					// 一番近いものを検索
 					if (planet->state)
 					{
 						float length2 = Vec2_LengthSquaredTo(&planet->pos, &ball->pos);
@@ -296,14 +302,17 @@ void UpdatePlay(void)
 							}
 						}
 
+						// 衝突したら消す
 						if (GameObject_IsHit(planet, ball)) {
 							VectorIterator_Remove(&itr_ball);
 							request_ballloop = TRUE;
+							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
 						}
 					}
 
 					break;
 				case TYPE_BEAM:
+					// 衝突したら消す
 					GameObject line2 = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
 					if (GameObject_IsHit(planet, &line2)) {
 						VectorIterator_Remove(&itr_ball);
@@ -312,6 +321,7 @@ void UpdatePlay(void)
 					}
 					break;
 				case TYPE_WARP:
+					// 衝突したらワープ
 					GameObject line3 = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
 					if (GameObject_IsHit(planet, &line3)) {
 						ball->pos = Vec2_Add(&planet->pos, &planet->vel);
@@ -321,6 +331,7 @@ void UpdatePlay(void)
 					}
 					break;
 				case TYPE_GOAL:
+					// 衝突したら加点
 					if (GameObject_IsHit(ball, planet))
 					{
 						VectorIterator_Remove(&itr_ball);
@@ -339,16 +350,19 @@ void UpdatePlay(void)
 			}
 		} foreach_end;
 
+		// 一番近いものを寄せる
 		if (nearest != NULL)
 			ball->vel = Vec2_Add(&ball->vel, &Vec2_Scale(&Vec2_Normalized(&Vec2_Sub(&nearest->pos, &ball->pos)), .1f));
 	} foreach_end;
 
 	/*
+	// ボール同士の判定
 	foreach_start(&g_balls, GameObject, ball1)
 	{
 		foreach_start(&g_balls, GameObject, ball2)
 		{
 			if (ball1 != ball2)
+				// ボール同士が衝突したら消す
 				if (GameObject_IsHit(ball1, ball2))
 				{
 					VectorIterator_Remove(&itr_ball1);
@@ -358,6 +372,7 @@ void UpdatePlay(void)
 	} foreach_end;
 	/**/
 
+	// 惑星 更新
 	foreach_start(&g_planets, GameObject, planet)
 	{
 		if (GameObject_IsAlive(planet))
@@ -386,18 +401,22 @@ void UpdatePlay(void)
 		}
 	} foreach_end;
 
+	// ボール 更新
 	foreach_start(&g_balls, GameObject, ball)
 	{
 		GameObject_UpdatePosition(ball);
 
+		// 減速
 		//ball->vel.x *= 0.998f;
 		//ball->vel.y *= 0.998f;
 
+		// ワールドボーダー
 		if (GameObject_Field_CollisionHorizontal(&g_field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER) ||
 			GameObject_Field_CollisionVertical(&g_field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER))
 			VectorIterator_Remove(&itr_ball);
 	} foreach_end;
 
+	// タイトルへ戻る
 	if (IsMousePressed(MOUSE_INPUT_1))
 	{
 		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
@@ -406,9 +425,11 @@ void UpdatePlay(void)
 			PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
 		}
 	}
+	// タイトルへ戻る onカーソル
 	if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse) && !GameObject_IsHitPoint(&g_back_button, &g_raw_mouse_last))
 		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
 
+	// 惑星 onカーソル
 	{
 		BOOL mouse_on = FALSE;
 		foreach_start(&g_planets, GameObject, obj)
@@ -428,6 +449,7 @@ void UpdatePlay(void)
 		g_mouse_on_last = mouse_on;
 	}
 
+	// クリア判定
 	if (g_score >= 10 && !g_edited)
 	{
 		foreach_start(&g_planets, GameObject, obj)
