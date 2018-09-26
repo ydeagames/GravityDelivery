@@ -199,10 +199,12 @@ void UpdatePlay(void)
 {
 	Vec2 offset, mouse, mouse_last;
 
+	// ç¿ïWån
 	offset = Vec2_Sub(&g_view.pos, &g_field.pos);
 	mouse = Vec2_Sub(&g_raw_mouse, &offset);
 	mouse_last = Vec2_Sub(&g_raw_mouse_last, &offset);
 
+	// éãç∑å¯â åvéZ
 	{
 		float current_parallax = .2f;
 		float parallax = .8f;
@@ -481,7 +483,7 @@ void UpdatePlay(void)
 static void UpdateStageEdit(const Vec2* mouse)
 {
 	{
-		if (IsMousePressed(MOUSE_INPUT_3) && IsJoypadDown(PAD_INPUT_12))
+		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F5))
 		{
 			g_mouse_last_from = g_raw_mouse;
 			g_edit_mode = 1;
@@ -503,7 +505,7 @@ static void UpdateStageEdit(const Vec2* mouse)
 		}
 	}
 	{
-		if (IsMousePressed(MOUSE_INPUT_3) && IsJoypadDown(PAD_INPUT_16))
+		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F9))
 		{
 			g_mouse_last_from = *mouse;
 			g_edit_mode = 5;
@@ -519,7 +521,7 @@ static void UpdateStageEdit(const Vec2* mouse)
 		}
 	}
 	{
-		if (IsMousePressed(MOUSE_INPUT_3) && IsJoypadDown(PAD_INPUT_11))
+		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F4))
 		{
 			g_mouse_last_from = *mouse;
 			g_edit_mode = 6;
@@ -533,7 +535,7 @@ static void UpdateStageEdit(const Vec2* mouse)
 			g_edit_mode = -1;
 		}
 	}
-	if (IsMousePressed(MOUSE_INPUT_3) && IsJoypadDown(PAD_INPUT_13))
+	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F6))
 	{
 		GameObject obj = GameObject_Goal_Create(mouse);
 
@@ -547,14 +549,14 @@ static void UpdateStageEdit(const Vec2* mouse)
 		g_edit_mode = 2;
 		g_edited = TRUE;
 	}
-	if (IsMousePressed(MOUSE_INPUT_3) && IsJoypadDown(PAD_INPUT_14))
+	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F7))
 	{
 		GameObject obj = GameObject_Planet_Create(mouse);
 		Vector_AddLast(&g_planets, &obj);
 		g_edit_mode = 3;
 		g_edited = TRUE;
 	}
-	if (IsMousePressed(MOUSE_INPUT_3) && IsJoypadDown(PAD_INPUT_15))
+	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F8))
 	{
 		foreach_start(&g_planets, GameObject, obj)
 		{
@@ -576,13 +578,13 @@ static void UpdateStageEdit(const Vec2* mouse)
 		g_edit_mode = 4;
 		g_edited = TRUE;
 	}
-	if (IsJoypadPressed(PAD_INPUT_17))
+	if (IsKeyPressed(KEY_INPUT_F10))
 	{
 		LoadStage();
 		DebugConsole_Log(&g_console, "stage loaded!");
 		g_edited = FALSE;
 	}
-	if (IsJoypadPressed(PAD_INPUT_18))
+	if (IsKeyPressed(KEY_INPUT_F11))
 	{
 		SaveStage();
 		DebugConsole_Log(&g_console, "stage saved!");
