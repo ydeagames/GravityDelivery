@@ -318,7 +318,9 @@ void UpdatePlay(void)
 				case TYPE_PLANET:
 				case TYPE_BEAM:
 				case TYPE_WARP:
-					if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
+					GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(10, 10));
+					mouseobj.shape = SHAPE_CIRCLE;
+					if (GameObject_IsHit(obj, &mouseobj))
 						VectorIterator_Remove(&itr_obj);
 					break;
 				}

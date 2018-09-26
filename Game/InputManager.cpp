@@ -5,6 +5,9 @@
 static int g_input_state;
 static int s_input_state_last;
 
+static char g_key_input_state[256];
+static char s_key_input_state_last[256];
+
 static int g_mouse_state;
 static int g_mouse_state_last;
 
@@ -15,6 +18,9 @@ void UpdateInputManager(void)
 {
 	s_input_state_last = g_input_state;
 	g_input_state = GetJoypadInputState(DX_INPUT_KEY_PAD1);
+
+	memcpy(s_key_input_state_last, g_key_input_state, sizeof(g_key_input_state));
+	GetHitKeyStateAll(g_key_input_state);
 
 	g_mouse_state_last = g_mouse_state;
 	g_mouse_state = GetMouseInput();
