@@ -92,6 +92,19 @@ GameObject GameObject_Warp_Create(const Vec2* mouse, const Vec2* next)
 	return obj;
 }
 
+// <ランチャーオブジェクト>
+GameObject GameObject_Launcher_Create(const Vec2* mouse, const Vec2* next)
+{
+	GameObject obj = GameObject_Create(*mouse, Vec2_Sub(next, mouse), Vec2_Create(10, 10));
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[4], Vec2_Create(), Vec2_Create(202/4, 54/2)));
+	obj.sprite.num_columns = 4;
+	GameSprite_SetFrame(&obj.sprite, 6);
+	obj.type = TYPE_VEL;
+	GameObject_SetSize(&obj, 2, 30);
+	obj.shape = SHAPE_CIRCLE;
+	return obj;
+}
+
 // <オブジェクト>
 GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec)
 {
