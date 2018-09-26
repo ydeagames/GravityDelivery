@@ -3,10 +3,10 @@
 // グローバル変数の定義 ====================================================
 
 static int g_input_state;
-static int s_input_state_last;
+static int g_input_state_last;
 
 static char g_key_input_state[256];
-static char s_key_input_state_last[256];
+static char g_key_input_state_last[256];
 
 static int g_mouse_state;
 static int g_mouse_state_last;
@@ -16,38 +16,62 @@ static int g_mouse_state_last;
 // キー更新
 void UpdateInputManager(void)
 {
-	s_input_state_last = g_input_state;
+	g_input_state_last = g_input_state;
 	g_input_state = GetJoypadInputState(DX_INPUT_KEY_PAD1);
 
-	memcpy(s_key_input_state_last, g_key_input_state, sizeof(g_key_input_state));
+	memcpy(g_key_input_state_last, g_key_input_state, sizeof(g_key_input_state));
 	GetHitKeyStateAll(g_key_input_state);
 
 	g_mouse_state_last = g_mouse_state;
 	g_mouse_state = GetMouseInput();
 }
 
-// キーが押されているか
+// ジョイパッドが押されているか
 BOOL IsJoypadDown(int key)
 {
 	return g_input_state & key;
 }
 
-// キーが離されているか
+// ジョイパッドが離されているか
 BOOL IsJoypadUp(int key)
 {
 	return !IsJoypadDown(key);
 }
 
-// キーを押した直後か
+// ジョイパッドを押した直後か
 BOOL IsJoypadPressed(int key)
 {
-	return !(s_input_state_last & key) && (g_input_state & key);
+	return !(g_input_state_last & key) && (g_input_state & key);
+}
+
+// ジョイパッドを離した直後か
+BOOL IsJoypadReleased(int key)
+{
+	return (g_input_state_last & key) && !(g_input_state & key);
+}
+
+// キーが押されているか
+BOOL IsKeyDown(int key)
+{
+	return g_key_input_state[key];
+}
+
+// キーが離されているか
+BOOL IsKeyUp(int key)
+{
+	return !IsKeyDown(key);
+}
+
+// キーを押した直後か
+BOOL IsKeyPressed(int key)
+{
+	return !g_key_input_state_last[key] && g_key_input_state[key];
 }
 
 // キーを離した直後か
-BOOL IsJoypadReleased(int key)
+BOOL IsKeyReleased(int key)
 {
-	return (s_input_state_last & key) && !(g_input_state & key);
+	return g_key_input_state_last[key] && !g_key_input_state[key];
 }
 
 // マウスが押されているか

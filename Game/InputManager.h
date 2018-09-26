@@ -18,6 +18,18 @@ BOOL IsJoypadPressed(int key);
 // キーを離した直後か
 BOOL IsJoypadReleased(int key);
 
+// キーが押されているか
+BOOL IsKeyDown(int key);
+
+// キーが離されているか
+BOOL IsKeyUp(int key);
+
+// キーを押した直後か
+BOOL IsKeyPressed(int key);
+
+// キーを離した直後か
+BOOL IsKeyReleased(int key);
+
 // マウスが押されているか
 BOOL IsMouseDown(int mouse);
 
