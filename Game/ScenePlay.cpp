@@ -332,6 +332,25 @@ void UpdatePlay(void)
 						PlaySoundMem(g_resources.sound_se[9], DX_PLAYTYPE_BACK);
 					}
 					break;
+				case TYPE_VEL:
+					// Õ“Ë‚µ‚½‚ç‘¬“x•ÏX
+					GameObject line4 = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
+					if (GameObject_IsHit(planet, &line4)) {
+						ball->vel = Vec2_Scale(&planet->vel, .1f);
+						request_ballloop = TRUE;
+						ChangeVolumeSoundMem(150, g_resources.sound_se[10]);
+						PlaySoundMem(g_resources.sound_se[10], DX_PLAYTYPE_BACK);
+					}
+					break;
+				case TYPE_BEAM_BOUNCE:
+					// Õ“Ë‚µ‚½‚çÁ‚·
+					GameObject line5 = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
+					if (GameObject_IsHit(planet, &line5)) {
+						VectorIterator_Remove(&itr_ball);
+						request_ballloop = TRUE;
+						PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
+					}
+					break;
 				case TYPE_GOAL:
 					// Õ“Ë‚µ‚½‚ç‰Á“_
 					if (GameObject_IsHit(ball, planet))
@@ -535,6 +554,37 @@ static void UpdateStageEdit(const Vec2* mouse)
 			g_edit_mode = -1;
 		}
 	}
+	{
+		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F2))
+		{
+			g_mouse_last_from = *mouse;
+			g_edit_mode = 7;
+			g_edited = TRUE;
+		}
+		if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == 7)
+		{
+			Vec2 mouse_last_to = *mouse;
+			GameObject obj = GameObject_Launcher_Create(&g_mouse_last_from, &mouse_last_to);
+			Vector_AddLast(&g_planets, &obj);
+			g_edit_mode = -1;
+		}
+	}
+	{
+		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F1))
+		{
+			g_mouse_last_from = *mouse;
+			g_edit_mode = 8;
+			g_edited = TRUE;
+		}
+		if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == 8)
+		{
+			Vec2 mouse_last_to = *mouse;
+			GameObject obj = GameObject_BeamBounce_Create(&g_mouse_last_from, &mouse_last_to);
+
+			Vector_AddLast(&g_planets, &obj);
+			g_edit_mode = -1;
+		}
+	}
 	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F6))
 	{
 		GameObject obj = GameObject_Goal_Create(mouse);
@@ -562,17 +612,11 @@ static void UpdateStageEdit(const Vec2* mouse)
 		{
 			if (GameObject_IsAlive(obj))
 			{
-				switch (obj->type)
-				{
-				case TYPE_PLANET:
-				case TYPE_BEAM:
-				case TYPE_WARP:
-					GameObject mouseobj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(10, 10));
-					mouseobj.shape = SHAPE_CIRCLE;
-					if (GameObject_IsHit(obj, &mouseobj))
-						VectorIterator_Remove(&itr_obj);
-					break;
-				}
+				GameObject mouseobj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(10, 10));
+				mouseobj.shape = SHAPE_CIRCLE;
+				if (GameObject_IsHit(obj, &mouseobj))
+					VectorIterator_Remove(&itr_obj);
+				break;
 			}
 		} foreach_end;
 		g_edit_mode = 4;
@@ -652,9 +696,14 @@ void RenderPlay(void)
 					break;
 				case TYPE_WARP:
 					GameObject_Render(obj, &offset);
-					SetDrawBright(255-10, 255-140, 255-140);
+					SetDrawBright(255 - 10, 255 - 140, 255 - 140);
 					GameObject_Render(obj, &Vec2_Add(&obj->vel, &offset));
 					SetDrawBright(255, 255, 255);
+					if (DEBUG_HITBOX)
+						Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
+					break;
+				case TYPE_VEL:
+					GameObject_Render(obj, &offset);
 					if (DEBUG_HITBOX)
 						Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
 					break;

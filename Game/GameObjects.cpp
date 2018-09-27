@@ -75,7 +75,7 @@ GameObject GameObject_Beam_Create(const Vec2* mouse, const Vec2* next)
 {
 	GameObject obj = GameObject_CreateLine(*mouse, *next);
 	obj.type = TYPE_BEAM;
-	obj.sprite.color = COLOR_YELLOW;
+	obj.sprite.color = 0xE88025;
 	return obj;
 }
 
@@ -96,12 +96,21 @@ GameObject GameObject_Warp_Create(const Vec2* mouse, const Vec2* next)
 GameObject GameObject_Launcher_Create(const Vec2* mouse, const Vec2* next)
 {
 	GameObject obj = GameObject_Create(*mouse, Vec2_Sub(next, mouse), Vec2_Create(10, 10));
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[4], Vec2_Create(), Vec2_Create(202/4, 54/2)));
-	obj.sprite.num_columns = 4;
-	GameSprite_SetFrame(&obj.sprite, 6);
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[3], Vec2_Create(), Vec2_Create(20, 20)));
+	obj.sprite.num_columns = 6;
+	GameSprite_SetFrame(&obj.sprite, 0);
 	obj.type = TYPE_VEL;
-	GameObject_SetSize(&obj, 2, 30);
+	GameObject_SetSize(&obj, 4, 15);
 	obj.shape = SHAPE_CIRCLE;
+	return obj;
+}
+
+// <ビームバウンドオブジェクト>
+GameObject GameObject_BeamBounce_Create(const Vec2* mouse, const Vec2* next)
+{
+	GameObject obj = GameObject_CreateLine(*mouse, *next);
+	obj.type = TYPE_BEAM_BOUNCE;
+	obj.sprite.color = 0x55F475;
 	return obj;
 }
 
@@ -121,6 +130,10 @@ GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec)
 		return GameObject_Beam_Create(mouse, vec);
 	case TYPE_WARP:
 		return GameObject_Warp_Create(mouse, vec);
+	case TYPE_VEL:
+		return GameObject_Launcher_Create(mouse, vec);
+	case TYPE_BEAM_BOUNCE:
+		return GameObject_BeamBounce_Create(mouse, vec);
 	}
 }
 

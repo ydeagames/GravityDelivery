@@ -9,7 +9,7 @@
 // <ƒŠƒ\[ƒX> ----------------------------------------------------------
 
 #define NUM_BGM 4
-#define NUM_SE 10
+#define NUM_SE 11
 
 #define NUM_TEXTURE 7
 

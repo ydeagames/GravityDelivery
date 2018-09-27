@@ -17,7 +17,8 @@ typedef enum
 	TYPE_GOAL_DOOM,
 	TYPE_BEAM,
 	TYPE_WARP,
-	TYPE_VEL
+	TYPE_VEL,
+	TYPE_BEAM_BOUNCE
 } ObjectType;
 
 // 関数の宣言 ==============================================================
@@ -42,6 +43,9 @@ GameObject GameObject_Warp_Create(const Vec2* mouse, const Vec2* next);
 
 // <ランチャーオブジェクト>
 GameObject GameObject_Launcher_Create(const Vec2* mouse, const Vec2* next);
+
+// <ビームバウンドオブジェクト>
+GameObject GameObject_BeamBounce_Create(const Vec2* mouse, const Vec2* next);
 
 // <オブジェクト>
 GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec);
