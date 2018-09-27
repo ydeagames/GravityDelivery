@@ -147,14 +147,12 @@ static void LoadStage(void)
 		int type;
 		float base_x, base_y;
 		float next_x, next_y;
-		float scale;
-		int color;
 
 		Vector_Clear(&g_balls);
 		Vector_Clear(&g_planets);
 
 		fscanf_s(fp, "%d", &g_bgm);
-		while (fscanf_s(fp, "%d %f %f %f %f", &type, &base_x, &base_y, &next_x, &next_y, &scale, &color) != EOF) {
+		while (fscanf_s(fp, "%d %f %f %f %f", &type, &base_x, &base_y, &next_x, &next_y) != EOF) {
 			Vec2 base = Vec2_Create(base_x, base_y);
 			Vec2 next = Vec2_Create(next_x, next_y);
 			GameObject obj = GameObject_Planets_Create(type, &base, &next);
