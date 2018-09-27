@@ -248,6 +248,7 @@ void UpdatePlay(void)
 		Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
 		if (Vec2_LengthSquared(&diff) < 5 * 5)
 		{
+			BOOL switched = FALSE;
 			foreach_start(&g_planets, GameObject, obj)
 			{
 				if (GameObject_IsAlive(obj))
@@ -262,16 +263,20 @@ void UpdatePlay(void)
 							GameObject_SetSize(obj, obj->state ? 4.f : 2.f, 8);
 							if (g_tutorial_state == 0)
 								g_tutorial_state = 1;
+							switched = TRUE;
 							PlaySoundMem(g_resources.sound_se[2], DX_PLAYTYPE_BACK);
 						}
 					}
 				}
 			} foreach_end;
-			g_score = 0;
-			foreach_start(&g_balls, GameObject, obj)
+			if (switched)
 			{
-				VectorIterator_Remove(&itr_obj);
-			} foreach_end;
+				g_score = 0;
+				foreach_start(&g_balls, GameObject, obj)
+				{
+					VectorIterator_Remove(&itr_obj);
+				} foreach_end;
+			}
 		}
 		else if (g_tutorial_state == 1)
 			g_tutorial_state = 2;
