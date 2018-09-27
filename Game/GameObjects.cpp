@@ -40,9 +40,9 @@ GameObject GameObject_Goal_Create(const Vec2* mouse)
 }
 
 // <スタートオブジェクト>
-GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* vec)
+GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* next)
 {
-	GameObject obj = GameObject_Create(*mouse, *vec, Vec2_Create(10, 10));
+	GameObject obj = GameObject_Create(*mouse, Vec2_Sub(next, mouse), Vec2_Create(10, 10));
 	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
 	obj.sprite.num_columns = 8;
 	GameSprite_SetFrame(&obj.sprite, 12);

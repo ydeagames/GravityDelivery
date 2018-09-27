@@ -287,6 +287,7 @@ void UpdatePlay(void)
 		{
 			if (GameObject_IsAlive(planet))
 			{
+				GameObject line = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
 				switch (planet->type)
 				{
 				case TYPE_PLANET:
@@ -315,8 +316,7 @@ void UpdatePlay(void)
 					break;
 				case TYPE_BEAM:
 					// 衝突したら消す
-					GameObject line2 = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
-					if (GameObject_IsHit(planet, &line2)) {
+					if (GameObject_IsHit(planet, &line)) {
 						VectorIterator_Remove(&itr_ball);
 						request_ballloop = TRUE;
 						PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
@@ -324,8 +324,7 @@ void UpdatePlay(void)
 					break;
 				case TYPE_WARP:
 					// 衝突したらワープ
-					GameObject line3 = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
-					if (GameObject_IsHit(planet, &line3)) {
+					if (GameObject_IsHit(planet, &line)) {
 						ball->pos = Vec2_Add(&planet->pos, &planet->vel);
 						request_ballloop = TRUE;
 						ChangeVolumeSoundMem(150, g_resources.sound_se[9]);
@@ -334,8 +333,7 @@ void UpdatePlay(void)
 					break;
 				case TYPE_VEL:
 					// 衝突したら速度変更
-					GameObject line4 = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
-					if (GameObject_IsHit(planet, &line4)) {
+					if (GameObject_IsHit(planet, &line)) {
 						ball->vel = Vec2_Scale(&planet->vel, .1f);
 						request_ballloop = TRUE;
 						ChangeVolumeSoundMem(150, g_resources.sound_se[10]);
@@ -344,8 +342,7 @@ void UpdatePlay(void)
 					break;
 				case TYPE_BEAM_BOUNCE:
 					// 衝突したら消す
-					GameObject line5 = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
-					if (GameObject_IsHit(planet, &line5)) {
+					if (GameObject_IsHit(planet, &line)) {
 						VectorIterator_Remove(&itr_ball);
 						request_ballloop = TRUE;
 						PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
@@ -499,113 +496,43 @@ void UpdatePlay(void)
 	}
 }
 
-static void UpdateStageEdit(const Vec2* mouse)
+static void UpdateStageEdit_HandlePlanetControl(const Vec2* mouse, int id, int key, int type, BOOL unique)
 {
+	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(key))
 	{
-		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F5))
-		{
-			g_mouse_last_from = g_raw_mouse;
-			g_edit_mode = 1;
-			g_edited = TRUE;
-		}
-		if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == 1)
-		{
-			Vec2 mouse_last_to = g_raw_mouse;
-			GameObject obj = GameObject_Start_Create(&g_mouse_last_from, &Vec2_Sub(&mouse_last_to, &g_mouse_last_from));
+		g_mouse_last_from = *mouse;
+		g_edit_mode = id;
+		g_edited = TRUE;
+	}
+	if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == id)
+	{
+		Vec2 mouse_last_to = *mouse;
+		GameObject obj = GameObject_Type_Create(type, &g_mouse_last_from, &mouse_last_to);
 
+		if (unique)
 			foreach_start(&g_planets, GameObject, planet)
 			{
-				if (planet->type == TYPE_START)
+				if (planet->type == type)
 					VectorIterator_Remove(&itr_planet);
 			} foreach_end;
 
-			Vector_AddLast(&g_planets, &obj);
-			g_edit_mode = -1;
-		}
-	}
-	{
-		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F9))
-		{
-			g_mouse_last_from = *mouse;
-			g_edit_mode = 5;
-			g_edited = TRUE;
-		}
-		if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == 5)
-		{
-			Vec2 mouse_last_to = *mouse;
-			GameObject obj = GameObject_Beam_Create(&g_mouse_last_from, &mouse_last_to);
-
-			Vector_AddLast(&g_planets, &obj);
-			g_edit_mode = -1;
-		}
-	}
-	{
-		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F4))
-		{
-			g_mouse_last_from = *mouse;
-			g_edit_mode = 6;
-			g_edited = TRUE;
-		}
-		if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == 6)
-		{
-			Vec2 mouse_last_to = *mouse;
-			GameObject obj = GameObject_Warp_Create(&g_mouse_last_from, &mouse_last_to);
-			Vector_AddLast(&g_planets, &obj);
-			g_edit_mode = -1;
-		}
-	}
-	{
-		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F2))
-		{
-			g_mouse_last_from = *mouse;
-			g_edit_mode = 7;
-			g_edited = TRUE;
-		}
-		if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == 7)
-		{
-			Vec2 mouse_last_to = *mouse;
-			GameObject obj = GameObject_Launcher_Create(&g_mouse_last_from, &mouse_last_to);
-			Vector_AddLast(&g_planets, &obj);
-			g_edit_mode = -1;
-		}
-	}
-	{
-		if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F1))
-		{
-			g_mouse_last_from = *mouse;
-			g_edit_mode = 8;
-			g_edited = TRUE;
-		}
-		if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == 8)
-		{
-			Vec2 mouse_last_to = *mouse;
-			GameObject obj = GameObject_BeamBounce_Create(&g_mouse_last_from, &mouse_last_to);
-
-			Vector_AddLast(&g_planets, &obj);
-			g_edit_mode = -1;
-		}
-	}
-	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F6))
-	{
-		GameObject obj = GameObject_Goal_Create(mouse);
-
-		foreach_start(&g_planets, GameObject, planet)
-		{
-			if (planet->type == TYPE_GOAL)
-				VectorIterator_Remove(&itr_planet);
-		} foreach_end;
-
 		Vector_AddLast(&g_planets, &obj);
-		g_edit_mode = 2;
-		g_edited = TRUE;
+		g_edit_mode = -1;
 	}
-	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F7))
-	{
-		GameObject obj = GameObject_Planet_Create(mouse);
-		Vector_AddLast(&g_planets, &obj);
-		g_edit_mode = 3;
-		g_edited = TRUE;
-	}
+}
+
+static void UpdateStageEdit(const Vec2* mouse)
+{
+	int id = 0;
+	UpdateStageEdit_HandlePlanetControl(mouse, id++, KEY_INPUT_F5, TYPE_START, TRUE);
+	UpdateStageEdit_HandlePlanetControl(mouse, id++, KEY_INPUT_F9, TYPE_BEAM, FALSE);
+	UpdateStageEdit_HandlePlanetControl(mouse, id++, KEY_INPUT_F4, TYPE_WARP, FALSE);
+	UpdateStageEdit_HandlePlanetControl(mouse, id++, KEY_INPUT_F2, TYPE_VEL, FALSE);
+	UpdateStageEdit_HandlePlanetControl(mouse, id++, KEY_INPUT_F1, TYPE_BEAM_BOUNCE, FALSE);
+	UpdateStageEdit_HandlePlanetControl(mouse, id++, KEY_INPUT_F6, TYPE_GOAL, TRUE);
+	UpdateStageEdit_HandlePlanetControl(mouse, id++, KEY_INPUT_F7, TYPE_PLANET, FALSE);
+	
+	// Remover
 	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_F8))
 	{
 		foreach_start(&g_planets, GameObject, obj)
@@ -616,18 +543,21 @@ static void UpdateStageEdit(const Vec2* mouse)
 				mouseobj.shape = SHAPE_CIRCLE;
 				if (GameObject_IsHit(obj, &mouseobj))
 					VectorIterator_Remove(&itr_obj);
-				break;
 			}
 		} foreach_end;
-		g_edit_mode = 4;
+		g_edit_mode = id;
 		g_edited = TRUE;
 	}
+	
+	// Load
 	if (IsKeyPressed(KEY_INPUT_F10))
 	{
 		LoadStage();
 		DebugConsole_Log(&g_console, "stage loaded!");
 		g_edited = FALSE;
 	}
+
+	// Save
 	if (IsKeyPressed(KEY_INPUT_F11))
 	{
 		SaveStage();
