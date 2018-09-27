@@ -132,6 +132,12 @@ void InitializePlay(void)
 		ChangeVolumeSoundMem(100, g_resources.sound_bgm[g_bgm]);
 		PlaySoundMem(g_resources.sound_bgm[g_bgm], DX_PLAYTYPE_LOOP);
 	}
+
+	{
+		TCHAR title[260];
+		sprintf(title, "%s - %s", GAME_TITLE, g_selected_stage.title);
+		SetMainWindowText(title);		// ウインドウタイトルの設定
+	}
 }
 
 static void LoadStage(void)
@@ -787,4 +793,6 @@ void FinalizePlay(void)
 	Vector_Delete(&g_field_layers);
 	Vector_Delete(&g_balls);
 	Vector_Delete(&g_planets);
+
+	SetMainWindowText(GAME_TITLE);		// ウインドウタイトルの設定
 }

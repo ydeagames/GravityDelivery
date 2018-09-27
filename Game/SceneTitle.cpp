@@ -44,6 +44,13 @@ void listfiles(char* path, char* filter)
 				Stage stage;
 				strcpy_s(stage.filename, fdata.name);
 				snprintf(stage.filepath, 260, "%s/%s", path, fdata.name);
+				{
+					char *lastdot;
+					strcpy(stage.title, stage.filename);
+					lastdot = strrchr(stage.title, '.');
+					if (lastdot != NULL)
+						*lastdot = '\0';
+				}
 				Vector_AddLast(&g_stages, &stage);
 			}
 		} while (_findnext(fh, &fdata) == 0);
@@ -185,15 +192,7 @@ void RenderTitle(void)
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 			select = itr_stage.current - 1;
 		}
-		{
-			char name[260];
-			char *lastdot;
-			strcpy(name, stage->filename);
-			lastdot = strrchr(name, '.');
-			if (lastdot != NULL)
-				*lastdot = '\0';
-			DrawFormatStringToHandle(SCREEN_RIGHT - 250, SCREEN_BOTTOM + 20 * pos, COLOR_WHITE, g_resources.font_main, name);
-		}
+		DrawFormatStringToHandle(SCREEN_RIGHT - 250, SCREEN_BOTTOM + 20 * pos, COLOR_WHITE, g_resources.font_main, stage->title);
 		pos++;
 	} foreach_end;
 

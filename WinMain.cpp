@@ -54,15 +54,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// 起動モードの設定
 #if defined(_DEBUG)
-	ChangeWindowMode(TRUE);	          // ウインドウモードで実行
-	SetMainWindowText(GAME_TITLE);    // ウインドウタイトルの設定
-	SetWindowIconID(IDI_ICON1);       // ウインドウアイコンの設定
+	ChangeWindowMode(TRUE);				// ウインドウモードで実行
 #else
-	ChangeWindowMode(FALSE);	      // フルスクリーンで実行
-	//ChangeWindowMode(TRUE);	          // ウインドウモードで実行
-	SetMainWindowText(GAME_TITLE);    // ウインドウタイトルの設定
-	SetWindowIconID(IDI_ICON1);       // ウインドウアイコンの設定
+	ChangeWindowMode(FALSE);			// フルスクリーンで実行
+	//ChangeWindowMode(TRUE);			// ウインドウモードで実行
 #endif
+	SetMainWindowText(GAME_TITLE);		// ウインドウタイトルの設定
+	SetWindowIconID(IDI_ICON1);			// ウインドウアイコンの設定
 
 
 	// 初期状態の画面モードの設定

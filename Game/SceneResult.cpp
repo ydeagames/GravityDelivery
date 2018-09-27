@@ -51,6 +51,12 @@ void InitializeResult(void)
 
 	ChangeVolumeSoundMem(150, g_resources.sound_se[7]);
 	PlaySoundMem(g_resources.sound_se[7], DX_PLAYTYPE_BACK);
+
+	{
+		TCHAR title[260];
+		sprintf(title, "%s - %s - クリア", GAME_TITLE, g_selected_stage.title);
+		SetMainWindowText(title);		// ウインドウタイトルの設定
+	}
 }
 
 // タイトルシーンの更新処理
@@ -155,4 +161,6 @@ void FinalizeResult(void)
 	{
 		DeleteGraph(layer->sprite.texture.texture);
 	} foreach_end;
+
+	SetMainWindowText(GAME_TITLE);		// ウインドウタイトルの設定
 }
