@@ -100,7 +100,7 @@ void UpdateTitle(void)
 		}
 	}
 
-	if (IsJoypadPressed(PAD_INPUT_16))
+	if (IsKeyDown(KEY_INPUT_LCONTROL) && IsKeyPressed(KEY_INPUT_O))
 	{
 		char str[260];
 
@@ -165,7 +165,7 @@ void RenderTitle(void)
 	}
 	GameObject_Render(&g_title_logo);
 
-	DrawFormatStringToHandle((int) GameObject_GetX(&g_title_logo, LEFT, -120), (int) GameObject_GetY(&g_title_logo, BOTTOM, 180), COLOR_WHITE, g_resources.font_main, 
+	DrawFormatStringToHandle((int)GameObject_GetX(&g_title_logo, LEFT, -120), (int)GameObject_GetY(&g_title_logo, BOTTOM, 180), COLOR_WHITE, g_resources.font_main,
 		"重力スイッチにようこそ\n"
 		"星の引力を操作してゴールを目指そう！\n"
 		"ステージを選択してゲームスタート\n");

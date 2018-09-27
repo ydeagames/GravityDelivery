@@ -16,9 +16,9 @@
 // 関数の定義 ==============================================================
 
 // <弾オブジェクト>
-GameObject GameObject_Ball_Create(const Vec2* mouse, const Vec2* vec)
+GameObject GameObject_Ball_Create(const Vec2* pos, const Vec2* vec)
 {
-	GameObject obj = GameObject_Create(*mouse, *vec, Vec2_Create(5, 5));
+	GameObject obj = GameObject_Create(*pos, *vec, Vec2_Create(5, 5));
 	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[1], Vec2_Create(), Vec2_Create(26, 26)));
 	obj.sprite.num_columns = 9;
 	GameSprite_SetFrame(&obj.sprite, 11);
@@ -26,9 +26,9 @@ GameObject GameObject_Ball_Create(const Vec2* mouse, const Vec2* vec)
 }
 
 // <ゴールオブジェクト>
-GameObject GameObject_Goal_Create(const Vec2* mouse)
+static GameObject GameObject_Planets_Goal_Create(const Vec2* base, const Vec2* next)
 {
-	GameObject obj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(20, 20));
+	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(20, 20));
 	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[2], Vec2_Create(), Vec2_Create(34, 34)));
 	obj.sprite.num_columns = 6;
 	GameSprite_SetFrame(&obj.sprite, 17);
@@ -39,10 +39,17 @@ GameObject GameObject_Goal_Create(const Vec2* mouse)
 	return obj;
 }
 
-// <スタートオブジェクト>
-GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* next)
+// <ゴールオブジェクト>
+static void GameObject_Planets_Goal_Serialize(const GameObject* obj, Vec2* base, Vec2* next)
 {
-	GameObject obj = GameObject_Create(*mouse, Vec2_Sub(next, mouse), Vec2_Create(10, 10));
+	*base = obj->pos;
+	*next = Vec2_Create();
+}
+
+// <スタートオブジェクト>
+GameObject GameObject_Planets_Start_Create(const Vec2* base, const Vec2* next)
+{
+	GameObject obj = GameObject_Create(*base, Vec2_Sub(next, base), Vec2_Create(10, 10));
 	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
 	obj.sprite.num_columns = 8;
 	GameSprite_SetFrame(&obj.sprite, 12);
@@ -53,10 +60,17 @@ GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* next)
 	return obj;
 }
 
-// <惑星オブジェクト>
-GameObject GameObject_Planet_Create(const Vec2* mouse)
+// <スタートオブジェクト>
+static void GameObject_Planets_Start_Serialize(const GameObject* obj, Vec2* base, Vec2* next)
 {
-	GameObject obj = GameObject_Create(*mouse, Vec2_Create(), Vec2_Create(10, 10));
+	*base = obj->pos;
+	*next = Vec2_Add(&obj->pos, &obj->vel);
+}
+
+// <惑星オブジェクト>
+static GameObject GameObject_Planets_Planet_Create(const Vec2* base, const Vec2* next)
+{
+	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(10, 10));
 	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
 	obj.sprite.texture.center.x -= 0;
 	obj.sprite.texture.center.y += 1.5f;
@@ -70,20 +84,34 @@ GameObject GameObject_Planet_Create(const Vec2* mouse)
 	return obj;
 }
 
-// <ビームオブジェクト>
-GameObject GameObject_Beam_Create(const Vec2* mouse, const Vec2* next)
+// <惑星オブジェクト>
+static void GameObject_Planets_Planet_Serialize(const GameObject* obj, Vec2* base, Vec2* next)
 {
-	GameObject obj = GameObject_CreateLine(*mouse, *next);
+	*base = obj->pos;
+	*next = Vec2_Create();
+}
+
+// <ビームオブジェクト>
+static GameObject GameObject_Planets_Beam_Create(const Vec2* base, const Vec2* next)
+{
+	GameObject obj = GameObject_CreateLine(*base, *next);
 	obj.type = TYPE_BEAM;
 	obj.sprite.color = 0xE88025;
 	return obj;
 }
 
-// <ワープオブジェクト>
-GameObject GameObject_Warp_Create(const Vec2* mouse, const Vec2* next)
+// <ビームオブジェクト>
+static void GameObject_Planets_Beam_Serialize(const GameObject* obj, Vec2* base, Vec2* next)
 {
-	GameObject obj = GameObject_Create(*mouse, Vec2_Sub(next, mouse), Vec2_Create(10, 10));
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[4], Vec2_Create(), Vec2_Create(202/4, 54/2)));
+	*base = Vec2_Create(GameObject_GetRawX(obj, LEFT), GameObject_GetRawY(obj, TOP));
+	*next = Vec2_Create(GameObject_GetRawX(obj, RIGHT), GameObject_GetRawY(obj, BOTTOM));
+}
+
+// <ワープオブジェクト>
+static GameObject GameObject_Planets_Warp_Create(const Vec2* base, const Vec2* next)
+{
+	GameObject obj = GameObject_Create(*base, Vec2_Sub(next, base), Vec2_Create(10, 10));
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[4], Vec2_Create(), Vec2_Create(202 / 4, 54 / 2)));
 	obj.sprite.num_columns = 4;
 	GameSprite_SetFrame(&obj.sprite, 6);
 	obj.type = TYPE_WARP;
@@ -93,9 +121,16 @@ GameObject GameObject_Warp_Create(const Vec2* mouse, const Vec2* next)
 }
 
 // <ランチャーオブジェクト>
-GameObject GameObject_Launcher_Create(const Vec2* mouse, const Vec2* next)
+static void GameObject_Planets_Warp_Serialize(const GameObject* obj, Vec2* base, Vec2* next)
 {
-	GameObject obj = GameObject_Create(*mouse, Vec2_Sub(next, mouse), Vec2_Create(10, 10));
+	*base = obj->pos;
+	*next = Vec2_Add(&obj->pos, &obj->vel);
+}
+
+// <ランチャーオブジェクト>
+static GameObject GameObject_Planets_Launcher_Create(const Vec2* base, const Vec2* next)
+{
+	GameObject obj = GameObject_Create(*base, Vec2_Sub(next, base), Vec2_Create(10, 10));
 	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[3], Vec2_Create(), Vec2_Create(20, 20)));
 	obj.sprite.num_columns = 6;
 	GameSprite_SetFrame(&obj.sprite, 0);
@@ -105,35 +140,79 @@ GameObject GameObject_Launcher_Create(const Vec2* mouse, const Vec2* next)
 	return obj;
 }
 
-// <ビームバウンドオブジェクト>
-GameObject GameObject_BeamBounce_Create(const Vec2* mouse, const Vec2* next)
+// <ランチャーオブジェクト>
+static void GameObject_Planets_Launcher_Serialize(const GameObject* obj, Vec2* base, Vec2* next)
 {
-	GameObject obj = GameObject_CreateLine(*mouse, *next);
+	*base = obj->pos;
+	*next = Vec2_Add(&obj->pos, &obj->vel);
+}
+
+// <ビームバウンドオブジェクト>
+static GameObject GameObject_Planets_BeamBounce_Create(const Vec2* base, const Vec2* next)
+{
+	GameObject obj = GameObject_CreateLine(*base, *next);
 	obj.type = TYPE_BEAM_BOUNCE;
 	obj.sprite.color = 0x55F475;
 	return obj;
 }
 
+// <ビームバウンドオブジェクト>
+static void GameObject_Planets_BeamBounce_Serialize(const GameObject* obj, Vec2* base, Vec2* next)
+{
+	*base = Vec2_Create(GameObject_GetRawX(obj, LEFT), GameObject_GetRawY(obj, TOP));
+	*next = Vec2_Create(GameObject_GetRawX(obj, RIGHT), GameObject_GetRawY(obj, BOTTOM));
+}
+
 // <オブジェクト>
-GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec)
+GameObject GameObject_Planets_Create(int type, const Vec2* base, const Vec2* next)
 {
 	switch (type)
 	{
 	default:
 	case TYPE_PLANET:
-		return GameObject_Planet_Create(mouse);
+		return GameObject_Planets_Planet_Create(base, next);
 	case TYPE_START:
-		return GameObject_Start_Create(mouse, vec);
+		return GameObject_Planets_Start_Create(base, next);
 	case TYPE_GOAL:
-		return GameObject_Goal_Create(mouse);
+		return GameObject_Planets_Goal_Create(base, next);
 	case TYPE_BEAM:
-		return GameObject_Beam_Create(mouse, vec);
+		return GameObject_Planets_Beam_Create(base, next);
 	case TYPE_WARP:
-		return GameObject_Warp_Create(mouse, vec);
+		return GameObject_Planets_Warp_Create(base, next);
 	case TYPE_VEL:
-		return GameObject_Launcher_Create(mouse, vec);
+		return GameObject_Planets_Launcher_Create(base, next);
 	case TYPE_BEAM_BOUNCE:
-		return GameObject_BeamBounce_Create(mouse, vec);
+		return GameObject_Planets_BeamBounce_Create(base, next);
+	}
+}
+
+// <オブジェクト>
+void GameObject_Planets_Serialize(const GameObject* obj, Vec2* base, Vec2* next)
+{
+	switch (obj->type)
+	{
+	default:
+	case TYPE_PLANET:
+		GameObject_Planets_Planet_Serialize(obj, base, next);
+		break;
+	case TYPE_START:
+		GameObject_Planets_Start_Serialize(obj, base, next);
+		break;
+	case TYPE_GOAL:
+		GameObject_Planets_Goal_Serialize(obj, base, next);
+		break;
+	case TYPE_BEAM:
+		GameObject_Planets_Beam_Serialize(obj, base, next);
+		break;
+	case TYPE_WARP:
+		GameObject_Planets_Warp_Serialize(obj, base, next);
+		break;
+	case TYPE_VEL:
+		GameObject_Planets_Launcher_Serialize(obj, base, next);
+		break;
+	case TYPE_BEAM_BOUNCE:
+		GameObject_Planets_BeamBounce_Serialize(obj, base, next);
+		break;
 	}
 }
 

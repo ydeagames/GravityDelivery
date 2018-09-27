@@ -24,31 +24,13 @@ typedef enum
 // 関数の宣言 ==============================================================
 
 // <弾オブジェクト>
-GameObject GameObject_Ball_Create(const Vec2* mouse, const Vec2* vec);
-
-// <ゴールオブジェクト>
-GameObject GameObject_Goal_Create(const Vec2* mouse);
-
-// <スタートオブジェクト>
-GameObject GameObject_Start_Create(const Vec2* mouse, const Vec2* vec);
-
-// <惑星オブジェクト>
-GameObject GameObject_Planet_Create(const Vec2* mouse);
-
-// <ビームオブジェクト>
-GameObject GameObject_Beam_Create(const Vec2* mouse, const Vec2* next);
-
-// <ワープオブジェクト>
-GameObject GameObject_Warp_Create(const Vec2* mouse, const Vec2* next);
-
-// <ランチャーオブジェクト>
-GameObject GameObject_Launcher_Create(const Vec2* mouse, const Vec2* next);
-
-// <ビームバウンドオブジェクト>
-GameObject GameObject_BeamBounce_Create(const Vec2* mouse, const Vec2* next);
+GameObject GameObject_Ball_Create(const Vec2* pos, const Vec2* vec);
 
 // <オブジェクト>
-GameObject GameObject_Type_Create(int type, const Vec2* mouse, const Vec2* vec);
+GameObject GameObject_Planets_Create(int type, const Vec2* base, const Vec2* next);
+
+// <オブジェクト>
+void GameObject_Planets_Serialize(const GameObject* obj, Vec2* base, Vec2* next);
 
 // <オブジェクトループ描画>
 void GameObject_RenderLoop(const GameObject* obj, const GameObject* tile_area, GameObject* tile_obj, const Vec2* translate);

@@ -145,8 +145,8 @@ static void LoadStage(void)
 	if (err == 0)
 	{
 		int type;
-		float pos_x, pos_y;
-		float vel_x, vel_y;
+		float base_x, base_y;
+		float next_x, next_y;
 		float scale;
 		int color;
 
@@ -154,11 +154,10 @@ static void LoadStage(void)
 		Vector_Clear(&g_planets);
 
 		fscanf_s(fp, "%d", &g_bgm);
-		while (fscanf_s(fp, "%d %f %f %f %f %f %d", &type, &pos_x, &pos_y, &vel_x, &vel_y, &scale, &color) != EOF) {
-			Vec2 pos = Vec2_Create(pos_x, pos_y);
-			Vec2 vel = Vec2_Create(vel_x, vel_y);
-			GameObject obj = GameObject_Type_Create(type, &pos, &vel);
-			//GameObject_SetSize(&obj, scale);
+		while (fscanf_s(fp, "%d %f %f %f %f", &type, &base_x, &base_y, &next_x, &next_y, &scale, &color) != EOF) {
+			Vec2 base = Vec2_Create(base_x, base_y);
+			Vec2 next = Vec2_Create(next_x, next_y);
+			GameObject obj = GameObject_Planets_Create(type, &base, &next);
 
 			Vector_AddLast(&g_planets, &obj);
 		}
@@ -179,7 +178,11 @@ static void SaveStage(void)
 		fprintf_s(fp, "%d\n", g_bgm);
 		foreach_start(&g_planets, GameObject, obj)
 		{
-			fprintf_s(fp, "%d %f %f %f %f %f %d\n", obj->type, obj->pos.x, obj->pos.y, obj->vel.x, obj->vel.y, obj->sprite.scale, obj->sprite.color);
+			Vec2 base;
+			Vec2 next;
+			GameObject_Planets_Serialize(obj, &base, &next);
+
+			fprintf_s(fp, "%d %f %f %f %f\n", obj->type, base.x, base.y, next.x, next.y);
 		} foreach_end;
 
 		fclose(fp);
@@ -507,14 +510,14 @@ static void UpdateStageEdit_HandlePlanetControl(const Vec2* mouse, int id, int k
 	if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == id)
 	{
 		Vec2 mouse_last_to = *mouse;
-		GameObject obj = GameObject_Type_Create(type, &g_mouse_last_from, &mouse_last_to);
+		GameObject obj = GameObject_Planets_Create(type, &g_mouse_last_from, &mouse_last_to);
 
 		if (unique)
 			foreach_start(&g_planets, GameObject, planet)
-			{
-				if (planet->type == type)
-					VectorIterator_Remove(&itr_planet);
-			} foreach_end;
+		{
+			if (planet->type == type)
+				VectorIterator_Remove(&itr_planet);
+		} foreach_end;
 
 		Vector_AddLast(&g_planets, &obj);
 		g_edit_mode = -1;
@@ -531,7 +534,7 @@ static void UpdateStageEdit(const Vec2* mouse)
 	UpdateStageEdit_HandlePlanetControl(mouse, id++, KEY_INPUT_R, TYPE_BEAM_BOUNCE, FALSE);
 	UpdateStageEdit_HandlePlanetControl(mouse, id++, KEY_INPUT_W, TYPE_WARP, FALSE);
 	UpdateStageEdit_HandlePlanetControl(mouse, id++, KEY_INPUT_V, TYPE_VEL, FALSE);
-	
+
 	// Remover
 	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_DELETE))
 	{
@@ -548,7 +551,20 @@ static void UpdateStageEdit(const Vec2* mouse)
 		g_edit_mode = id;
 		g_edited = TRUE;
 	}
-	
+
+	// Migration
+	if (IsKeyDown(KEY_INPUT_LCONTROL) && IsKeyPressed(KEY_INPUT_M))
+	{
+		foreach_start(&g_planets, GameObject, planet)
+		{
+			if (planet->type == TYPE_START)
+				planet->vel = Vec2_Add(&planet->vel, &planet->pos);
+		} foreach_end;
+
+		DebugConsole_Log(&g_console, "migrated!");
+		g_edited = TRUE;
+	}
+
 	// Load
 	if (IsKeyDown(KEY_INPUT_LCONTROL) && IsKeyPressed(KEY_INPUT_O))
 	{
