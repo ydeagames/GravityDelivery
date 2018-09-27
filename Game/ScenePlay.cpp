@@ -349,7 +349,20 @@ void UpdatePlay(void)
 				case TYPE_BEAM_BOUNCE:
 					// Õ“Ë‚µ‚½‚çÁ‚·
 					if (GameObject_IsHit(planet, &line)) {
-						VectorIterator_Remove(&itr_ball);
+						Vec2 planet_p1 = Vec2_Create(GameObject_GetRawX(planet, LEFT), GameObject_GetRawY(planet, TOP));
+						Vec2 planet_p2 = Vec2_Create(GameObject_GetRawX(planet, RIGHT), GameObject_GetRawY(planet, BOTTOM));
+						Vec2 planet_line = Vec2_Sub(&planet_p2, &planet_p1);
+
+						Vec2 vecA;
+						Vec2 vecB;
+
+						Vec2_Decompose(&ball->vel, &planet_line, &vecA, &vecB);
+
+						vecB = Vec2_Negate(&vecB);
+
+						ball->vel = Vec2_Add(&vecA, &vecB);
+						ball->pos = Vec2_Add(&ball->pos, &ball->vel);
+
 						request_ballloop = TRUE;
 						PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
 					}
