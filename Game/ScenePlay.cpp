@@ -664,13 +664,13 @@ void RenderPlay(void)
 			screen_start(g_filter_screen.sprite.texture.texture)
 			{
 				ClearDrawScreen();
-				GameObject_Field_Render(layer, &Vec2_Scale(&Vec2_Add(&offset, &mouse_offset), current_parallax), 1);
+				GameObject_Field_Render(layer, &Vec2_Scale(&Vec2_Add(&offset, &mouse_offset), current_parallax), 12);
 				GraphFilter(g_filter_screen.sprite.texture.texture, DX_GRAPH_FILTER_GAUSS, 16, 128);
 			} screen_end;
 			GameObject_Render(&g_filter_screen);
 		} foreach_end;
 	}
-	GameObject_Field_Render(&g_field_ball, &offset, 3);
+	GameObject_Field_Render(&g_field_ball, &offset, 16);
 
 	{
 		BOOL first_planet = TRUE;

@@ -262,7 +262,7 @@ void GameObject_Field_Render(const GameObject* field, const Vec2* translate, int
 		fieldback.sprite.color = COLOR_BLACK;
 		fieldback.fill = TRUE;
 		fieldback.pos = Vec2_Scale(&fieldback.size, .5f);
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, fadeout);
+		SetDrawBlendMode(DX_BLENDMODE_SUB, fadeout);
 		GameObject_Render(&fieldback);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}

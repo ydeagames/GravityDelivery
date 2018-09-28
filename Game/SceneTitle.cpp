@@ -138,7 +138,7 @@ void RenderTitle(void)
 		foreach_start(&g_field_layers, GameObject, layer)
 		{
 			current_parallax *= parallax;
-			GameObject_Field_Render(layer, &Vec2_Scale(&mouse_offset, current_parallax), 1);
+			GameObject_Field_Render(layer, &Vec2_Scale(&mouse_offset, current_parallax), 12);
 		} foreach_end;
 	}
 
