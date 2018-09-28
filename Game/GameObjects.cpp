@@ -97,6 +97,7 @@ static GameObject GameObject_Planets_Beam_Create(const Vec2* base, const Vec2* n
 	GameObject obj = GameObject_CreateLine(*base, *next);
 	obj.type = TYPE_BEAM;
 	obj.sprite.color = 0xE88025;
+	obj.edge = 5;
 	return obj;
 }
 
@@ -153,6 +154,7 @@ static GameObject GameObject_Planets_BeamBounce_Create(const Vec2* base, const V
 	GameObject obj = GameObject_CreateLine(*base, *next);
 	obj.type = TYPE_BEAM_BOUNCE;
 	obj.sprite.color = 0x55F475;
+	obj.edge = 2.5f;
 	return obj;
 }
 

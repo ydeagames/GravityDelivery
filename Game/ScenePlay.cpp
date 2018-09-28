@@ -22,6 +22,11 @@
 	SetDrawScreen(screen_stack); \
 }
 
+#define TUTORIAL_FLAG_TYPE_BEAM			(1<<0)
+#define TUTORIAL_FLAG_TYPE_WARP			(1<<1)
+#define TUTORIAL_FLAG_TYPE_VEL			(1<<2)
+#define TUTORIAL_FLAG_TYPE_BEAM_BOUNCE	(1<<3)
+
 
 
 // グローバル変数の定義 ====================================================
@@ -53,6 +58,7 @@ static HSND g_bgm;
 
 
 static int g_tutorial_state = 0;
+static int g_tutorial_flag = 0;
 
 
 
@@ -262,7 +268,9 @@ void UpdatePlay(void)
 					switch (obj->type)
 					{
 					case TYPE_PLANET:
-						if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
+						GameObject mouseobj1 = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(10, 10));
+						mouseobj1.shape = SHAPE_CIRCLE;
+						if (GameObject_IsHit(&mouseobj1, obj))
 						{
 							obj->state = !obj->state;
 							//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
@@ -272,6 +280,28 @@ void UpdatePlay(void)
 							switched = TRUE;
 							PlaySoundMem(g_resources.sound_se[2], DX_PLAYTYPE_BACK);
 						}
+						break;
+					default:
+						GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(300, 300));
+						if (GameObject_IsHit(&mouseobj, obj))
+							switch (obj->type)
+							{
+							case TYPE_BEAM:
+								g_tutorial_flag |= TUTORIAL_FLAG_TYPE_BEAM;
+								break;
+							case TYPE_WARP:
+								if (GameObject_IsHit(&mouseobj, obj))
+									g_tutorial_flag |= TUTORIAL_FLAG_TYPE_WARP;
+								break;
+							case TYPE_VEL:
+								if (GameObject_IsHit(&mouseobj, obj))
+									g_tutorial_flag |= TUTORIAL_FLAG_TYPE_VEL;
+								break;
+							case TYPE_BEAM_BOUNCE:
+								if (GameObject_IsHit(&mouseobj, obj))
+									g_tutorial_flag |= TUTORIAL_FLAG_TYPE_BEAM_BOUNCE;
+								break;
+							}
 					}
 				}
 			} foreach_end;
@@ -482,7 +512,9 @@ void UpdatePlay(void)
 				switch (obj->type)
 				{
 				case TYPE_PLANET:
-					if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
+					GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(10, 10));
+					mouseobj.shape = SHAPE_CIRCLE;
+					if (GameObject_IsHit(&mouseobj, obj))
 						mouse_on = TRUE;
 				}
 			}
@@ -646,6 +678,14 @@ void RenderPlay(void)
 		{
 			if (GameObject_IsAlive(obj))
 			{
+				GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(300, 300));
+				mouseobj.shape = SHAPE_CIRCLE;
+				if (DEBUG_HITBOX)
+				{
+					mouseobj.sprite.color = COLOR_GRAY;
+					mouseobj.edge = .5f;
+					GameObject_Render(&mouseobj, &offset);
+				}
 				switch (obj->type)
 				{
 				case TYPE_GOAL:
@@ -661,6 +701,8 @@ void RenderPlay(void)
 					break;
 				case TYPE_BEAM:
 					GameObject_Render(obj, &offset);
+					if (~g_tutorial_flag & TUTORIAL_FLAG_TYPE_BEAM && GameObject_IsHit(&mouseobj, obj))
+						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "ビームは触れると消滅してしまう！");
 					break;
 				case TYPE_WARP:
 					GameObject_Render(obj, &offset);
@@ -669,11 +711,20 @@ void RenderPlay(void)
 					SetDrawBright(255, 255, 255);
 					if (DEBUG_HITBOX)
 						Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
+					if (~g_tutorial_flag & TUTORIAL_FLAG_TYPE_WARP && GameObject_IsHit(&mouseobj, obj))
+						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "ゲートは触れるともう一つのゲートにワープするぞ！");
 					break;
 				case TYPE_VEL:
 					GameObject_Render(obj, &offset);
 					if (DEBUG_HITBOX)
 						Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
+					if (~g_tutorial_flag & TUTORIAL_FLAG_TYPE_WARP && GameObject_IsHit(&mouseobj, obj))
+						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "ランチャーは触れると打ち出されるぞ！");
+					break;
+				case TYPE_BEAM_BOUNCE:
+					GameObject_Render(obj, &offset);
+					if (~g_tutorial_flag & TUTORIAL_FLAG_TYPE_BEAM_BOUNCE && GameObject_IsHit(&mouseobj, obj))
+						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "壁は触れるとバウンドするぞ！");
 					break;
 				case TYPE_PLANET:
 					GameObject_Render(obj, &offset);
