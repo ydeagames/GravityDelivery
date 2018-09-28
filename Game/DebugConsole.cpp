@@ -66,9 +66,9 @@ void DebugConsole_Render(DebugConsole* console)
 
 		{
 			float opacity = GetMinF(LINE_TIME_FADE, GameTimer_GetRemaining(&line->timer)) / LINE_TIME_FADE;
-			SetDrawBright((int)(opacity * 255), (int)(opacity * 255), (int)(opacity * 255));
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)(opacity * 255));
 			DrawFormatStringFToHandle(GameObject_GetX(&console->area, LEFT), GameObject_GetY(&console->area, BOTTOM, -console->line_height - y), console->area.sprite.color, console->font, line->msg);
-			SetDrawBright(255, 255, 255);
+			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
 		}
 
 		y += console->line_height;
