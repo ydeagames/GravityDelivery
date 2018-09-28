@@ -3,7 +3,10 @@
 #include <direct.h>
 #include <string>
 #include <shlwapi.h>
+#include <time.h>
 #pragma comment( lib , "shlwapi.lib" )
+
+#define DIR_NAME "Screenshots"
 
 static BOOL CheckExistenceOfFolder(const std::string folder_name);	// その名前のフォルダが存在するかどうか / 存在したならFALSEを返す
 
@@ -16,18 +19,27 @@ BOOL SaveScreenShotToPNG(const GameObject* area, char* name)
 {
 	int i;
 	// ScreenShot というフォルダがあるか確認
-	if (CheckExistenceOfFolder("ScreenShot"))
+	if (CheckExistenceOfFolder(DIR_NAME))
 		// 無ければ作る
-		_mkdir("ScreenShot");
-	for (i = 1; i < 1000; i++)
+		_mkdir(DIR_NAME);
 	{
+		char timestr[32];
 		char str[64];
-		sprintf(str, "Screenshots/shot%03d.png", i);
-		if (PathFileExists(str) == 0)
+		time_t temp = time(NULL);
+		struct tm* timeptr = localtime(&temp);
+		size_t ch = strftime(timestr, sizeof(timestr) - 1, "%Y-%m-%d_%H.%M.%S", timeptr);
+		for (i = 1; i < 1000; i++)
 		{
-			if (name != NULL)
-				strcpy(name, str);
-			return (SaveDrawScreenToPNG((int)GameObject_GetX(area, LEFT), (int)GameObject_GetY(area, TOP), (int)GameObject_GetX(area, RIGHT), (int)GameObject_GetY(area, BOTTOM), str) == 0);
+			if (i<=1)
+				sprintf(str, DIR_NAME"/%s.png", timestr);
+			else
+				sprintf(str, DIR_NAME"/%s_%d.png", timestr, i);
+			if (PathFileExists(str) == 0)
+			{
+				if (name != NULL)
+					strcpy(name, str);
+				return (SaveDrawScreenToPNG((int)GameObject_GetX(area, LEFT), (int)GameObject_GetY(area, TOP), (int)GameObject_GetX(area, RIGHT), (int)GameObject_GetY(area, BOTTOM), str) == 0);
+			}
 		}
 	}
 	return FALSE;
