@@ -15,6 +15,8 @@
 GameObject g_backscreen;
 static BOOL g_paused;
 static KeyFrame g_menu_keyframe;
+static EasingKeyFrame g_menu_keyframe_menu;
+static EasingKeyFrame g_menu_keyframe_back;
 static GameObject g_menu;
 static char* g_menu_items[NUM_MENU_ITEMS] = { "ゲームに戻る", "タイトルに戻る", "スクリーンショットを撮る", "スクリーンショットを見る", "ゲームを終了する" };
 static int g_last_select = -1;
@@ -28,7 +30,9 @@ void InitializeGamePause(void)
 	g_backscreen.sprite = GameSprite_Create(GameTexture_Create(MakeScreen((int)g_backscreen.size.x, (int)g_backscreen.size.y, FALSE), Vec2_Create(), g_backscreen.size));
 
 	g_paused = FALSE;
-	g_menu_keyframe = KeyFrame_CreateWith2Easings(.5f, ESG_OUTBOUNCE, ESG_OUTBOUNCE);
+	g_menu_keyframe = KeyFrame_Create(.5f);
+	g_menu_keyframe_menu = EasingKeyFrame_CreateWith2Easings(&g_menu_keyframe, ESG_OUTBOUNCE, ESG_OUTBOUNCE);
+	g_menu_keyframe_back = EasingKeyFrame_CreateWith2Easings(&g_menu_keyframe, ESG_OUTQUART, ESG_OUTQUART);
 
 	g_menu = g_field;
 	g_menu.fill = TRUE;
@@ -88,10 +92,10 @@ void RenderGamePause(void)
 	int pos = -NUM_MENU_ITEMS - 4;
 	int i;
 
-	Vec2 offset = Vec2_Create(KeyFrame_GetProgressRange(&g_menu_keyframe, g_menu.size.x, 0));
+	Vec2 offset = Vec2_Create(EasingKeyFrame_GetProgressRange(&g_menu_keyframe_menu, g_menu.size.x, 0));
 	Vec2 mouse = Vec2_Add(&g_raw_mouse, &Vec2_Negate(&offset));
 
-	GraphFilter(g_backscreen.sprite.texture.texture, DX_GRAPH_FILTER_GAUSS, 16, (int)KeyFrame_GetProgress(&g_menu_keyframe, 256));
+	GraphFilter(g_backscreen.sprite.texture.texture, DX_GRAPH_FILTER_GAUSS, 16, (int)EasingKeyFrame_GetProgress(&g_menu_keyframe_back, 512));
 	GameObject_Render(&g_backscreen);
 
 	{

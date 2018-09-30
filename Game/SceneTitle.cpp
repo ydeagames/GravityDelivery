@@ -73,7 +73,7 @@ void InitializeTitle(void)
 
 	g_filter_screen = g_field;
 	g_filter_screen.sprite = GameSprite_Create(GameTexture_Create(MakeScreen((int)g_filter_screen.size.x, (int)g_filter_screen.size.y, FALSE), Vec2_Create(), g_filter_screen.size));
-	g_filter_keyframe = KeyFrame_Create(.1f, ESG_LINEAR);
+	g_filter_keyframe = KeyFrame_Create(.1f);
 }
 
 // タイトルシーンの更新処理
