@@ -135,16 +135,8 @@ void RenderResult(void)
 		SetDrawBlendMode(DX_BLENDMODE_ADD, 128);
 		GameObject_Render(&bar);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		{
-			char name[260];
-			char *lastdot;
-			strcpy(name, g_selected_stageinfo.filename);
-			lastdot = strrchr(name, '.');
-			if (lastdot != NULL)
-				*lastdot = '\0';
-			DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_CENTER_Y - 20 + 20 * pos++, COLOR_WHITE, g_resources.font_main, "ステージクリア");
-			DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_CENTER_Y - 20 + 20 * pos++, COLOR_WHITE, g_resources.font_main, "%s", name);
-		}
+		DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_CENTER_Y - 20 + 20 * pos++, COLOR_WHITE, g_resources.font_main, "ステージクリア");
+		DrawFormatStringToHandle(SCREEN_CENTER_X - 200, SCREEN_CENTER_Y - 20 + 20 * pos++, COLOR_WHITE, g_resources.font_main, "%s", g_selected_stageinfo.title);
 	}
 
 	{

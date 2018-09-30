@@ -111,7 +111,6 @@ void UpdateTitle(void)
 		} screen_end;
 		if (KeyInputSingleCharString((int)GameObject_GetX(&g_field, CENTER_X, -200), (int)GameObject_GetY(&g_field, BOTTOM, -200), 30, str, TRUE) == 1)
 		{
-			strcat_s(str, sizeof(g_selected_stageinfo.filename), ".dat");
 			g_selected_stageinfo = StageInfo_Create(STAGEINFO_DIR, str);
 			RequestScene(SCENE_PLAY, COLOR_GRAY, 1);
 		}

@@ -5,8 +5,8 @@
 
 // <ステージ情報>
 typedef struct {
-	char filename[MAX_PATH];
 	char filepath[MAX_PATH];
+	char screenshot_filepath[MAX_PATH];
 	char title[MAX_PATH];
 } StageInfo;
 
@@ -26,6 +26,9 @@ typedef struct {
 
 // <ステージ情報作成>
 StageInfo StageInfo_Create(const char* dirpath, const char* name);
+
+// <ステージ情報作成>
+StageInfo StageInfo_CreateFromFilename(const char* dirpath, const char* name);
 
 // <ステージ情報検索>
 void StageInfo_SearchFiles(Vector* stageinfos, char* path, char* filter);

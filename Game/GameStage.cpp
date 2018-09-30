@@ -13,16 +13,24 @@
 StageInfo StageInfo_Create(const char* dirpath, const char* name)
 {
 	StageInfo stage;
-	strcpy_s(stage.filename, name);
-	snprintf(stage.filepath, MAX_PATH, "%s/%s", dirpath, name);
+	strcpy(stage.title, name);
+	snprintf(stage.filepath, MAX_PATH, "%s/%s.dat", dirpath, name);
+	snprintf(stage.screenshot_filepath, MAX_PATH, "%s/%s.png", dirpath, name);
+	return stage;
+}
+
+// <ステージ情報作成>
+StageInfo StageInfo_CreateFromFilename(const char* dirpath, const char* filename)
+{
+	char str[MAX_PATH];
 	{
 		char *lastdot;
-		strcpy(stage.title, stage.filename);
-		lastdot = strrchr(stage.title, '.');
+		strcpy(str, filename);
+		lastdot = strrchr(str, '.');
 		if (lastdot != NULL)
 			*lastdot = '\0';
 	}
-	return stage;
+	return StageInfo_Create(dirpath, str);
 }
 
 // <ステージ情報検索>
@@ -32,14 +40,13 @@ void StageInfo_SearchFiles(Vector* stageinfos, char* path, char* filter)
 
 	intptr_t fh = _findfirst(filter, &fdata);
 
-
 	Vector_Clear(stageinfos);
 	if (fh != -1)
 	{
 		do {
 			if ((fdata.attrib & _A_SUBDIR) == 0)
 			{
-				StageInfo stage = StageInfo_Create(path, fdata.name);
+				StageInfo stage = StageInfo_CreateFromFilename(path, fdata.name);
 				Vector_AddLast(stageinfos, &stage);
 			}
 		} while (_findnext(fh, &fdata) == 0);
