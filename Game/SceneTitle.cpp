@@ -22,6 +22,7 @@
 
 static int g_count;
 static Vector g_stageinfos;
+static Vector g_stageshots;
 
 static int g_select = -1;
 static int g_last_select = -1;
@@ -42,9 +43,21 @@ static KeyFrame g_filter_keyframe;
 void InitializeTitle(void)
 {
 	g_count = 0;
-	g_stageinfos = Vector_Create(sizeof(StageInfo));
 
+	g_stageinfos = Vector_Create(sizeof(StageInfo));
 	StageInfo_InitAndSearchFiles(&g_stageinfos, STAGEINFO_DIR, STAGEINFO_DIR"/*.dat");
+
+	g_stageshots = Vector_Create(sizeof(GameObject));
+	foreach_start(&g_stageinfos, StageInfo, info)
+	{
+		GameObject obj = g_field;
+		HGRP screenshot = LoadGraph(info->screenshot_filepath);
+		obj.sprite = GameSprite_Create(GameTexture_Create(screenshot, Vec2_Create(), obj.size));
+		obj.size = Vec2_Scale(&obj.size, .5f);
+		obj.sprite.scale = .5f;
+		obj.pos.x -= 150;
+		Vector_AddLast(&g_stageshots, &obj);
+	} foreach_end;
 
 	{
 		int i;
@@ -87,7 +100,7 @@ void UpdateTitle(void)
 
 	if (IsMousePressed(MOUSE_INPUT_1))
 	{
-		if (0 <= g_last_select)
+		if (0 <= g_last_select && Vector_GetSize(&g_stageinfos))
 		{
 			StageInfo* stage = (StageInfo*)Vector_Get(&g_stageinfos, g_last_select);
 			g_selected_stageinfo = *stage;
@@ -198,6 +211,21 @@ void RenderTitle(void)
 			DrawFormatStringToHandle(SCREEN_RIGHT - 250, SCREEN_BOTTOM + 20 * pos, COLOR_WHITE, g_resources.font_main, stage->title);
 			pos++;
 		} foreach_end;
+
+		if (0<=g_select&&g_select<Vector_GetSize(&g_stageshots))
+		{
+			GameObject* obj = (GameObject*) Vector_Get(&g_stageshots, g_select);
+			if (obj->sprite.texture.texture != TEXTURE_MISSING)
+			{
+				GameObject frame = *obj;
+				frame.sprite = GameSprite_CreateNone();
+				frame.sprite.color = COLOR_WHITE;
+				frame.fill = TRUE;
+				frame.size = Vec2_Add(&frame.size, &Vec2_Create(20, 20));
+				GameObject_Render(&frame);
+				GameObject_Render(obj);
+			}
+		}
 	}
 }
 
@@ -209,6 +237,12 @@ void FinalizeTitle(void)
 		DeleteGraph(layer->sprite.texture.texture);
 	} foreach_end;
 	DeleteGraph(g_filter_screen.sprite.texture.texture);
+
+	foreach_start(&g_stageshots, GameObject, stageshot)
+	{
+		DeleteGraph(stageshot->sprite.texture.texture);
+	} foreach_end;
+	Vector_Delete(&g_stageshots);
 
 	Vector_Delete(&g_stageinfos);
 }
