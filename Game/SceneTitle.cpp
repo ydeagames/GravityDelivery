@@ -9,13 +9,13 @@
 #include "Easings.h"
 #include "Vector.h"
 #include "GameStage.h"
-#include <direct.h>
-#include <io.h>
 
 
 
 
 // 定数の定義 ==============================================================
+
+#define STAGEINFO_DIR "./Resources/Stage"
 
 // グローバル変数の定義 ====================================================
 
@@ -31,48 +31,13 @@ static GameObject g_title_logo;
 
 // 関数の定義 ==============================================================
 
-static StageInfo Stage_Create(const char* dirpath, const char* name)
-{
-	StageInfo stage;
-	strcpy_s(stage.filename, name);
-	snprintf(stage.filepath, MAX_PATH, "%s/%s", dirpath, name);
-	{
-		char *lastdot;
-		strcpy(stage.title, stage.filename);
-		lastdot = strrchr(stage.title, '.');
-		if (lastdot != NULL)
-			*lastdot = '\0';
-	}
-	return stage;
-}
-
-static void listfiles(Vector* lists, char* path, char* filter)
-{
-	struct _finddata_t fdata;
-
-	intptr_t fh = _findfirst(filter, &fdata);
-	Vector_Clear(lists);
-	if (fh != -1)
-	{
-		do {
-			if ((fdata.attrib & _A_SUBDIR) == 0)
-			{
-				StageInfo stage = Stage_Create(path, fdata.name);
-				Vector_AddLast(lists, &stage);
-			}
-		} while (_findnext(fh, &fdata) == 0);
-		_findclose(fh);
-	}
-}
-
 // タイトルシーンの初期化処理
 void InitializeTitle(void)
 {
 	g_count = 0;
 	g_stageinfos = Vector_Create(sizeof(StageInfo));
 
-	_mkdir("./Resources/Stage");
-	listfiles(&g_stageinfos, "./Resources/Stage", "./Resources/Stage/*.dat");
+	StageInfo_InitAndSearchFiles(&g_stageinfos, STAGEINFO_DIR, STAGEINFO_DIR"/*.dat");
 
 	{
 		int i;
@@ -129,7 +94,7 @@ void UpdateTitle(void)
 		if (KeyInputSingleCharString((int)GameObject_GetX(&g_field, CENTER_X, -200), (int)GameObject_GetY(&g_field, BOTTOM, -200), 30, str, TRUE) == 1)
 		{
 			strcat_s(str, sizeof(g_selected_stageinfo.filename), ".dat");
-			g_selected_stageinfo = Stage_Create("./Resources/Stage", str);
+			g_selected_stageinfo = StageInfo_Create(STAGEINFO_DIR, str);
 			RequestScene(SCENE_PLAY, COLOR_GRAY, 1);
 		}
 	}

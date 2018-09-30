@@ -2,8 +2,65 @@
 #include "GameObject.h"
 #include "GameObjects.h"
 #include <assert.h>
+#include <direct.h>
+#include <io.h>
 
 // 変数の定義 ==============================================================
+
+// <<ステージ情報>>
+
+// <ステージ情報作成>
+StageInfo StageInfo_Create(const char* dirpath, const char* name)
+{
+	StageInfo stage;
+	strcpy_s(stage.filename, name);
+	snprintf(stage.filepath, MAX_PATH, "%s/%s", dirpath, name);
+	{
+		char *lastdot;
+		strcpy(stage.title, stage.filename);
+		lastdot = strrchr(stage.title, '.');
+		if (lastdot != NULL)
+			*lastdot = '\0';
+	}
+	return stage;
+}
+
+// <ステージ情報検索>
+void StageInfo_SearchFiles(Vector* stageinfos, char* path, char* filter)
+{
+	struct _finddata_t fdata;
+
+	intptr_t fh = _findfirst(filter, &fdata);
+
+
+	Vector_Clear(stageinfos);
+	if (fh != -1)
+	{
+		do {
+			if ((fdata.attrib & _A_SUBDIR) == 0)
+			{
+				StageInfo stage = StageInfo_Create(path, fdata.name);
+				Vector_AddLast(stageinfos, &stage);
+			}
+		} while (_findnext(fh, &fdata) == 0);
+		_findclose(fh);
+	}
+}
+
+// <ステージフォルダ作成>
+void StageInfo_InitDirectory(char* path)
+{
+	_mkdir(path);
+}
+
+// <ステージ情報検索>
+void StageInfo_InitAndSearchFiles(Vector* stageinfos, char* path, char* filter)
+{
+	StageInfo_InitDirectory(path);
+	StageInfo_SearchFiles(stageinfos, path, filter);
+}
+
+// <<ステージオブジェクト>>
 
 // <ステージ作成>
 GameStage GameStage_Create(void)
