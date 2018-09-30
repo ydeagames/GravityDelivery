@@ -8,6 +8,7 @@
 #include "GameUtils.h"
 #include "Easings.h"
 #include "Vector.h"
+#include "GameStage.h"
 #include <direct.h>
 #include <io.h>
 
@@ -19,7 +20,7 @@
 // グローバル変数の定義 ====================================================
 
 static int g_count;
-static Vector g_stages;
+static Vector g_stageinfos;
 
 static int g_last_select = -1;
 
@@ -30,9 +31,9 @@ static GameObject g_title_logo;
 
 // 関数の定義 ==============================================================
 
-static Stage Stage_Create(const char* dirpath, const char* name)
+static StageInfo Stage_Create(const char* dirpath, const char* name)
 {
-	Stage stage;
+	StageInfo stage;
 	strcpy_s(stage.filename, name);
 	snprintf(stage.filepath, MAX_PATH, "%s/%s", dirpath, name);
 	{
@@ -56,7 +57,7 @@ static void listfiles(Vector* lists, char* path, char* filter)
 		do {
 			if ((fdata.attrib & _A_SUBDIR) == 0)
 			{
-				Stage stage = Stage_Create(path, fdata.name);
+				StageInfo stage = Stage_Create(path, fdata.name);
 				Vector_AddLast(lists, &stage);
 			}
 		} while (_findnext(fh, &fdata) == 0);
@@ -68,10 +69,10 @@ static void listfiles(Vector* lists, char* path, char* filter)
 void InitializeTitle(void)
 {
 	g_count = 0;
-	g_stages = Vector_Create(sizeof(Stage));
+	g_stageinfos = Vector_Create(sizeof(StageInfo));
 
 	_mkdir("./Resources/Stage");
-	listfiles(&g_stages, "./Resources/Stage", "./Resources/Stage/*.dat");
+	listfiles(&g_stageinfos, "./Resources/Stage", "./Resources/Stage/*.dat");
 
 	{
 		int i;
@@ -106,8 +107,8 @@ void UpdateTitle(void)
 	{
 		if (0 <= g_last_select)
 		{
-			Stage* stage = (Stage*)Vector_Get(&g_stages, g_last_select);
-			g_selected_stage = *stage;
+			StageInfo* stage = (StageInfo*)Vector_Get(&g_stageinfos, g_last_select);
+			g_selected_stageinfo = *stage;
 			PlaySoundMem(g_resources.sound_se[4], DX_PLAYTYPE_BACK);
 			RequestScene(SCENE_PLAY, COLOR_GRAY, 1);
 		}
@@ -127,8 +128,8 @@ void UpdateTitle(void)
 		SetDrawScreen(DX_SCREEN_BACK);
 		if (KeyInputSingleCharString((int)GameObject_GetX(&g_field, CENTER_X, -200), (int)GameObject_GetY(&g_field, BOTTOM, -200), 30, str, TRUE) == 1)
 		{
-			strcat_s(str, sizeof(g_selected_stage.filename), ".dat");
-			g_selected_stage = Stage_Create("./Resources/Stage", str);
+			strcat_s(str, sizeof(g_selected_stageinfo.filename), ".dat");
+			g_selected_stageinfo = Stage_Create("./Resources/Stage", str);
 			RequestScene(SCENE_PLAY, COLOR_GRAY, 1);
 		}
 	}
@@ -138,7 +139,7 @@ void UpdateTitle(void)
 void RenderTitle(void)
 {
 	int select = -1;
-	int list_size = Vector_GetSize(&g_stages);
+	int list_size = Vector_GetSize(&g_stageinfos);
 	int pos = -list_size - 4;
 
 	{
@@ -190,7 +191,7 @@ void RenderTitle(void)
 	DrawFormatStringToHandle(SCREEN_RIGHT - 250, SCREEN_BOTTOM + 20 * pos++, COLOR_WHITE, g_resources.font_main, "ステージ選択");
 	pos++;
 
-	foreach_start(&g_stages, Stage, stage)
+	foreach_start(&g_stageinfos, StageInfo, stage)
 	{
 		GameObject rect = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, RIGHT, -150), (float)(SCREEN_BOTTOM + 20 * pos + 10)), Vec2_Create(), Vec2_Create(300, 20));
 		rect.fill = TRUE;
@@ -219,5 +220,5 @@ void FinalizeTitle(void)
 		DeleteGraph(layer->sprite.texture.texture);
 	} foreach_end;
 
-	Vector_Delete(&g_stages);
+	Vector_Delete(&g_stageinfos);
 }

@@ -16,6 +16,7 @@
 #include "GameObject.h"
 #include "GameResource.h"
 #include "ScreenShot.h"
+#include "GameStage.h"
 
 
 
@@ -28,7 +29,7 @@
 // グローバル変数の定義 ====================================================
 
 GameResource g_resources;
-Stage g_selected_stage;
+StageInfo g_selected_stageinfo;
 GameObject g_field;
 DebugConsole g_console;
 

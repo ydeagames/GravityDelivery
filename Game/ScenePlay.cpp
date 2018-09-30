@@ -7,6 +7,7 @@
 #include "GameUtils.h"
 #include "GameObjects.h"
 #include "SceneManager.h"
+#include "GameStage.h"
 #include <assert.h>
 
 
@@ -40,22 +41,15 @@ static GameObject g_filter_screen;
 
 static GameObject g_back_button;
 
-static Vector g_balls;
-static Vector g_planets;
-
-static int g_score;
-static int g_edit_mode;
-static BOOL g_edited;
-
 static Vec2 g_mouse_last_from;
 static Vec2 g_offset_mouse;
 static Vec2 g_offset_location;
+static int g_edit_mode;
 
 static BOOL g_mouse_on_last;
 static BOOL g_mouse_down;
 
-static HSND g_bgm;
-
+static GameStage g_stage;
 
 static int g_tutorial_state = 0;
 static int g_tutorial_flag = 0;
@@ -69,8 +63,6 @@ void UpdatePlay(void);      // ゲームの更新処理
 void RenderPlay(void);      // ゲームの描画処理
 void FinalizePlay(void);    // ゲームの終了処理
 
-static void LoadStage(void);
-static void SaveStage(void);
 static void UpdateStageEdit(const Vec2* mouse);
 
 
@@ -118,86 +110,26 @@ void InitializePlay(void)
 	}
 
 	g_edit_mode = -1;
-	g_edited = FALSE;
-
-	g_balls = Vector_Create(sizeof(GameObject));
-	g_planets = Vector_Create(sizeof(GameObject));
-
-	g_score = 0;
-
 	g_offset_mouse = Vec2_Create();
 	g_mouse_on_last = FALSE;
 	g_mouse_down = FALSE;
 
-	g_bgm = 0;
+	g_stage = GameStage_Create();
+	GameStage_Load(&g_stage, &g_selected_stageinfo);
 
-	LoadStage();
-
-	if (0 <= g_bgm && g_bgm < NUM_BGM)
+	if (0 <= g_stage.bgm && g_stage.bgm < NUM_BGM)
 	{
-		ChangeVolumeSoundMem(100, g_resources.sound_bgm[g_bgm]);
-		PlaySoundMem(g_resources.sound_bgm[g_bgm], DX_PLAYTYPE_LOOP);
+		ChangeVolumeSoundMem(100, g_resources.sound_bgm[g_stage.bgm]);
+		PlaySoundMem(g_resources.sound_bgm[g_stage.bgm], DX_PLAYTYPE_LOOP);
 	}
 
 	{
 		TCHAR title[260];
-		sprintf(title, "%s - %s", GAME_TITLE, g_selected_stage.title);
+		sprintf(title, "%s - %s", GAME_TITLE, g_selected_stageinfo.title);
 		SetMainWindowText(title);		// ウインドウタイトルの設定
 	}
 }
 
-static void LoadStage(void)
-{
-	FILE* fp;
-	char* fname = g_selected_stage.filepath;
-
-	errno_t err = fopen_s(&fp, fname, "r");
-
-	//assert(err == 0 && "file not opened!");
-	if (err == 0)
-	{
-		int type;
-		float base_x, base_y;
-		float next_x, next_y;
-
-		Vector_Clear(&g_balls);
-		Vector_Clear(&g_planets);
-
-		fscanf_s(fp, "%d", &g_bgm);
-		while (fscanf_s(fp, "%d %f %f %f %f", &type, &base_x, &base_y, &next_x, &next_y) != EOF) {
-			Vec2 base = Vec2_Create(base_x, base_y);
-			Vec2 next = Vec2_Create(next_x, next_y);
-			GameObject obj = GameObject_Planets_Create(type, &base, &next);
-
-			Vector_AddLast(&g_planets, &obj);
-		}
-
-		fclose(fp);
-	}
-}
-
-static void SaveStage(void)
-{
-	FILE* fp;
-	char* fname = g_selected_stage.filepath;
-
-	errno_t err = fopen_s(&fp, fname, "w");
-	assert(err == 0 && "file not opened!");
-
-	{
-		fprintf_s(fp, "%d\n", g_bgm);
-		foreach_start(&g_planets, GameObject, obj)
-		{
-			Vec2 base;
-			Vec2 next;
-			GameObject_Planets_Serialize(obj, &base, &next);
-
-			fprintf_s(fp, "%d %f %f %f %f\n", obj->type, base.x, base.y, next.x, next.y);
-		} foreach_end;
-
-		fclose(fp);
-	}
-}
 
 
 
@@ -261,7 +193,7 @@ void UpdatePlay(void)
 		if (Vec2_LengthSquared(&diff) < 5 * 5)
 		{
 			BOOL switched = FALSE;
-			foreach_start(&g_planets, GameObject, obj)
+			foreach_start(&g_stage.planets, GameObject, obj)
 			{
 				if (GameObject_IsAlive(obj))
 				{
@@ -307,8 +239,8 @@ void UpdatePlay(void)
 			} foreach_end;
 			if (switched)
 			{
-				g_score = 0;
-				foreach_start(&g_balls, GameObject, obj)
+				g_stage.score = 0;
+				foreach_start(&g_stage.balls, GameObject, obj)
 				{
 					VectorIterator_Remove(&itr_obj);
 				} foreach_end;
@@ -319,13 +251,13 @@ void UpdatePlay(void)
 	}
 
 	// 惑星, ボール作用
-	foreach_start(&g_balls, GameObject, ball)
+	foreach_start(&g_stage.balls, GameObject, ball)
 	{
 		GameObject* nearest = NULL;
 		float length2_min = -1;
 		BOOL request_ballloop = FALSE;
 
-		foreach_start(&g_planets, GameObject, planet)
+		foreach_start(&g_stage.planets, GameObject, planet)
 		{
 			if (GameObject_IsAlive(planet))
 			{
@@ -408,7 +340,7 @@ void UpdatePlay(void)
 					if (GameObject_IsHit(ball, planet))
 					{
 						VectorIterator_Remove(&itr_ball);
-						g_score++;
+						g_stage.score++;
 						ChangeVolumeSoundMem(100, g_resources.sound_se[0]);
 						if (g_tutorial_state == 2)
 							g_tutorial_state = 3;
@@ -430,9 +362,9 @@ void UpdatePlay(void)
 
 	/*
 	// ボール同士の判定
-	foreach_start(&g_balls, GameObject, ball1)
+	foreach_start(&g_stage.balls, GameObject, ball1)
 	{
-		foreach_start(&g_balls, GameObject, ball2)
+		foreach_start(&g_stage.balls, GameObject, ball2)
 		{
 			if (ball1 != ball2)
 				// ボール同士が衝突したら消す
@@ -446,7 +378,7 @@ void UpdatePlay(void)
 	/**/
 
 	// 惑星 更新
-	foreach_start(&g_planets, GameObject, planet)
+	foreach_start(&g_stage.planets, GameObject, planet)
 	{
 		if (GameObject_IsAlive(planet))
 		{
@@ -465,7 +397,7 @@ void UpdatePlay(void)
 					{
 						Vec2 vec = Vec2_Scale(&planet->vel, .1f);
 						GameObject obj = GameObject_Ball_Create(&planet->pos, &vec);
-						Vector_AddLast(&g_balls, &obj);
+						Vector_AddLast(&g_stage.balls, &obj);
 					}
 				}
 
@@ -475,7 +407,7 @@ void UpdatePlay(void)
 	} foreach_end;
 
 	// ボール 更新
-	foreach_start(&g_balls, GameObject, ball)
+	foreach_start(&g_stage.balls, GameObject, ball)
 	{
 		GameObject_UpdatePosition(ball);
 
@@ -505,7 +437,7 @@ void UpdatePlay(void)
 	// 惑星 onカーソル
 	{
 		BOOL mouse_on = FALSE;
-		foreach_start(&g_planets, GameObject, obj)
+		foreach_start(&g_stage.planets, GameObject, obj)
 		{
 			if (GameObject_IsAlive(obj))
 			{
@@ -525,9 +457,9 @@ void UpdatePlay(void)
 	}
 
 	// クリア判定
-	if (g_score >= 10 && !g_edited)
+	if (g_stage.score >= 10 && !g_stage.edited)
 	{
-		foreach_start(&g_planets, GameObject, obj)
+		foreach_start(&g_stage.planets, GameObject, obj)
 		{
 			if (GameObject_IsAlive(obj))
 			{
@@ -559,7 +491,7 @@ static void UpdateStageEdit_HandlePlanetControl(const Vec2* mouse, int id, int k
 	{
 		g_mouse_last_from = *mouse;
 		g_edit_mode = id;
-		g_edited = TRUE;
+		g_stage.edited = TRUE;
 	}
 	if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == id)
 	{
@@ -567,13 +499,13 @@ static void UpdateStageEdit_HandlePlanetControl(const Vec2* mouse, int id, int k
 		GameObject obj = GameObject_Planets_Create(type, &g_mouse_last_from, &mouse_last_to);
 
 		if (unique)
-			foreach_start(&g_planets, GameObject, planet)
+			foreach_start(&g_stage.planets, GameObject, planet)
 		{
 			if (planet->type == type)
 				VectorIterator_Remove(&itr_planet);
 		} foreach_end;
 
-		Vector_AddLast(&g_planets, &obj);
+		Vector_AddLast(&g_stage.planets, &obj);
 		g_edit_mode = -1;
 	}
 }
@@ -592,7 +524,7 @@ static void UpdateStageEdit(const Vec2* mouse)
 	// Remover
 	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_DELETE))
 	{
-		foreach_start(&g_planets, GameObject, obj)
+		foreach_start(&g_stage.planets, GameObject, obj)
 		{
 			if (GameObject_IsAlive(obj))
 			{
@@ -603,36 +535,34 @@ static void UpdateStageEdit(const Vec2* mouse)
 			}
 		} foreach_end;
 		g_edit_mode = id;
-		g_edited = TRUE;
+		g_stage.edited = TRUE;
 	}
 
 	// Migration
 	if (IsKeyDown(KEY_INPUT_LCONTROL) && IsKeyPressed(KEY_INPUT_M))
 	{
-		foreach_start(&g_planets, GameObject, planet)
+		foreach_start(&g_stage.planets, GameObject, planet)
 		{
 			if (planet->type == TYPE_START)
 				planet->vel = Vec2_Add(&planet->vel, &planet->pos);
 		} foreach_end;
 
 		DebugConsole_Log(&g_console, "migrated!");
-		g_edited = TRUE;
+		g_stage.edited = TRUE;
 	}
 
 	// Load
 	if (IsKeyDown(KEY_INPUT_LCONTROL) && IsKeyPressed(KEY_INPUT_O))
 	{
-		LoadStage();
+		GameStage_Load(&g_stage, &g_selected_stageinfo);
 		DebugConsole_Log(&g_console, "stage loaded!");
-		g_edited = FALSE;
 	}
 
 	// Save
 	if (IsKeyDown(KEY_INPUT_LCONTROL) && IsKeyPressed(KEY_INPUT_S))
 	{
-		SaveStage();
+		GameStage_Save(&g_stage, &g_selected_stageinfo);
 		DebugConsole_Log(&g_console, "stage saved!");
-		g_edited = FALSE;
 	}
 }
 
@@ -674,7 +604,7 @@ void RenderPlay(void)
 
 	{
 		BOOL first_planet = TRUE;
-		foreach_start(&g_planets, GameObject, obj)
+		foreach_start(&g_stage.planets, GameObject, obj)
 		{
 			if (GameObject_IsAlive(obj))
 			{
@@ -689,7 +619,7 @@ void RenderPlay(void)
 				switch (obj->type)
 				{
 				case TYPE_GOAL:
-					DrawFormatStringToHandle((int)(GameObject_GetX(obj, LEFT) + offset.x + 2), (int)(GameObject_GetY(obj, BOTTOM, 10) + offset.y), COLOR_WHITE, g_resources.font_main, "%d / 10", g_score);
+					DrawFormatStringToHandle((int)(GameObject_GetX(obj, LEFT) + offset.x + 2), (int)(GameObject_GetY(obj, BOTTOM, 10) + offset.y), COLOR_WHITE, g_resources.font_main, "%d / 10", g_stage.score);
 					GameObject_Render(obj, &offset);
 					if (g_tutorial_state == 2)
 						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "ゴールはここ。うまく導こう！");
@@ -743,7 +673,7 @@ void RenderPlay(void)
 	if (g_tutorial_state == 1)
 		GameObject_Msg_Render(&Vec2_Add(&g_raw_mouse, &Vec2_Create(0, -10)), &Vec2_Create(), "ドラッグして画面をずらすよ！");
 
-	foreach_start(&g_balls, GameObject, obj)
+	foreach_start(&g_stage.balls, GameObject, obj)
 	{
 		if (GameObject_IsAlive(obj))
 		{
@@ -771,7 +701,7 @@ void RenderPlay(void)
 			} screen_end;
 		} foreach_end;
 	}
-	foreach_start(&g_planets, GameObject, obj)
+	foreach_start(&g_stage.planets, GameObject, obj)
 	{
 		if (GameObject_IsAlive(obj))
 		{
@@ -795,10 +725,10 @@ void RenderPlay(void)
 	{
 		int pos = 0;
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "デバッグ情報");
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "stage: %s", g_selected_stage.filename);
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "all: %d", Vector_GetSize(&g_balls));
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "score: %d", g_score);
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "edited: %s", g_edited ? "true" : "false");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "stage: %s", g_selected_stageinfo.filename);
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "all: %d", Vector_GetSize(&g_stage.balls));
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "score: %d", g_stage.score);
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "edited: %s", g_stage.edited ? "true" : "false");
 		pos++;
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[S]+MClick      - スタート地点 [Unique]");
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[G]+MClick      - ゴール地点 [Unique]");
@@ -842,8 +772,7 @@ void FinalizePlay(void)
 	}
 
 	Vector_Delete(&g_field_layers);
-	Vector_Delete(&g_balls);
-	Vector_Delete(&g_planets);
+	GameStage_Dispose(&g_stage);
 
 	SetMainWindowText(GAME_TITLE);		// ウインドウタイトルの設定
 }

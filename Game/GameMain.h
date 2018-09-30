@@ -13,6 +13,7 @@
 
 #include "GameResource.h"
 #include "DebugConsole.h"
+#include "GameStage.h"
 
 
 
@@ -40,19 +41,13 @@
 
 // 構造体の定義 ============================================================
 
-typedef struct {
-	char filename[MAX_PATH];
-	char filepath[MAX_PATH];
-	char title[MAX_PATH];
-} Stage;
-
 
 
 
 // グローバル変数の宣言 ====================================================
 
 extern GameResource g_resources;
-extern Stage g_selected_stage;
+extern StageInfo g_selected_stageinfo;
 extern GameObject g_field;
 extern DebugConsole g_console;
 

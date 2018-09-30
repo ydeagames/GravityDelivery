@@ -6,6 +6,7 @@
 #include "GameObjectHit.h"
 #include "GameObjects.h"
 #include "GameUtils.h"
+#include "GameStage.h"
 #include "Easings.h"
 
 // 定数の定義 ==============================================================
@@ -54,7 +55,7 @@ void InitializeResult(void)
 
 	{
 		TCHAR title[260];
-		sprintf(title, "%s - %s - クリア", GAME_TITLE, g_selected_stage.title);
+		sprintf(title, "%s - %s - クリア", GAME_TITLE, g_selected_stageinfo.title);
 		SetMainWindowText(title);		// ウインドウタイトルの設定
 	}
 }
@@ -138,7 +139,7 @@ void RenderResult(void)
 		{
 			char name[260];
 			char *lastdot;
-			strcpy(name, g_selected_stage.filename);
+			strcpy(name, g_selected_stageinfo.filename);
 			lastdot = strrchr(name, '.');
 			if (lastdot != NULL)
 				*lastdot = '\0';
