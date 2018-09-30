@@ -54,3 +54,8 @@ void SaveScreenShotToPNG_Log(const GameObject* area)
 	else
 		DebugConsole_LogF(&g_console, "Couldn't save screenshot: %s", name);
 }
+
+void OpenScreenShotDir(void)
+{
+	ShellExecute(NULL, "open", DIR_NAME, NULL, NULL, SW_SHOWNORMAL);
+}

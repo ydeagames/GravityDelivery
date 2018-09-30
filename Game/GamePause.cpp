@@ -77,7 +77,7 @@ void UpdateGamePause(void)
 				screenshot_task = TRUE;
 				break;
 			case 3:
-				DebugConsole_Log(&g_console, "Open Screenshot");
+				OpenScreenShotDir();
 				break;
 			case 4:
 				RequestClose();
