@@ -182,6 +182,7 @@ void RenderTitle(void)
 		DrawFormatStringToHandle(SCREEN_RIGHT - 250, SCREEN_BOTTOM + 20 * pos++, COLOR_WHITE, g_resources.font_main, "ステージ選択");
 		pos++;
 
+		g_select = -1;
 		foreach_start(&g_stageinfos, StageInfo, stage)
 		{
 			GameObject rect = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, RIGHT, -150), (float)(SCREEN_BOTTOM + 20 * pos + 10)), Vec2_Create(), Vec2_Create(300, 20));
