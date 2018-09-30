@@ -21,6 +21,8 @@ typedef enum {
 
 // グローバル変数の定義 ====================================================
 
+BOOL g_close_request = FALSE;
+
 SceneID g_active_scene;
 SceneID g_next_scene;
 
@@ -41,6 +43,8 @@ void FinalizeScene(SceneID scene_id);
 // <シーンの初期化処理>
 void InitializeSceneManager(SceneID start_scene_id)
 {
+	g_close_request = FALSE;
+
 	g_active_scene = SCENE_NONE;
 	g_next_scene = start_scene_id;
 
@@ -135,6 +139,12 @@ void RequestScene(SceneID scene_id, unsigned int color, float time, float endtim
 		else
 			g_fade_endtime = time;
 	}
+}
+
+// 終了要求
+void RequestClose(void)
+{
+	g_close_request = TRUE;
 }
 
 // シーンを初期化

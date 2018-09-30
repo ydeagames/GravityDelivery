@@ -10,6 +10,7 @@
 
 // ヘッダファイルの読み込み ================================================
 #include "Game\GameMain.h"
+#include "Game\SceneManager.h"
 #include "Resources\Icon\Icon.h"
 
 #include <shlwapi.h>
@@ -117,7 +118,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// ゲームの処理
 	InitializeGame();    // ゲームの初期化処理
 	
-	while (!ProcessMessage() && !CheckHitKey(EXIT_KEY))
+	while (!ProcessMessage() && !g_close_request)
 	{ 
 		UpdateSystem();        // システムの更新
 		

@@ -15,6 +15,10 @@ enum tag_SceneID
 };
 typedef enum tag_SceneID SceneID;
 
+// グローバル変数の宣言 ====================================================
+
+extern BOOL g_close_request;
+
 // 関数の宣言 ==============================================================
 
 // シーンの初期化処理
@@ -31,3 +35,6 @@ void FinalizeSceneManager(void);
 
 // シーン要求
 void RequestScene(SceneID scene_id, unsigned int color = COLOR_WHITE, float time = 0.f, float endtime = -1.f);
+
+// 終了要求
+void RequestClose(void);
