@@ -20,8 +20,21 @@
 
 // 定数の定義 ==============================================================
 
+#define screen_start(screen) \
+{ \
+	HGRP screen_stack = GetDrawScreen(); \
+	SetDrawScreen(screen); \
+	{
+#define screen_end \
+	} \
+	SetDrawScreen(screen_stack); \
+}
+
+
+
 // <システム> ----------------------------------------------------------
 #define GAME_TITLE "重力スイッチ"              // ゲームタイトル
+
 
 
 // <画面> --------------------------------------------------------------

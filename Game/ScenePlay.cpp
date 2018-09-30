@@ -13,16 +13,6 @@
 
 // ’è”‚Ì’è‹` ==============================================================
 
-#define screen_start(screen) \
-{ \
-	HGRP screen_stack = GetDrawScreen(); \
-	SetDrawScreen(screen); \
-	{
-#define screen_end \
-	} \
-	SetDrawScreen(screen_stack); \
-}
-
 #define TUTORIAL_FLAG_TYPE_BEAM			(1<<0)
 #define TUTORIAL_FLAG_TYPE_WARP			(1<<1)
 #define TUTORIAL_FLAG_TYPE_VEL			(1<<2)
@@ -761,6 +751,7 @@ void RenderPlay(void)
 void FinalizePlay(void)
 {
 	DeleteGraph(g_field_ball.sprite.texture.texture);
+	DeleteGraph(g_field_layer_top.sprite.texture.texture);
 	foreach_start(&g_field_layers, GameObject, layer)
 	{
 		DeleteGraph(layer->sprite.texture.texture);
@@ -770,6 +761,7 @@ void FinalizePlay(void)
 		for (i = 0; i < NUM_BGM; i++)
 			StopSoundMem(g_resources.sound_bgm[i]);
 	}
+	DeleteGraph(g_filter_screen.sprite.texture.texture);
 
 	Vector_Delete(&g_field_layers);
 	GameStage_Dispose(&g_stage);

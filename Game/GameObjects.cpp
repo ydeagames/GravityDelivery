@@ -255,7 +255,7 @@ void GameObject_RenderLoop(const GameObject* obj, const GameObject* tile_area, G
 void GameObject_Field_Render(const GameObject* field, const Vec2* translate, int fadeout)
 {
 	GameObject_Render(field, translate);
-	SetDrawScreen(field->sprite.texture.texture);
+	screen_start(field->sprite.texture.texture)
 	{
 		GameObject fieldback = *field;
 		fieldback.sprite = GameSprite_CreateNone();
@@ -265,8 +265,7 @@ void GameObject_Field_Render(const GameObject* field, const Vec2* translate, int
 		SetDrawBlendMode(DX_BLENDMODE_SUB, fadeout);
 		GameObject_Render(&fieldback);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	}
-	SetDrawScreen(DX_SCREEN_BACK);
+	} screen_end;
 }
 
 // <メッセージ描画>

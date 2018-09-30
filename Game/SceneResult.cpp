@@ -117,14 +117,13 @@ void RenderResult(void)
 
 		foreach_start(&g_field_layers, GameObject, layer)
 		{
-			SetDrawScreen(layer->sprite.texture.texture);
+			screen_start(layer->sprite.texture.texture)
 			{
 				unsigned int color = GetColor(GetRand(255), GetRand(255), GetRand(255));
 				Vec2 pos = Vec2_Create(GetRandRangeF(GameObject_GetX(layer, LEFT), GameObject_GetX(layer, RIGHT)),
 					GetRandRangeF(GameObject_GetY(layer, TOP), GameObject_GetY(layer, BOTTOM)));
 				DrawCircleAA(pos.x, pos.y, 2, 4, color);
-			}
-			SetDrawScreen(DX_SCREEN_BACK);
+			} screen_end;
 		} foreach_end;
 	}
 
