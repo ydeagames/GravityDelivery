@@ -14,7 +14,7 @@ typedef struct {
 	BOOL state;
 } KeyFrame;
 
-// 変数の宣言 ==============================================================
+// 関数の宣言 ==============================================================
 
 // <キーフレーム作成>
 KeyFrame KeyFrame_Create(float time, Easings easing_forward);

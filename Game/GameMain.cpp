@@ -17,6 +17,7 @@
 #include "GameResource.h"
 #include "ScreenShot.h"
 #include "GameStage.h"
+#include "GamePause.h"
 
 
 
@@ -81,6 +82,9 @@ void InitializeGame(void)
 	// カーソルを非表示
 	SetMouseDispFlag(FALSE);
 
+	// ポーズを初期化
+	InitializeGamePause();
+
 	// シーンマネージャーを初期化
 	InitializeSceneManager(SCENE_LOGO);
 }
@@ -101,7 +105,7 @@ void UpdateGame(void)
 	// ティックの更新
 	GameTick_Update();
 
-	// F11キーが押されていたら
+	// F3キーが押されていたら
 	if (IsJoypadPressed(PAD_INPUT_10))
 	{
 		// デバッグモードをトグル
@@ -112,8 +116,12 @@ void UpdateGame(void)
 	g_raw_mouse_last = g_raw_mouse;
 	g_raw_mouse = GetMousePosition();
 
+	// ポーズを更新
+	UpdateGamePause();
+
 	// シーンマネージャーを更新
-	UpdateSceneManager();
+	if (!IsGamePaused())
+		UpdateSceneManager();
 }
 
 
@@ -128,8 +136,15 @@ void UpdateGame(void)
 //----------------------------------------------------------------------
 void RenderGame(void)
 {
-	// シーンマネージャーを描画
-	RenderSceneManager();
+	screen_start(g_backscreen.sprite.texture.texture)
+	{
+		ClearDrawScreen();
+		// シーンマネージャーを描画
+		RenderSceneManager();
+	} screen_end;
+
+	// ポーズを描画
+	RenderGamePause();
 
 	// デバッグコンソールを描画
 	DebugConsole_Render(&g_console);
@@ -164,6 +179,9 @@ void FinalizeGame(void)
 {
 	// シーンマネージャーをファイナライズ
 	FinalizeSceneManager();
+
+	// ポーズをファイナライズ
+	FinalizeGamePause();
 
 	// リソースをアンロード
 	GameResource_Delete(&g_resources);

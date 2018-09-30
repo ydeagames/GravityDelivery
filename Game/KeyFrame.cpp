@@ -1,7 +1,7 @@
 #include "KeyFrame.h"
 #include "GameUtils.h"
 
-// 変数の宣言 ==============================================================
+// 関数の定義 ==============================================================
 
 // <キーフレーム作成>
 KeyFrame KeyFrame_Create(float time, Easings easing_forward)
@@ -42,9 +42,9 @@ float KeyFrame_GetProgress(KeyFrame* keyframe, float max)
 	else
 	{
 		if (keyframe->two_way)
-			easingprogress = 1 - GetEasingValue(keyframe->easing_back, 1 - progress, 1);
+			easingprogress = 1 - GetEasingValue(keyframe->easing_back, progress, 1);
 		else
-			easingprogress = 1 - GetEasingValue(keyframe->easing_forward, progress, 1);
+			easingprogress = GetEasingValue(keyframe->easing_forward, 1 - progress, 1);
 	}
 	//DrawFormatStringF(300, 300, COLOR_WHITE, "%f", easingprogress); // Debug
 	return GetPercentValue(easingprogress, max);
@@ -53,11 +53,6 @@ float KeyFrame_GetProgress(KeyFrame* keyframe, float max)
 // <キーフレーム進捗取得>
 float KeyFrame_GetProgressRange(KeyFrame* keyframe, float min, float max)
 {
-	float easingprogress = KeyFrame_GetProgress(keyframe, max - min);
-	if (max < min)
-	{
-		easingprogress = (max - min) - easingprogress;
-		SwapF(&min, &max);
-	}
-	return easingprogress + min;
+	float easingprogress = KeyFrame_GetProgress(keyframe, 1);
+	return GetPercentValueRange(easingprogress, min, max);
 }
