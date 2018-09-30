@@ -5,6 +5,7 @@
 #include "GameObjectHit.h"
 #include "GameMain.h"
 #include "SceneManager.h"
+#include "ScreenShot.h"
 
 // 定数の定義 ==============================================================
 
@@ -20,6 +21,7 @@ static EasingKeyFrame g_menu_keyframe_back;
 static GameObject g_menu;
 static char* g_menu_items[NUM_MENU_ITEMS] = { "ゲームに戻る", "タイトルに戻る", "スクリーンショットを撮る", "スクリーンショットを見る", "ゲームを終了する" };
 static int g_last_select = -1;
+static BOOL screenshot_task = FALSE;
 
 // 関数の宣言 ==============================================================
 
@@ -72,7 +74,7 @@ void UpdateGamePause(void)
 				PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
 				break;
 			case 2:
-				DebugConsole_Log(&g_console, "Take Screenshot");
+				screenshot_task = TRUE;
 				break;
 			case 3:
 				DebugConsole_Log(&g_console, "Open Screenshot");
@@ -95,6 +97,13 @@ void RenderGamePause(void)
 
 	Vec2 offset = Vec2_Create(EasingKeyFrame_GetProgressRange(&g_menu_keyframe_menu, g_menu.size.x, 0));
 	Vec2 mouse = Vec2_Add(&g_raw_mouse, &Vec2_Negate(&offset));
+
+	if (screenshot_task)
+	{
+		GameObject_Render(&g_backscreen);
+		SaveScreenShotToPNG_Log(&g_field);
+		screenshot_task = FALSE;
+	}
 
 	GraphFilter(g_backscreen.sprite.texture.texture, DX_GRAPH_FILTER_GAUSS, 16, (int)EasingKeyFrame_GetProgress(&g_menu_keyframe_back, 512));
 	GameObject_Render(&g_backscreen);

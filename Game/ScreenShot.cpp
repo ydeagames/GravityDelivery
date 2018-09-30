@@ -1,4 +1,5 @@
 #include "ScreenShot.h"
+#include "GameMain.h"
 
 #include <direct.h>
 #include <string>
@@ -43,4 +44,13 @@ BOOL SaveScreenShotToPNG(const GameObject* area, char* name)
 		}
 	}
 	return FALSE;
+}
+
+void SaveScreenShotToPNG_Log(const GameObject* area)
+{
+	char name[64] = "[Error]";
+	if (SaveScreenShotToPNG(&g_field, name))
+		DebugConsole_LogF(&g_console, "Saved screenshot as %s", name);
+	else
+		DebugConsole_LogF(&g_console, "Couldn't save screenshot: %s", name);
 }

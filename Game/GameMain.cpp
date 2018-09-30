@@ -157,13 +157,7 @@ void RenderGame(void)
 
 	// スクリーンショット
 	if (IsKeyPressed(KEY_INPUT_F2))
-	{
-		char name[64] = "[Error]";
-		if (SaveScreenShotToPNG(&g_field, name))
-			DebugConsole_LogF(&g_console, "Saved screenshot as %s", name);
-		else
-			DebugConsole_LogF(&g_console, "Couldn't save screenshot: %s", name);
-	}
+		SaveScreenShotToPNG_Log(&g_field);
 }
 
 
