@@ -42,6 +42,7 @@ static BOOL g_mouse_on_last;
 static BOOL g_mouse_down;
 
 static GameStage g_stage;
+static BOOL g_stage_screenshot = FALSE;
 
 static int g_tutorial_state = 0;
 static int g_tutorial_flag = 0;
@@ -593,6 +594,7 @@ static void UpdateStageEdit(const Vec2* mouse)
 	if (IsKeyDown(KEY_INPUT_LCONTROL) && IsKeyPressed(KEY_INPUT_S))
 	{
 		GameStage_Save(&g_stage, &g_selected_stageinfo);
+		g_stage_screenshot = TRUE;
 		DebugConsole_Log(&g_console, "stage saved!");
 	}
 }
@@ -780,6 +782,17 @@ void RenderPlay(void)
 		if (GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse))
 			GameObject_Render(&g_menu_button);
 		DrawFormatStringToHandle((int)GameObject_GetX(&g_menu_button, LEFT, -10), (int)GameObject_GetY(&g_menu_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "É|Å[ÉY");
+	}
+
+	if (g_stage_screenshot)
+	{
+		g_stage_screenshot = FALSE;
+		screen_start(DX_SCREEN_BACK)
+		{
+			GameObject_Render(&g_backscreen);
+			SaveDrawScreenToPNG((int)GameObject_GetX(&g_backscreen, LEFT), (int)GameObject_GetY(&g_backscreen, TOP),
+				(int)GameObject_GetX(&g_backscreen, RIGHT), (int)GameObject_GetY(&g_backscreen, BOTTOM), g_selected_stageinfo.screenshot_filepath);
+		} screen_end;
 	}
 }
 
