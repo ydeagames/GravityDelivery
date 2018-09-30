@@ -150,6 +150,7 @@ void FinalizeGamePause(void)
 void RequestPause(void)
 {
 	g_paused = TRUE;
+	ChangeVolumeSoundMem(160, g_resources.sound_se[3]);
 	PlaySoundMem(g_resources.sound_se[3], DX_PLAYTYPE_BACK);
 }
 
