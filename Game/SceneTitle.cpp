@@ -30,28 +30,34 @@ static GameObject g_title_logo;
 
 // 関数の定義 ==============================================================
 
-void listfiles(char* path, char* filter)
+static Stage Stage_Create(const char* dirpath, const char* name)
+{
+	Stage stage;
+	strcpy_s(stage.filename, name);
+	snprintf(stage.filepath, 260, "%s/%s", dirpath, name);
+	{
+		char *lastdot;
+		strcpy(stage.title, stage.filename);
+		lastdot = strrchr(stage.title, '.');
+		if (lastdot != NULL)
+			*lastdot = '\0';
+	}
+	return stage;
+}
+
+static void listfiles(Vector* lists, char* path, char* filter)
 {
 	struct _finddata_t fdata;
 
 	intptr_t fh = _findfirst(filter, &fdata);
-	Vector_Clear(&g_stages);
+	Vector_Clear(lists);
 	if (fh != -1)
 	{
 		do {
 			if ((fdata.attrib & _A_SUBDIR) == 0)
 			{
-				Stage stage;
-				strcpy_s(stage.filename, fdata.name);
-				snprintf(stage.filepath, 260, "%s/%s", path, fdata.name);
-				{
-					char *lastdot;
-					strcpy(stage.title, stage.filename);
-					lastdot = strrchr(stage.title, '.');
-					if (lastdot != NULL)
-						*lastdot = '\0';
-				}
-				Vector_AddLast(&g_stages, &stage);
+				Stage stage = Stage_Create(path, fdata.name);
+				Vector_AddLast(lists, &stage);
 			}
 		} while (_findnext(fh, &fdata) == 0);
 		_findclose(fh);
@@ -65,7 +71,7 @@ void InitializeTitle(void)
 	g_stages = Vector_Create(sizeof(Stage));
 
 	_mkdir("./Resources/Stage");
-	listfiles("./Resources/Stage", "./Resources/Stage/*.dat");
+	listfiles(&g_stages, "./Resources/Stage", "./Resources/Stage/*.dat");
 
 	{
 		int i;
@@ -115,10 +121,14 @@ void UpdateTitle(void)
 		SetKeyInputStringColor2(DX_KEYINPSTRCOLOR_NORMAL_STR, COLOR_WHITE);
 		SetKeyInputStringColor2(DX_KEYINPSTRCOLOR_NORMAL_CURSOR, COLOR_WHITE);
 		SetKeyInputStringColor2(DX_KEYINPSTRCOLOR_SELECT_STR, COLOR_WHITE);
+		SetDrawScreen(DX_SCREEN_FRONT);
+		DrawFormatStringFToHandle((int)GameObject_GetX(&g_field, CENTER_X, -200), (int)GameObject_GetY(&g_field, BOTTOM, -230),
+			COLOR_YELLOW, g_resources.font_main, "ステージ名を入力してください");
+		SetDrawScreen(DX_SCREEN_BACK);
 		if (KeyInputSingleCharString((int)GameObject_GetX(&g_field, CENTER_X, -200), (int)GameObject_GetY(&g_field, BOTTOM, -200), 30, str, TRUE) == 1)
 		{
-			strcpy_s(g_selected_stage.filename, str);
-			snprintf(g_selected_stage.filepath, 260, "%s/%s", "./Resources/Stage", str);
+			strcat_s(str, sizeof(g_selected_stage.filename), ".dat");
+			g_selected_stage = Stage_Create("./Resources/Stage", str);
 			RequestScene(SCENE_PLAY, COLOR_GRAY, 1);
 		}
 	}
