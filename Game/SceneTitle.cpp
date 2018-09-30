@@ -23,6 +23,7 @@
 static int g_count;
 static Vector g_stageinfos;
 
+static int g_select = -1;
 static int g_last_select = -1;
 
 static Vector g_field_layers;
@@ -116,13 +117,16 @@ void UpdateTitle(void)
 		}
 	}
 
+	if (g_select != g_last_select)
+		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
+	g_last_select = g_select;
+
 	KeyFrame_SetState(&g_filter_keyframe, GameObject_IsHitPoint(&g_bar, &g_raw_mouse));
 }
 
 // タイトルシーンの描画処理
 void RenderTitle(void)
 {
-	int select = -1;
 	int list_size = Vector_GetSize(&g_stageinfos);
 	int pos = -list_size - 4;
 
@@ -189,15 +193,11 @@ void RenderTitle(void)
 				SetDrawBlendMode(DX_BLENDMODE_ADD, 128);
 				GameObject_Render(&rect);
 				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-				select = itr_stage.current - 1;
+				g_select = itr_stage.current - 1;
 			}
 			DrawFormatStringToHandle(SCREEN_RIGHT - 250, SCREEN_BOTTOM + 20 * pos, COLOR_WHITE, g_resources.font_main, stage->title);
 			pos++;
 		} foreach_end;
-
-		if (select != g_last_select)
-			PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
-		g_last_select = select;
 	}
 }
 

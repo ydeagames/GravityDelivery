@@ -81,6 +81,7 @@ void UpdateGamePause(void)
 				RequestClose();
 				break;
 			}
+			ConsumeMouse(MOUSE_INPUT_1);
 		}
 	}
 }

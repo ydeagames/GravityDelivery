@@ -2,8 +2,8 @@
 
 // グローバル変数の定義 ====================================================
 
-static int g_input_state;
-static int g_input_state_last;
+static int g_joypad_input_state;
+static int g_joypad_input_state_last;
 
 static char g_key_input_state[256];
 static char g_key_input_state_last[256];
@@ -16,8 +16,8 @@ static int g_mouse_state_last;
 // キー更新
 void UpdateInputManager(void)
 {
-	g_input_state_last = g_input_state;
-	g_input_state = GetJoypadInputState(DX_INPUT_KEY_PAD1);
+	g_joypad_input_state_last = g_joypad_input_state;
+	g_joypad_input_state = GetJoypadInputState(DX_INPUT_KEY_PAD1);
 
 	memcpy(g_key_input_state_last, g_key_input_state, sizeof(g_key_input_state));
 	GetHitKeyStateAll(g_key_input_state);
@@ -26,10 +26,12 @@ void UpdateInputManager(void)
 	g_mouse_state = GetMouseInput();
 }
 
+// <ジョイパッド>
+
 // ジョイパッドが押されているか
 BOOL IsJoypadDown(int key)
 {
-	return g_input_state & key;
+	return g_joypad_input_state & key;
 }
 
 // ジョイパッドが離されているか
@@ -41,14 +43,22 @@ BOOL IsJoypadUp(int key)
 // ジョイパッドを押した直後か
 BOOL IsJoypadPressed(int key)
 {
-	return !(g_input_state_last & key) && (g_input_state & key);
+	return !(g_joypad_input_state_last & key) && (g_joypad_input_state & key);
 }
 
 // ジョイパッドを離した直後か
 BOOL IsJoypadReleased(int key)
 {
-	return (g_input_state_last & key) && !(g_input_state & key);
+	return (g_joypad_input_state_last & key) && !(g_joypad_input_state & key);
 }
+
+// ジョイパッドを消費
+void ConsumeJoypad(int key)
+{
+	g_joypad_input_state_last ^= (g_joypad_input_state_last ^ g_joypad_input_state) & key;
+}
+
+// <キー>
 
 // キーが押されているか
 BOOL IsKeyDown(int key)
@@ -74,6 +84,14 @@ BOOL IsKeyReleased(int key)
 	return g_key_input_state_last[key] && !g_key_input_state[key];
 }
 
+// キーを消費
+void ConsumeKey(int key)
+{
+	g_key_input_state_last[key] = g_key_input_state[key];
+}
+
+// <マウス>
+
 // マウスが押されているか
 BOOL IsMouseDown(int mouse)
 {
@@ -96,6 +114,12 @@ BOOL IsMousePressed(int mouse)
 BOOL IsMouseReleased(int mouse)
 {
 	return (g_mouse_state_last & mouse) && !(g_mouse_state & mouse);
+}
+
+// マウスを消費
+void ConsumeMouse(int key)
+{
+	g_mouse_state_last ^= (g_mouse_state_last ^ g_mouse_state) & key;
 }
 
 // マウスを座標を取得
