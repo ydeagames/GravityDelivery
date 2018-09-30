@@ -545,6 +545,30 @@ static void UpdateStageEdit(const Vec2* mouse)
 		g_stage.edited = TRUE;
 	}
 
+	// BGM
+	if (IsKeyDown(KEY_INPUT_LCONTROL) && IsKeyPressed(KEY_INPUT_A))
+	{
+		// 新規ファイルの名前を入力する
+		SetKeyInputStringColor2(DX_KEYINPSTRCOLOR_NORMAL_STR, COLOR_WHITE);
+		SetKeyInputStringColor2(DX_KEYINPSTRCOLOR_NORMAL_CURSOR, COLOR_WHITE);
+		SetKeyInputStringColor2(DX_KEYINPSTRCOLOR_SELECT_STR, COLOR_WHITE);
+		screen_start(DX_SCREEN_FRONT)
+		{
+			DrawFormatStringFToHandle(GameObject_GetX(&g_field, CENTER_X, -200), GameObject_GetY(&g_field, BOTTOM, -230),
+				COLOR_YELLOW, g_resources.font_main, "BGM IDを入力してください");
+		} screen_end;
+		{
+			int num = KeyInputNumber((int)GameObject_GetX(&g_field, CENTER_X, -200), (int)GameObject_GetY(&g_field, BOTTOM, -200), NUM_BGM - 1, 0, TRUE);
+			if (0 <= num && num < NUM_BGM)
+			{
+				StopSoundMem(g_resources.sound_bgm[g_stage.bgm]);
+				g_stage.bgm = num;
+				ChangeVolumeSoundMem(100, g_resources.sound_bgm[g_stage.bgm]);
+				PlaySoundMem(g_resources.sound_bgm[g_stage.bgm], DX_PLAYTYPE_LOOP);
+			}
+		}
+	}
+
 	// Migration
 	if (IsKeyDown(KEY_INPUT_LCONTROL) && IsKeyPressed(KEY_INPUT_M))
 	{
