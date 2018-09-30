@@ -1,4 +1,5 @@
 #pragma once
+#include "Easings.h"
 
 // 列挙型の定義 ============================================================
 
@@ -34,7 +35,7 @@ void RenderSceneManager(void);
 void FinalizeSceneManager(void);
 
 // シーン要求
-void RequestScene(SceneID scene_id, unsigned int color = COLOR_WHITE, float time = 0.f, float endtime = -1.f);
+void RequestScene(SceneID scene_id, unsigned int color = COLOR_WHITE, float time = 0.f, float endtime = -1.f, Easings easeFadeOut = ESG_OUTSINE, Easings easeFadeIn = ESG_INSINE);
 
 // 終了要求
 void RequestClose(void);

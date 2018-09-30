@@ -31,6 +31,9 @@ static FadeState g_fade_phase;
 static float g_fade_endtime;
 static unsigned int g_fade_color;
 
+static Easings g_easeFadeOut;
+static Easings g_easeFadeIn;
+
 // 関数の宣言 ==============================================================
 
 void InitializeScene(SceneID scene_id);
@@ -51,6 +54,9 @@ void InitializeSceneManager(SceneID start_scene_id)
 	g_fade_timer = GameTimer_Create();
 	g_fade_phase = FADE_OUT;
 	g_fade_endtime = 0;
+
+	g_easeFadeOut = ESG_LINEAR;
+	g_easeFadeIn = ESG_LINEAR;
 }
 
 // <シーンの更新処理>
@@ -100,7 +106,7 @@ void RenderSceneManager(void)
 	{
 	case FADE_OUT:
 	{
-		float opacity = GameTimer_GetProgress(&g_fade_timer);
+		float opacity = GetEasingValue(g_easeFadeOut, GameTimer_GetProgress(&g_fade_timer), 1);
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)(opacity * 255));
 		DrawBox(SCREEN_LEFT, SCREEN_TOP, SCREEN_RIGHT, SCREEN_BOTTOM, g_fade_color, TRUE);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -108,7 +114,7 @@ void RenderSceneManager(void)
 	}
 	case FADE_IN:
 	{
-		float opacity = 1 - GameTimer_GetProgress(&g_fade_timer);
+		float opacity = 1 - GetEasingValue(g_easeFadeIn, GameTimer_GetProgress(&g_fade_timer), 1);
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)(opacity * 255));
 		DrawBox(SCREEN_LEFT, SCREEN_TOP, SCREEN_RIGHT, SCREEN_BOTTOM, g_fade_color, TRUE);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -124,11 +130,14 @@ void FinalizeSceneManager(void)
 }
 
 // シーン要求
-void RequestScene(SceneID scene_id, unsigned int color, float time, float endtime)
+void RequestScene(SceneID scene_id, unsigned int color, float time, float endtime, Easings easeFadeOut, Easings easeFadeIn)
 {
 	if (g_fade_phase == FADE_IDLE)
 	{
 		g_next_scene = scene_id;
+
+		g_easeFadeOut = easeFadeOut;
+		g_easeFadeIn = easeFadeIn;
 
 		GameTimer_SetRemaining(&g_fade_timer, time);
 		GameTimer_Resume(&g_fade_timer);
