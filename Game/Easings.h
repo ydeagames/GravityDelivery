@@ -47,7 +47,7 @@ typedef enum
 ESG GetEasing(Easings easing);
 
 // Easingを使用し0～maxの範囲でのpercent%の位置
-float GetEasingValue(Easings easing, float percent, float max);
+float GetEasingValue(Easings easing, float percent, float max = 1);
 
 // Easingを使用しmin～maxの範囲でのpercent%の位置
-float GetEasingValueRange(Easings easing, float percent, float min, float max);
+float GetEasingValueRange(Easings easing, float percent, float min = 0, float max = 1);

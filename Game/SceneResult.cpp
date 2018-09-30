@@ -68,7 +68,7 @@ void UpdateResult(void)
 
 	if (IsMousePressed(MOUSE_INPUT_1))
 	{
-		if (GameObject_IsHitPoint(&g_back_button, &GetMousePosition()))
+		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
 		{
 			RequestScene(SCENE_TITLE, COLOR_GRAY, .5f);
 			PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
@@ -148,7 +148,7 @@ void RenderResult(void)
 	}
 
 	{
-		if (GameObject_IsHitPoint(&g_back_button, &GetMousePosition()))
+		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
 			GameObject_Render(&g_back_button);
 		DrawFormatStringToHandle((int)GameObject_GetX(&g_back_button, LEFT, -10), (int)GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "ƒ^ƒCƒgƒ‹‚Ö–ß‚é");
 	}

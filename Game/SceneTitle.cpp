@@ -9,6 +9,7 @@
 #include "Easings.h"
 #include "Vector.h"
 #include "GameStage.h"
+#include "KeyFrame.h"
 
 
 
@@ -31,6 +32,7 @@ static GameObject g_title_logo;
 
 static GameObject g_bar;
 static GameObject g_filter_screen;
+static KeyFrame g_filter_keyframe;
 
 
 // 関数の定義 ==============================================================
@@ -71,6 +73,7 @@ void InitializeTitle(void)
 
 	g_filter_screen = g_field;
 	g_filter_screen.sprite = GameSprite_Create(GameTexture_Create(MakeScreen((int)g_filter_screen.size.x, (int)g_filter_screen.size.y, FALSE), Vec2_Create(), g_filter_screen.size));
+	g_filter_keyframe = KeyFrame_Create(.1f, ESG_LINEAR);
 }
 
 // タイトルシーンの更新処理
@@ -112,6 +115,8 @@ void UpdateTitle(void)
 			RequestScene(SCENE_PLAY, COLOR_GRAY, 1);
 		}
 	}
+
+	KeyFrame_SetState(&g_filter_keyframe, GameObject_IsHitPoint(&g_bar, &g_raw_mouse));
 }
 
 // タイトルシーンの描画処理
@@ -160,7 +165,7 @@ void RenderTitle(void)
 				"星の引力を操作してゴールを目指そう！\n"
 				"ステージを選択してゲームスタート\n");
 		}
-		GraphFilter(g_filter_screen.sprite.texture.texture, DX_GRAPH_FILTER_GAUSS, 16, 128);
+		GraphFilter(g_filter_screen.sprite.texture.texture, DX_GRAPH_FILTER_GAUSS, 16, (int)KeyFrame_GetProgress(&g_filter_keyframe, 256));
 	} screen_end;
 	GameObject_Render(&g_filter_screen);
 
@@ -179,7 +184,7 @@ void RenderTitle(void)
 			GameObject rect = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, RIGHT, -150), (float)(SCREEN_BOTTOM + 20 * pos + 10)), Vec2_Create(), Vec2_Create(300, 20));
 			rect.fill = TRUE;
 			rect.sprite.color = COLOR_GRAY;
-			if (GameObject_IsHitPoint(&rect, &GetMousePosition()))
+			if (GameObject_IsHitPoint(&rect, &g_raw_mouse))
 			{
 				SetDrawBlendMode(DX_BLENDMODE_ADD, 128);
 				GameObject_Render(&rect);

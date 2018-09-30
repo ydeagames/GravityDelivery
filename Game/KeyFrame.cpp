@@ -1,20 +1,18 @@
 #include "KeyFrame.h"
+#include "GameUtils.h"
 
 // 変数の宣言 ==============================================================
 
 // <キーフレーム作成>
 KeyFrame KeyFrame_Create(float time, Easings easing_forward)
 {
-	GameTimer timer = GameTimer_Create();
-	GameTimer_SetRemaining(&timer, time);
-	return { easing_forward, ESG_LINEAR, FALSE, time, FALSE };
+	return { easing_forward, ESG_LINEAR, FALSE, GameTimer_Create(), time, FALSE };
 }
 
+// <対象Easingを使ってキーフレーム作成>
 KeyFrame KeyFrame_CreateWith2Easings(float time, Easings easing_forward, Easings easing_back)
 {
-	GameTimer timer = GameTimer_Create();
-	GameTimer_SetRemaining(&timer, time);
-	return { easing_forward, easing_back, TRUE, time, FALSE };
+	return { easing_forward, easing_back, TRUE, GameTimer_Create(), time, FALSE };
 }
 
 // <キーフレーム状態変更>
@@ -35,16 +33,31 @@ void KeyFrame_SetState(KeyFrame* keyframe, BOOL state)
 }
 
 // <キーフレーム進捗取得>
-float KeyFrame_GetProgress(KeyFrame* keyframe)
+float KeyFrame_GetProgress(KeyFrame* keyframe, float max)
 {
-	float progress = 1 - GameTimer_GetRemaining(&keyframe->timer) / keyframe->time;
+	float progress = GameTimer_IsFinished(&keyframe->timer) ? 1 : 1 - GameTimer_GetRemaining(&keyframe->timer) / keyframe->time;
+	float easingprogress;
 	if (keyframe->state)
-		return GetEasingValue(keyframe->easing_forward, progress, 1);
+		easingprogress = GetEasingValue(keyframe->easing_forward, progress, 1);
 	else
 	{
 		if (keyframe->two_way)
-			return 1 - GetEasingValue(keyframe->easing_back, 1 - progress, 1);
+			easingprogress = 1 - GetEasingValue(keyframe->easing_back, 1 - progress, 1);
 		else
-			return 1 - GetEasingValue(keyframe->easing_forward, progress, 1);
+			easingprogress = 1 - GetEasingValue(keyframe->easing_forward, progress, 1);
 	}
+	//DrawFormatStringF(300, 300, COLOR_WHITE, "%f", easingprogress); // Debug
+	return GetPercentValue(easingprogress, max);
+}
+
+// <キーフレーム進捗取得>
+float KeyFrame_GetProgressRange(KeyFrame* keyframe, float min, float max)
+{
+	float easingprogress = KeyFrame_GetProgress(keyframe, max - min);
+	if (max < min)
+	{
+		easingprogress = (max - min) - easingprogress;
+		SwapF(&min, &max);
+	}
+	return easingprogress + min;
 }
