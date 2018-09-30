@@ -34,7 +34,7 @@ static Stage Stage_Create(const char* dirpath, const char* name)
 {
 	Stage stage;
 	strcpy_s(stage.filename, name);
-	snprintf(stage.filepath, 260, "%s/%s", dirpath, name);
+	snprintf(stage.filepath, MAX_PATH, "%s/%s", dirpath, name);
 	{
 		char *lastdot;
 		strcpy(stage.title, stage.filename);
@@ -115,14 +115,14 @@ void UpdateTitle(void)
 
 	if (IsKeyDown(KEY_INPUT_LCONTROL) && IsKeyPressed(KEY_INPUT_O))
 	{
-		char str[260];
+		char str[MAX_PATH];
 
 		// 新規ファイルの名前を入力する
 		SetKeyInputStringColor2(DX_KEYINPSTRCOLOR_NORMAL_STR, COLOR_WHITE);
 		SetKeyInputStringColor2(DX_KEYINPSTRCOLOR_NORMAL_CURSOR, COLOR_WHITE);
 		SetKeyInputStringColor2(DX_KEYINPSTRCOLOR_SELECT_STR, COLOR_WHITE);
 		SetDrawScreen(DX_SCREEN_FRONT);
-		DrawFormatStringFToHandle((int)GameObject_GetX(&g_field, CENTER_X, -200), (int)GameObject_GetY(&g_field, BOTTOM, -230),
+		DrawFormatStringFToHandle(GameObject_GetX(&g_field, CENTER_X, -200), GameObject_GetY(&g_field, BOTTOM, -230),
 			COLOR_YELLOW, g_resources.font_main, "ステージ名を入力してください");
 		SetDrawScreen(DX_SCREEN_BACK);
 		if (KeyInputSingleCharString((int)GameObject_GetX(&g_field, CENTER_X, -200), (int)GameObject_GetY(&g_field, BOTTOM, -200), 30, str, TRUE) == 1)
