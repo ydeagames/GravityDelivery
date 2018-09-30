@@ -8,6 +8,7 @@
 #include "GameObjects.h"
 #include "SceneManager.h"
 #include "GameStage.h"
+#include "GamePause.h"
 #include <assert.h>
 
 
@@ -30,6 +31,7 @@ static GameObject g_view;
 static GameObject g_filter_screen;
 
 static GameObject g_back_button;
+static GameObject g_menu_button;
 
 static Vec2 g_mouse_last_from;
 static Vec2 g_offset_mouse;
@@ -97,6 +99,12 @@ void InitializePlay(void)
 		g_back_button = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2 - 50), GameObject_GetY(&g_field, BOTTOM, -size.y / 2 - 50)), Vec2_Create(), size);
 		g_back_button.fill = TRUE;
 		g_back_button.sprite.color = COLOR_GRAY;
+	}
+	{
+		Vec2 size = Vec2_Create(100, 50);
+		g_menu_button = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2 - 200), GameObject_GetY(&g_field, BOTTOM, -size.y / 2 - 50)), Vec2_Create(), size);
+		g_menu_button.fill = TRUE;
+		g_menu_button.sprite.color = COLOR_GRAY;
 	}
 
 	g_edit_mode = -1;
@@ -411,17 +419,26 @@ void UpdatePlay(void)
 			VectorIterator_Remove(&itr_ball);
 	} foreach_end;
 
-	// タイトルへ戻る
 	if (IsMousePressed(MOUSE_INPUT_1))
 	{
+		// タイトルへ戻る
 		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
 		{
 			RequestScene(SCENE_TITLE, COLOR_GRAY, .5f);
 			PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
 		}
+		// メニュー
+		if (GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse))
+		{
+			g_mouse_down = FALSE;
+			RequestPause();
+		}
 	}
 	// タイトルへ戻る onカーソル
 	if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse) && !GameObject_IsHitPoint(&g_back_button, &g_raw_mouse_last))
+		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
+	// メニュー onカーソル
+	if (GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse) && !GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse_last))
 		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
 
 	// 惑星 onカーソル
@@ -736,6 +753,9 @@ void RenderPlay(void)
 		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
 			GameObject_Render(&g_back_button);
 		DrawFormatStringToHandle((int)GameObject_GetX(&g_back_button, LEFT, -10), (int)GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "タイトルへ戻る");
+		if (GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse))
+			GameObject_Render(&g_menu_button);
+		DrawFormatStringToHandle((int)GameObject_GetX(&g_menu_button, LEFT, -10), (int)GameObject_GetY(&g_menu_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "メニュー");
 	}
 }
 
