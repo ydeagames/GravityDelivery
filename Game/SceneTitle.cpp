@@ -171,7 +171,7 @@ void RenderTitle(void)
 
 	{
 		{
-			SetDrawBlendMode(DX_BLENDMODE_ADD, 128);
+			SetDrawBlendMode(DX_BLENDMODE_ADD, (int)KeyFrame_GetProgressRange(&g_filter_keyframe, 128, 256));
 			GameObject_Render(&g_bar);
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		}
