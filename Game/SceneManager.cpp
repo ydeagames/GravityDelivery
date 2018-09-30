@@ -156,6 +156,12 @@ void RequestClose(void)
 	g_close_request = TRUE;
 }
 
+// シーン
+SceneID GetSceneID(void)
+{
+	return g_active_scene;
+}
+
 // シーンを初期化
 void InitializeScene(SceneID scene_id)
 {

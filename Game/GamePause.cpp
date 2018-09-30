@@ -69,9 +69,12 @@ void UpdateGamePause(void)
 				PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
 				break;
 			case 1:
-				RequestScene(SCENE_TITLE, COLOR_GRAY, .5f);
-				g_paused = FALSE;
-				PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
+				if (GetSceneID() != SCENE_TITLE)
+				{
+					RequestScene(SCENE_TITLE, COLOR_GRAY, .5f);
+					g_paused = FALSE;
+					PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
+				}
 				break;
 			case 2:
 				screenshot_task = TRUE;
@@ -130,7 +133,8 @@ void RenderGamePause(void)
 				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 				select = i;
 			}
-			DrawFormatStringToHandle((int)(SCREEN_RIGHT - 275 + offset.x), (int)(SCREEN_BOTTOM + 20 * pos + offset.y), COLOR_BLACK, g_resources.font_main, g_menu_items[i]);
+			DrawFormatStringToHandle((int)(SCREEN_RIGHT - 275 + offset.x), (int)(SCREEN_BOTTOM + 20 * pos + offset.y),
+				(i==1&&GetSceneID()==SCENE_TITLE) ? COLOR_GRAY : COLOR_BLACK, g_resources.font_main, g_menu_items[i]);
 			pos++;
 		}
 	}

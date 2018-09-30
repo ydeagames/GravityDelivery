@@ -39,3 +39,6 @@ void RequestScene(SceneID scene_id, unsigned int color = COLOR_WHITE, float time
 
 // 終了要求
 void RequestClose(void);
+
+// シーン
+SceneID GetSceneID(void);
