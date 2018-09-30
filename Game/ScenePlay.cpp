@@ -101,7 +101,7 @@ void InitializePlay(void)
 		g_back_button.sprite.color = COLOR_GRAY;
 	}
 	{
-		Vec2 size = Vec2_Create(100, 50);
+		Vec2 size = Vec2_Create(80, 50);
 		g_menu_button = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2 - 200), GameObject_GetY(&g_field, BOTTOM, -size.y / 2 - 50)), Vec2_Create(), size);
 		g_menu_button.fill = TRUE;
 		g_menu_button.sprite.color = COLOR_GRAY;
@@ -755,7 +755,7 @@ void RenderPlay(void)
 		DrawFormatStringToHandle((int)GameObject_GetX(&g_back_button, LEFT, -10), (int)GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "タイトルへ戻る");
 		if (GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse))
 			GameObject_Render(&g_menu_button);
-		DrawFormatStringToHandle((int)GameObject_GetX(&g_menu_button, LEFT, -10), (int)GameObject_GetY(&g_menu_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "メニュー");
+		DrawFormatStringToHandle((int)GameObject_GetX(&g_menu_button, LEFT, -10), (int)GameObject_GetY(&g_menu_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "ポーズ");
 	}
 }
 

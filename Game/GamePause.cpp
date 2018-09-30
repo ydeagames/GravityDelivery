@@ -139,6 +139,9 @@ void RenderGamePause(void)
 		}
 	}
 
+	if (g_paused && GetSceneID() == SCENE_PLAY)
+		DrawFormatStringToHandle(SCREEN_CENTER_X - 100, SCREEN_CENTER_Y - 50, COLOR_WHITE, g_resources.font_main, "Paused");
+
 	if (select != g_last_select)
 		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
 	g_last_select = select;
