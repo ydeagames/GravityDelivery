@@ -203,23 +203,23 @@ void UpdatePlay(void)
 	// エディット
 	UpdateStageEdit(&mouse);
 
-	// 惑星 ON/OFF
-	if (IsMouseReleased(MOUSE_INPUT_1))
+	// 惑星 onカーソル
 	{
-		Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
-		if (Vec2_LengthSquared(&diff) < 5 * 5)
+		BOOL mouse_on = FALSE;
+		BOOL switched = FALSE;
+		foreach_start(&g_stage.planets, GameObject, obj)
 		{
-			BOOL switched = FALSE;
-			foreach_start(&g_stage.planets, GameObject, obj)
+			if (GameObject_IsAlive(obj))
 			{
-				if (GameObject_IsAlive(obj))
+				GameObject mouseobj;
+				switch (obj->type)
 				{
-					switch (obj->type)
+				case TYPE_PLANET:
+					mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(40, 40));
+					mouseobj.shape = SHAPE_CIRCLE;
+					if (GameObject_IsHit(&mouseobj, obj))
 					{
-					case TYPE_PLANET:
-						GameObject mouseobj1 = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(10, 10));
-						mouseobj1.shape = SHAPE_CIRCLE;
-						if (GameObject_IsHit(&mouseobj1, obj))
+						if (IsMousePressed(MOUSE_INPUT_1))
 						{
 							obj->state = !obj->state;
 							//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
@@ -227,41 +227,60 @@ void UpdatePlay(void)
 							if (g_tutorial_state == 0)
 								g_tutorial_state = 1;
 							switched = TRUE;
-							PlaySoundMem(g_resources.sound_se[2], DX_PLAYTYPE_BACK);
 						}
-						break;
-					default:
-						GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(300, 300));
-						if (GameObject_IsHit(&mouseobj, obj))
-							switch (obj->type)
-							{
-							case TYPE_BEAM:
-								g_tutorial_flag |= TUTORIAL_FLAG_TYPE_BEAM;
-								break;
-							case TYPE_WARP:
-								if (GameObject_IsHit(&mouseobj, obj))
-									g_tutorial_flag |= TUTORIAL_FLAG_TYPE_WARP;
-								break;
-							case TYPE_VEL:
-								if (GameObject_IsHit(&mouseobj, obj))
-									g_tutorial_flag |= TUTORIAL_FLAG_TYPE_VEL;
-								break;
-							case TYPE_BEAM_BOUNCE:
-								if (GameObject_IsHit(&mouseobj, obj))
-									g_tutorial_flag |= TUTORIAL_FLAG_TYPE_BEAM_BOUNCE;
-								break;
-							}
+						mouse_on = TRUE;
 					}
+					break;
+				default:
+					mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(300, 300));
+					if (GameObject_IsHit(&mouseobj, obj) && IsMousePressed(MOUSE_INPUT_1))
+						switch (obj->type)
+						{
+						case TYPE_BEAM:
+							g_tutorial_flag |= TUTORIAL_FLAG_TYPE_BEAM;
+							break;
+						case TYPE_WARP:
+							if (GameObject_IsHit(&mouseobj, obj))
+								g_tutorial_flag |= TUTORIAL_FLAG_TYPE_WARP;
+							break;
+						case TYPE_VEL:
+							if (GameObject_IsHit(&mouseobj, obj))
+								g_tutorial_flag |= TUTORIAL_FLAG_TYPE_VEL;
+							break;
+						case TYPE_BEAM_BOUNCE:
+							if (GameObject_IsHit(&mouseobj, obj))
+								g_tutorial_flag |= TUTORIAL_FLAG_TYPE_BEAM_BOUNCE;
+							break;
+						}
+				}
+			}
+		} foreach_end;
+		if (switched)
+		{
+			g_stage.score = 0;
+			foreach_start(&g_stage.balls, GameObject, obj)
+			{
+				VectorIterator_Remove(&itr_obj);
+			} foreach_end;
+			PlaySoundMem(g_resources.sound_se[2], DX_PLAYTYPE_BACK);
+		}
+		if (mouse_on && !g_mouse_on_last)
+			PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
+		g_mouse_on_last = mouse_on;
+	}
+
+	// 惑星 ON/OFF
+	if (IsMouseReleased(MOUSE_INPUT_1))
+	{
+		Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
+		if (Vec2_LengthSquared(&diff) < 5 * 5)
+		{
+			foreach_start(&g_stage.planets, GameObject, obj)
+			{
+				if (GameObject_IsAlive(obj))
+				{
 				}
 			} foreach_end;
-			if (switched)
-			{
-				g_stage.score = 0;
-				foreach_start(&g_stage.balls, GameObject, obj)
-				{
-					VectorIterator_Remove(&itr_obj);
-				} foreach_end;
-			}
 		}
 		else if (g_tutorial_state == 1)
 			g_tutorial_state = 2;
@@ -305,28 +324,6 @@ void UpdatePlay(void)
 	// 速度 onカーソル
 	if (GameObject_IsHitPoint(&g_speed_button, &g_raw_mouse) && !GameObject_IsHitPoint(&g_speed_button, &g_raw_mouse_last))
 		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
-
-	// 惑星 onカーソル
-	{
-		BOOL mouse_on = FALSE;
-		foreach_start(&g_stage.planets, GameObject, obj)
-		{
-			if (GameObject_IsAlive(obj))
-			{
-				switch (obj->type)
-				{
-				case TYPE_PLANET:
-					GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(10, 10));
-					mouseobj.shape = SHAPE_CIRCLE;
-					if (GameObject_IsHit(&mouseobj, obj))
-						mouse_on = TRUE;
-				}
-			}
-		} foreach_end;
-		if (mouse_on && !g_mouse_on_last)
-			PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
-		g_mouse_on_last = mouse_on;
-	}
 
 	// クリア判定
 	if (g_stage.score >= 10 && !g_stage.edited)
@@ -834,7 +831,9 @@ void RenderPlay(void)
 			switch (obj->type)
 			{
 			case TYPE_PLANET:
-				if (Vec2_LengthSquaredTo(&mouse, &obj->pos) < Vec2_LengthSquared(&obj->size))
+				GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(40, 40));
+				mouseobj.shape = SHAPE_CIRCLE;
+				if (GameObject_IsHit(&mouseobj, obj))
 				{
 					GameObject cursor = *obj;
 					cursor.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[5], Vec2_Create(), Vec2_Create(18, 18)));
