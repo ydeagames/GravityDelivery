@@ -377,7 +377,7 @@ void VectorIterator_Add(VectorIterator* itr, const void* element)
 	assert(itr->current_size == Vector_GetSizeT(itr->list) && "Not a fresh iterator");
 	assert(itr->current_exists && "IllegalStateException: Not a fresh iterator");
 #endif
-	Vector_Add(itr->list, itr->current++, element);
+	Vector_Add(itr->list, itr->current, element);
 #ifdef VECTOR_DEBUG
 	itr->current_size = Vector_GetSizeT(itr->list);
 	itr->current_exists = FALSE;

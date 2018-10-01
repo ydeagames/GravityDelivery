@@ -372,6 +372,9 @@ void UpdatePlay(void)
 // 1ティックの更新
 static void UpdatePlayTicks(void)
 {
+	//BOOL particle_flag = FALSE;
+	//Vec2 particle_pos;
+
 	// 惑星, ボール作用
 	foreach_start(&g_stage.balls, GameObject, ball)
 	{
@@ -476,8 +479,13 @@ static void UpdatePlayTicks(void)
 							if (g_tutorial_state == 2)
 								g_tutorial_state = 3;
 							PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
+							PlaySoundMem(g_resources.sound_se[12], DX_PLAYTYPE_BACK);
 						}
-						VectorIterator_Remove(&itr_ball);
+						{
+							//particle_flag = TRUE;
+							//particle_pos = Vec2_Add(&ball->pos, &Vec2_Create(GetRandRangeF(-ball->size.x, ball->size.x), GetRandRangeF(-ball->size.y, ball->size.y)));
+							VectorIterator_Remove(&itr_ball);
+						}
 						break_planet = TRUE;
 					}
 					break;
@@ -499,6 +507,12 @@ static void UpdatePlayTicks(void)
 			break;
 		}
 	} foreach_end;
+
+	//if (particle_flag)
+	//{
+	//	GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_DOOM, &particle_pos, &Vec2_Create());
+	//	Vector_AddLast(&g_stage.balls, &doom);
+	//}
 
 	/*
 	// ボール同士の判定

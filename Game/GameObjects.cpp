@@ -232,7 +232,7 @@ static GameObject GameObject_Particles_Doom_Create(const Vec2* base, const Vec2*
 	obj.sprite.animation = GameSpriteAnimation_Create(19, 22, 8);
 	obj.sprite.animation.loop_flag = FALSE;
 	GameObject_SetSize(&obj, 2, 32);
-	obj.type = TYPE_PARTICLE_GOAL_DOOM;
+	obj.type = TYPE_PARTICLE_DOOM;
 	return obj;
 }
 
