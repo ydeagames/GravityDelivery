@@ -19,6 +19,8 @@
 #define TUTORIAL_FLAG_TYPE_VEL			(1<<2)
 #define TUTORIAL_FLAG_TYPE_BEAM_BOUNCE	(1<<3)
 
+#define SPEED_MAX_EXPO					3
+
 
 
 // グローバル変数の定義 ====================================================
@@ -32,11 +34,14 @@ static GameObject g_filter_screen;
 
 static GameObject g_back_button;
 static GameObject g_menu_button;
+static GameObject g_speed_button;
 
 static Vec2 g_mouse_last_from;
 static Vec2 g_offset_mouse;
 static Vec2 g_offset_location;
 static int g_edit_mode;
+
+static Vec2 g_offset_shadow;
 
 static BOOL g_mouse_on_last;
 static BOOL g_mouse_down;
@@ -47,6 +52,8 @@ static BOOL g_stage_screenshot = FALSE;
 static int g_tutorial_state = 0;
 static int g_tutorial_flag = 0;
 
+static int g_speed_expo = 0;
+
 
 
 // 関数の宣言 ==============================================================
@@ -56,6 +63,7 @@ void UpdatePlay(void);      // ゲームの更新処理
 void RenderPlay(void);      // ゲームの描画処理
 void FinalizePlay(void);    // ゲームの終了処理
 
+static void UpdatePlayTicks(void);
 static void UpdateStageEdit(const Vec2* mouse);
 
 
@@ -98,20 +106,28 @@ void InitializePlay(void)
 	{
 		Vec2 size = Vec2_Create(150, 50);
 		g_back_button = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2 - 50), GameObject_GetY(&g_field, BOTTOM, -size.y / 2 - 50)), Vec2_Create(), size);
-		g_back_button.fill = TRUE;
+		g_back_button.edge = 1;
 		g_back_button.sprite.color = COLOR_GRAY;
 	}
 	{
 		Vec2 size = Vec2_Create(80, 50);
-		g_menu_button = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2 - 200), GameObject_GetY(&g_field, BOTTOM, -size.y / 2 - 50)), Vec2_Create(), size);
-		g_menu_button.fill = TRUE;
+		g_menu_button = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2 - 210), GameObject_GetY(&g_field, BOTTOM, -size.y / 2 - 50)), Vec2_Create(), size);
+		g_menu_button.edge = 1;
 		g_menu_button.sprite.color = COLOR_GRAY;
+	}
+	{
+		Vec2 size = Vec2_Create(40, 50);
+		g_speed_button = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2 - 300), GameObject_GetY(&g_field, BOTTOM, -size.y / 2 - 50)), Vec2_Create(), size);
+		g_speed_button.edge = 1;
+		g_speed_button.sprite.color = COLOR_GRAY;
 	}
 
 	g_edit_mode = -1;
 	g_offset_mouse = Vec2_Create();
 	g_mouse_on_last = FALSE;
 	g_mouse_down = FALSE;
+
+	g_offset_shadow = Vec2_Create(GameObject_GetX(&g_field_ball, LEFT) - GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field_ball, TOP) - GameObject_GetY(&g_field, TOP));
 
 	g_stage = GameStage_Create();
 	GameStage_Load(&g_stage, &g_selected_stageinfo);
@@ -249,6 +265,99 @@ void UpdatePlay(void)
 			g_tutorial_state = 2;
 	}
 
+	// Tickの更新
+	{
+		int i;
+		for (i = 0; i < 1 << g_speed_expo; i++)
+			UpdatePlayTicks();
+	}
+
+	if (IsMousePressed(MOUSE_INPUT_1))
+	{
+		// タイトルへ戻る
+		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
+		{
+			RequestScene(SCENE_TITLE, COLOR_GRAY, .5f);
+			PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
+		}
+		// メニュー
+		if (GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse))
+		{
+			g_mouse_down = FALSE;
+			RequestPause();
+		}
+		// 速度
+		if (GameObject_IsHitPoint(&g_speed_button, &g_raw_mouse))
+		{
+			g_speed_expo = GetLoop(g_speed_expo + 1, SPEED_MAX_EXPO + 1);
+			ChangeVolumeSoundMem(140, g_resources.sound_se[11]);
+			PlaySoundMem(g_resources.sound_se[11], DX_PLAYTYPE_BACK);
+		}
+	}
+	// タイトルへ戻る onカーソル
+	if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse) && !GameObject_IsHitPoint(&g_back_button, &g_raw_mouse_last))
+		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
+	// メニュー onカーソル
+	if (GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse) && !GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse_last))
+		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
+	// 速度 onカーソル
+	if (GameObject_IsHitPoint(&g_speed_button, &g_raw_mouse) && !GameObject_IsHitPoint(&g_speed_button, &g_raw_mouse_last))
+		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
+
+	// 惑星 onカーソル
+	{
+		BOOL mouse_on = FALSE;
+		foreach_start(&g_stage.planets, GameObject, obj)
+		{
+			if (GameObject_IsAlive(obj))
+			{
+				switch (obj->type)
+				{
+				case TYPE_PLANET:
+					GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(10, 10));
+					mouseobj.shape = SHAPE_CIRCLE;
+					if (GameObject_IsHit(&mouseobj, obj))
+						mouse_on = TRUE;
+				}
+			}
+		} foreach_end;
+		if (mouse_on && !g_mouse_on_last)
+			PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
+		g_mouse_on_last = mouse_on;
+	}
+
+	// クリア判定
+	if (g_stage.score >= 10 && !g_stage.edited)
+	{
+		foreach_start(&g_stage.planets, GameObject, obj)
+		{
+			if (GameObject_IsAlive(obj))
+			{
+				switch (obj->type)
+				{
+				case TYPE_GOAL:
+					obj->sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
+					obj->sprite.num_columns = 8;
+					obj->sprite.animation = GameSpriteAnimation_Create(19, 22, 8);
+					obj->sprite.animation.loop_flag = FALSE;
+					GameObject_SetSize(obj, 2, 32);
+					obj->type = TYPE_GOAL_DOOM;
+					ChangeVolumeSoundMem(150, g_resources.sound_se[6]);
+					PlaySoundMem(g_resources.sound_se[6], DX_PLAYTYPE_BACK);
+					break;
+				case TYPE_GOAL_DOOM:
+					if (GameSpriteAnimation_Update(&obj->sprite) == ANIMATION_FINISHED)
+						RequestScene(SCENE_RESULT, COLOR_WHITE, 1.5f);
+					break;
+				}
+			}
+		} foreach_end;
+	}
+}
+
+// 1ティックの更新
+static void UpdatePlayTicks(void)
+{
 	// 惑星, ボール作用
 	foreach_start(&g_stage.balls, GameObject, ball)
 	{
@@ -363,16 +472,16 @@ void UpdatePlay(void)
 	// ボール同士の判定
 	foreach_start(&g_stage.balls, GameObject, ball1)
 	{
-		foreach_start(&g_stage.balls, GameObject, ball2)
-		{
-			if (ball1 != ball2)
-				// ボール同士が衝突したら消す
-				if (GameObject_IsHit(ball1, ball2))
-				{
-					VectorIterator_Remove(&itr_ball1);
-					break;
-				}
-		} foreach_end;
+	foreach_start(&g_stage.balls, GameObject, ball2)
+	{
+	if (ball1 != ball2)
+	// ボール同士が衝突したら消す
+	if (GameObject_IsHit(ball1, ball2))
+	{
+	VectorIterator_Remove(&itr_ball1);
+	break;
+	}
+	} foreach_end;
 	} foreach_end;
 	/**/
 
@@ -408,91 +517,29 @@ void UpdatePlay(void)
 	// ボール 更新
 	foreach_start(&g_stage.balls, GameObject, ball)
 	{
-		GameObject_UpdatePosition(ball);
+		if (GameObject_IsAlive(ball))
+		{
+			GameObject_UpdatePosition(ball);
 
-		// 減速
-		//ball->vel.x *= 0.998f;
-		//ball->vel.y *= 0.998f;
+			// 減速
+			//ball->vel.x *= 0.998f;
+			//ball->vel.y *= 0.998f;
 
-		// ワールドボーダー
-		if (GameObject_Field_CollisionHorizontal(&g_field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER) ||
-			GameObject_Field_CollisionVertical(&g_field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER))
-			VectorIterator_Remove(&itr_ball);
+			// ワールドボーダー
+			if (GameObject_Field_CollisionHorizontal(&g_field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER) ||
+				GameObject_Field_CollisionVertical(&g_field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER))
+				VectorIterator_Remove(&itr_ball);
+		}
+
+		screen_start(g_field_ball.sprite.texture.texture)
+		{
+			Vec2 before = Vec2_Sub(&ball->pos, &ball->vel);
+			DrawLineAA(before.x - g_offset_shadow.x, before.y - g_offset_shadow.y, ball->pos.x - g_offset_shadow.x, ball->pos.y - g_offset_shadow.y, ball->sprite.color);
+		} screen_end;
 	} foreach_end;
-
-	if (IsMousePressed(MOUSE_INPUT_1))
-	{
-		// タイトルへ戻る
-		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
-		{
-			RequestScene(SCENE_TITLE, COLOR_GRAY, .5f);
-			PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
-		}
-		// メニュー
-		if (GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse))
-		{
-			g_mouse_down = FALSE;
-			RequestPause();
-		}
-	}
-	// タイトルへ戻る onカーソル
-	if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse) && !GameObject_IsHitPoint(&g_back_button, &g_raw_mouse_last))
-		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
-	// メニュー onカーソル
-	if (GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse) && !GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse_last))
-		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
-
-	// 惑星 onカーソル
-	{
-		BOOL mouse_on = FALSE;
-		foreach_start(&g_stage.planets, GameObject, obj)
-		{
-			if (GameObject_IsAlive(obj))
-			{
-				switch (obj->type)
-				{
-				case TYPE_PLANET:
-					GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(10, 10));
-					mouseobj.shape = SHAPE_CIRCLE;
-					if (GameObject_IsHit(&mouseobj, obj))
-						mouse_on = TRUE;
-				}
-			}
-		} foreach_end;
-		if (mouse_on && !g_mouse_on_last)
-			PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
-		g_mouse_on_last = mouse_on;
-	}
-
-	// クリア判定
-	if (g_stage.score >= 10 && !g_stage.edited)
-	{
-		foreach_start(&g_stage.planets, GameObject, obj)
-		{
-			if (GameObject_IsAlive(obj))
-			{
-				switch (obj->type)
-				{
-				case TYPE_GOAL:
-					obj->sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
-					obj->sprite.num_columns = 8;
-					obj->sprite.animation = GameSpriteAnimation_Create(19, 22, 8);
-					obj->sprite.animation.loop_flag = FALSE;
-					GameObject_SetSize(obj, 2, 32);
-					obj->type = TYPE_GOAL_DOOM;
-					ChangeVolumeSoundMem(150, g_resources.sound_se[6]);
-					PlaySoundMem(g_resources.sound_se[6], DX_PLAYTYPE_BACK);
-					break;
-				case TYPE_GOAL_DOOM:
-					if (GameSpriteAnimation_Update(&obj->sprite) == ANIMATION_FINISHED)
-						RequestScene(SCENE_RESULT, COLOR_WHITE, 1.5f);
-					break;
-				}
-			}
-		} foreach_end;
-	}
 }
 
+// ステージ作成の更新: 機能のハンドラー
 static void UpdateStageEdit_HandlePlanetControl(const Vec2* mouse, int id, int key, int type, BOOL unique)
 {
 	if ((IsMousePressed(MOUSE_INPUT_2) || IsMousePressed(MOUSE_INPUT_3)) && IsKeyDown(key))
@@ -518,6 +565,7 @@ static void UpdateStageEdit_HandlePlanetControl(const Vec2* mouse, int id, int k
 	}
 }
 
+// ステージ作成の更新
 static void UpdateStageEdit(const Vec2* mouse)
 {
 	int id = 0;
@@ -612,7 +660,6 @@ static void UpdateStageEdit(const Vec2* mouse)
 void RenderPlay(void)
 {
 	Vec2 offset = Vec2_Sub(&g_view.pos, &g_field.pos);
-	Vec2 offset_shadow = Vec2_Create(GameObject_GetX(&g_field_ball, LEFT) - GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field_ball, TOP) - GameObject_GetY(&g_field, TOP));
 	Vec2 mouse = Vec2_Sub(&g_raw_mouse, &offset);
 
 	{
@@ -706,18 +753,14 @@ void RenderPlay(void)
 	if (g_tutorial_state == 1)
 		GameObject_Msg_Render(&Vec2_Add(&g_raw_mouse, &Vec2_Create(0, -10)), &Vec2_Create(), "ドラッグして画面をずらすよ！");
 
-	foreach_start(&g_stage.balls, GameObject, obj)
+	foreach_start(&g_stage.balls, GameObject, ball)
 	{
-		if (GameObject_IsAlive(obj))
+		if (GameObject_IsAlive(ball))
 		{
-			screen_start(g_field_ball.sprite.texture.texture)
-			{
-				Vec2 before = Vec2_Sub(&obj->pos, &obj->vel);
-				DrawLineAA(before.x - offset_shadow.x, before.y - offset_shadow.y, obj->pos.x - offset_shadow.x, obj->pos.y - offset_shadow.y, obj->sprite.color);
-			} screen_end;
-			GameObject_Render(obj, &offset);
+			GameObject_Render(ball, &offset);
 		}
 	} foreach_end;
+
 	if (GameTimer_IsFinished(&g_field_layer_timer))
 	{
 		GameTimer_SetRemaining(&g_field_layer_timer, .05f);
@@ -730,7 +773,7 @@ void RenderPlay(void)
 				unsigned int color = GetColor(GetRand(255), GetRand(255), GetRand(255));
 				Vec2 pos = Vec2_Create(GetRandRangeF(GameObject_GetX(layer, LEFT), GameObject_GetX(layer, RIGHT)),
 					GetRandRangeF(GameObject_GetY(layer, TOP), GameObject_GetY(layer, BOTTOM)));
-				DrawCircleAA(pos.x - offset_shadow.x, pos.y - offset_shadow.y, 6, 4, color);
+				DrawCircleAA(pos.x - g_offset_shadow.x, pos.y - g_offset_shadow.y, 6, 4, color);
 			} screen_end;
 		} foreach_end;
 	}
@@ -776,12 +819,17 @@ void RenderPlay(void)
 	}
 
 	{
-		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
-			GameObject_Render(&g_back_button);
+		g_back_button.fill = GameObject_IsHitPoint(&g_back_button, &g_raw_mouse);
+		GameObject_Render(&g_back_button);
 		DrawFormatStringToHandle((int)GameObject_GetX(&g_back_button, LEFT, -10), (int)GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "タイトルへ戻る");
-		if (GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse))
-			GameObject_Render(&g_menu_button);
+
+		g_menu_button.fill = GameObject_IsHitPoint(&g_menu_button, &g_raw_mouse);
+		GameObject_Render(&g_menu_button);
 		DrawFormatStringToHandle((int)GameObject_GetX(&g_menu_button, LEFT, -10), (int)GameObject_GetY(&g_menu_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "ポーズ");
+
+		g_speed_button.fill = GameObject_IsHitPoint(&g_speed_button, &g_raw_mouse);
+		GameObject_Render(&g_speed_button);
+		DrawFormatStringToHandle((int)GameObject_GetX(&g_speed_button, LEFT, -10), (int)GameObject_GetY(&g_speed_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "x%d", 1 << g_speed_expo);
 	}
 
 	if (g_stage_screenshot)

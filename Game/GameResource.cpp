@@ -43,6 +43,7 @@ GameResource GameResource_Create(void)
 	res.sound_se[8] = LoadSoundMem("Resources/Audio/Protected/genpei_se_12.wav");
 	res.sound_se[9] = LoadSoundMem("Resources/Audio/Protected/map_se_trampoline_jump.wav");
 	res.sound_se[10] = LoadSoundMem("Resources/Audio/Protected/wonder_se_14.wav");
+	res.sound_se[11] = LoadSoundMem("Resources/Audio/Protected/drb_se_jump.wav");
 
 	// テクスチャ
 	res.texture[0] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_other.png");
