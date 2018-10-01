@@ -391,7 +391,8 @@ static void UpdatePlayTicks(void)
 						if (GameObject_IsHit(planet, ball)) {
 							VectorIterator_Remove(&itr_ball);
 							request_ballloop = TRUE;
-							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
+							if (ball->type = TYPE_PARTICLE_BALL)
+								PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
 						}
 					}
 
@@ -401,6 +402,7 @@ static void UpdatePlayTicks(void)
 					if (GameObject_IsHit(planet, &line)) {
 						VectorIterator_Remove(&itr_ball);
 						request_ballloop = TRUE;
+							if (ball->type = TYPE_PARTICLE_BALL)
 						PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
 					}
 					break;
@@ -409,8 +411,11 @@ static void UpdatePlayTicks(void)
 					if (GameObject_IsHit(planet, &line)) {
 						ball->pos = Vec2_Add(&planet->pos, &planet->vel);
 						request_ballloop = TRUE;
-						ChangeVolumeSoundMem(150, g_resources.sound_se[9]);
-						PlaySoundMem(g_resources.sound_se[9], DX_PLAYTYPE_BACK);
+						if (ball->type = TYPE_PARTICLE_BALL)
+						{
+							ChangeVolumeSoundMem(150, g_resources.sound_se[9]);
+							PlaySoundMem(g_resources.sound_se[9], DX_PLAYTYPE_BACK);
+						}
 					}
 					break;
 				case TYPE_VEL:
@@ -418,8 +423,11 @@ static void UpdatePlayTicks(void)
 					if (GameObject_IsHit(planet, &line)) {
 						ball->vel = Vec2_Scale(&planet->vel, .1f);
 						request_ballloop = TRUE;
-						ChangeVolumeSoundMem(150, g_resources.sound_se[10]);
-						PlaySoundMem(g_resources.sound_se[10], DX_PLAYTYPE_BACK);
+						if (ball->type = TYPE_PARTICLE_BALL)
+						{
+							ChangeVolumeSoundMem(150, g_resources.sound_se[10]);
+							PlaySoundMem(g_resources.sound_se[10], DX_PLAYTYPE_BACK);
+						}
 					}
 					break;
 				case TYPE_BEAM_BOUNCE:
@@ -440,7 +448,8 @@ static void UpdatePlayTicks(void)
 						ball->pos = Vec2_Add(&ball->pos, &ball->vel);
 
 						request_ballloop = TRUE;
-						PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
+						if (ball->type = TYPE_PARTICLE_BALL)
+							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
 					}
 					break;
 				case TYPE_GOAL:
@@ -448,11 +457,14 @@ static void UpdatePlayTicks(void)
 					if (GameObject_IsHit(ball, planet))
 					{
 						VectorIterator_Remove(&itr_ball);
-						g_stage.score++;
-						ChangeVolumeSoundMem(100, g_resources.sound_se[0]);
-						if (g_tutorial_state == 2)
-							g_tutorial_state = 3;
-						PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
+						if (ball->type = TYPE_PARTICLE_BALL)
+						{
+							g_stage.score++;
+							ChangeVolumeSoundMem(100, g_resources.sound_se[0]);
+							if (g_tutorial_state == 2)
+								g_tutorial_state = 3;
+							PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
+						}
 						request_ballloop = TRUE;
 					}
 					break;

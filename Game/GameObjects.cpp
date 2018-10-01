@@ -5,20 +5,13 @@
 
 // 定数の定義 ==============================================================
 
-// <敵>
-#define ENEMY_WIDTH 32
-#define ENEMY_HEIGHT 32
-
-// <プレイヤー>
-#define PLAYER_WIDTH  42
-#define PLAYER_HEIGHT 36
-
 // 関数の定義 ==============================================================
 
 // <弾オブジェクト>
 GameObject GameObject_Ball_Create(const Vec2* pos, const Vec2* vec)
 {
 	GameObject obj = GameObject_Create(*pos, *vec, Vec2_Create(5, 5));
+	obj.type = TYPE_PARTICLE_BALL;
 	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[1], Vec2_Create(), Vec2_Create(26, 26)));
 	obj.sprite.num_columns = 9;
 	GameSprite_SetFrame(&obj.sprite, 11);
@@ -215,6 +208,70 @@ void GameObject_Planets_Serialize(const GameObject* obj, Vec2* base, Vec2* next)
 	case TYPE_BEAM_BOUNCE:
 		GameObject_Planets_BeamBounce_Serialize(obj, base, next);
 		break;
+	}
+}
+
+// <ゴール爆発パーティクル>
+static GameObject GameObject_Particles_GoalDoom_Create(const Vec2* base, const Vec2* vec)
+{
+	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(50, 50));
+	obj.type = TYPE_PARTICLE_GOAL_DOOM;
+	GameTimer_SetRemaining(&obj.count, 4);
+	GameTimer_Resume(&obj.count);
+	return obj;
+}
+
+// <爆発パーティクル>
+static GameObject GameObject_Particles_Doom_Create(const Vec2* base, const Vec2* vec)
+{
+	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(20, 20));
+	obj.shape = SHAPE_CIRCLE;
+	obj.sprite.color = COLOR_RED;
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
+	obj.sprite.num_columns = 8;
+	obj.sprite.animation = GameSpriteAnimation_Create(19, 22, 8);
+	obj.sprite.animation.loop_flag = FALSE;
+	GameObject_SetSize(&obj, 2, 32);
+	obj.type = TYPE_GOAL_DOOM;
+	return obj;
+}
+
+// <重力パーティクル>
+static GameObject GameObject_Particles_Gravity_Create(const Vec2* base, const Vec2* vec)
+{
+	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(2, 2));
+	obj.type = TYPE_PARTICLE_GRAVITY;
+	obj.fill = TRUE;
+	obj.sprite.color = COLOR_WHITE;
+	return obj;
+}
+
+// <有効パーティクル>
+static GameObject GameObject_Particles_Active_Create(const Vec2* base, const Vec2* vec)
+{
+	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(2, 2));
+	obj.type = TYPE_PARTICLE_ACTIVE;
+	obj.fill = TRUE;
+	obj.sprite.color = COLOR_GREEN;
+	return obj;
+}
+
+// <パーティクル>
+GameObject GameObject_Particles_Create(int type, const Vec2* base, const Vec2* vec)
+{
+	switch (type)
+	{
+	default:
+	case TYPE_PARTICLE_BALL:
+		return GameObject_Ball_Create(base, vec);
+	case TYPE_PARTICLE_GOAL_DOOM:
+		return GameObject_Particles_GoalDoom_Create(base, vec);
+	case TYPE_PARTICLE_DOOM:
+		return GameObject_Particles_Doom_Create(base, vec);
+	case TYPE_PARTICLE_GRAVITY:
+		return GameObject_Particles_Gravity_Create(base, vec);
+	case TYPE_PARTICLE_ACTIVE:
+		return GameObject_Particles_Active_Create(base, vec);
 	}
 }
 

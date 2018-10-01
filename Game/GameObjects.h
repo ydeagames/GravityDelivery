@@ -21,6 +21,16 @@ typedef enum
 	TYPE_BEAM_BOUNCE
 } ObjectType;
 
+typedef enum
+{
+	TYPE_PARTICLE_UNKNOWN = 0,
+	TYPE_PARTICLE_BALL,
+	TYPE_PARTICLE_GOAL_DOOM,
+	TYPE_PARTICLE_DOOM,
+	TYPE_PARTICLE_GRAVITY,
+	TYPE_PARTICLE_ACTIVE
+} ParticleType;
+
 // 関数の宣言 ==============================================================
 
 // <弾オブジェクト>
@@ -31,6 +41,9 @@ GameObject GameObject_Planets_Create(int type, const Vec2* base, const Vec2* nex
 
 // <オブジェクト>
 void GameObject_Planets_Serialize(const GameObject* obj, Vec2* base, Vec2* next);
+
+// <パーティクル>
+GameObject GameObject_Particles_Create(int type, const Vec2* base, const Vec2* vec);
 
 // <オブジェクトループ描画>
 void GameObject_RenderLoop(const GameObject* obj, const GameObject* tile_area, GameObject* tile_obj, const Vec2* translate);
