@@ -495,13 +495,13 @@ void UpdatePlay(void)
 
 static void UpdateStageEdit_HandlePlanetControl(const Vec2* mouse, int id, int key, int type, BOOL unique)
 {
-	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(key))
+	if ((IsMousePressed(MOUSE_INPUT_2) || IsMousePressed(MOUSE_INPUT_3)) && IsKeyDown(key))
 	{
 		g_mouse_last_from = *mouse;
 		g_edit_mode = id;
 		g_stage.edited = TRUE;
 	}
-	if (IsMouseReleased(MOUSE_INPUT_3) && g_edit_mode == id)
+	if ((IsMouseReleased(MOUSE_INPUT_2) || IsMouseReleased(MOUSE_INPUT_3)) && g_edit_mode == id)
 	{
 		Vec2 mouse_last_to = *mouse;
 		GameObject obj = GameObject_Planets_Create(type, &g_mouse_last_from, &mouse_last_to);
@@ -530,7 +530,7 @@ static void UpdateStageEdit(const Vec2* mouse)
 	UpdateStageEdit_HandlePlanetControl(mouse, id++, KEY_INPUT_V, TYPE_VEL, FALSE);
 
 	// Remover
-	if (IsMousePressed(MOUSE_INPUT_3) && IsKeyDown(KEY_INPUT_DELETE))
+	if ((IsMousePressed(MOUSE_INPUT_2) || IsMousePressed(MOUSE_INPUT_3)) && IsKeyDown(KEY_INPUT_DELETE))
 	{
 		foreach_start(&g_stage.planets, GameObject, obj)
 		{
@@ -763,16 +763,16 @@ void RenderPlay(void)
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "score: %d", g_stage.score);
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "edited: %s", g_stage.edited ? "true" : "false");
 		pos++;
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[S]+MClick      - スタート地点 [Unique]");
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[G]+MClick      - ゴール地点 [Unique]");
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[Q]+MClick      - 惑星");
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[B]+MClick      - ビーム");
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[R]+MClick      - バウンスビーム");
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[W]+MClick      - ワープ");
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[V]+MClick      - ランチャー");
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[Delete]+MClick - 撤去");
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "Ctrl+[O]        - ロード");
-		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "Ctrl+[S]        - セーブ");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[S]+右クリック      - スタート地点 [Unique]");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[G]+右クリック      - ゴール地点 [Unique]");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[Q]+右クリック      - 惑星");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[B]+右クリック      - ビーム");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[R]+右クリック      - バウンスビーム");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[W]+右クリック      - ワープ");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[V]+右クリック      - ランチャー");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[Delete]+右クリック - 撤去");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "Ctrl+[O]            - ロード");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "Ctrl+[S]            - セーブ");
 	}
 
 	{
