@@ -54,6 +54,7 @@ typedef enum
 {
 	ANIMATION_RUNNING,			// アニメーションが実行中の状態
 	ANIMATION_FINISHED,			// アニメーション再生が完了した状態
+	ANIMATION_IDLE,				// アニメーションしていない状態
 } AnimationState;
 
 // 構造体の宣言 ============================================================
@@ -75,6 +76,7 @@ typedef struct
 	int frame_duration;			// フレーム間隔
 	int elapsed_time;			// 現在のフレームの経過時間
 	BOOL loop_flag;				// アニメーションのループ
+	BOOL pause_flag;			// アニメーションの停止
 	AnimationState result;		// 最後の状態
 } GameSpriteAnimation;
 
@@ -128,7 +130,7 @@ GameTexture GameTexture_CreateNone();
 // <<スプライトアニメーション>> ----------------------------------------
 
 // <スプライトアニメーション作成>
-GameSpriteAnimation GameSpriteAnimation_Create(int frames_start, int frames_end, int frame_duration);
+GameSpriteAnimation GameSpriteAnimation_Create(int frames_start, int frames_end, int frame_duration, BOOL pause = FALSE);
 
 // <スプライトアニメーションなし>
 GameSpriteAnimation GameSpriteAnimation_CreateNone();

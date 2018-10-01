@@ -28,7 +28,8 @@
 #define foreach_start(vec, type, var) \
 { \
 	VectorIterator itr_##var; \
-	for (itr_##var = Vector_NextIterator(vec); VectorIterator_HasNext(&itr_##var);) \
+	BOOL break_##var = FALSE; \
+	for (itr_##var = Vector_NextIterator(vec); !break_##var && VectorIterator_HasNext(&itr_##var);) \
 	{ \
 		int i_##var = VectorIterator_NextIndex(&itr_##var); \
 		type* var = (type*)VectorIterator_Next(&itr_##var); \

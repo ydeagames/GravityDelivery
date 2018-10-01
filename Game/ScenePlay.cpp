@@ -52,7 +52,7 @@ static BOOL g_stage_screenshot = FALSE;
 static int g_tutorial_state = 0;
 static int g_tutorial_flag = 0;
 
-static int g_speed_expo = 0;
+static int g_speed_expo;
 
 
 
@@ -128,6 +128,8 @@ void InitializePlay(void)
 	g_mouse_down = FALSE;
 
 	g_offset_shadow = Vec2_Create(GameObject_GetX(&g_field_ball, LEFT) - GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field_ball, TOP) - GameObject_GetY(&g_field, TOP));
+
+	g_speed_expo = 0;
 
 	g_stage = GameStage_Create();
 	GameStage_Load(&g_stage, &g_selected_stageinfo);
@@ -336,18 +338,33 @@ void UpdatePlay(void)
 				switch (obj->type)
 				{
 				case TYPE_GOAL:
-					obj->sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
-					obj->sprite.num_columns = 8;
-					obj->sprite.animation = GameSpriteAnimation_Create(19, 22, 8);
-					obj->sprite.animation.loop_flag = FALSE;
-					GameObject_SetSize(obj, 2, 32);
-					obj->type = TYPE_GOAL_DOOM;
+					GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_GOAL_DOOM, &obj->pos, &Vec2_Create());
+					Vector_AddLast(&g_stage.balls, &doom);
+
 					ChangeVolumeSoundMem(150, g_resources.sound_se[6]);
 					PlaySoundMem(g_resources.sound_se[6], DX_PLAYTYPE_BACK);
+
+					VectorIterator_Remove(&itr_obj);
 					break;
-				case TYPE_GOAL_DOOM:
-					if (GameSpriteAnimation_Update(&obj->sprite) == ANIMATION_FINISHED)
+				}
+			}
+		} foreach_end;
+		foreach_start(&g_stage.balls, GameObject, obj)
+		{
+			if (GameObject_IsAlive(obj))
+			{
+				switch (obj->type)
+				{
+				case TYPE_PARTICLE_GOAL_DOOM:
+					if (GameTimer_IsFinished(&obj->count))
 						RequestScene(SCENE_RESULT, COLOR_WHITE, 1.5f);
+					else if (GameTimer_GetProgress(&obj->count) < .5f)
+					{
+						GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_DOOM,
+							&Vec2_Add(&obj->pos, &Vec2_Create(GetRandRangeF(-obj->size.x, obj->size.x), GetRandRangeF(-obj->size.y, obj->size.y))), &Vec2_Create());
+						VectorIterator_Add(&itr_obj, &doom);
+					}
+					break_obj = TRUE;
 					break;
 				}
 			}
@@ -363,7 +380,6 @@ static void UpdatePlayTicks(void)
 	{
 		GameObject* nearest = NULL;
 		float length2_min = -1;
-		BOOL request_ballloop = FALSE;
 
 		foreach_start(&g_stage.planets, GameObject, planet)
 		{
@@ -389,10 +405,10 @@ static void UpdatePlayTicks(void)
 
 						// 衝突したら消す
 						if (GameObject_IsHit(planet, ball)) {
-							VectorIterator_Remove(&itr_ball);
-							request_ballloop = TRUE;
 							if (ball->type = TYPE_PARTICLE_BALL)
 								PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
+							VectorIterator_Remove(&itr_ball);
+							break_planet = TRUE;
 						}
 					}
 
@@ -400,17 +416,17 @@ static void UpdatePlayTicks(void)
 				case TYPE_BEAM:
 					// 衝突したら消す
 					if (GameObject_IsHit(planet, &line)) {
+						if (ball->type = TYPE_PARTICLE_BALL)
+							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
 						VectorIterator_Remove(&itr_ball);
-						request_ballloop = TRUE;
-							if (ball->type = TYPE_PARTICLE_BALL)
-						PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
+						break_planet = TRUE;
 					}
 					break;
 				case TYPE_WARP:
 					// 衝突したらワープ
 					if (GameObject_IsHit(planet, &line)) {
 						ball->pos = Vec2_Add(&planet->pos, &planet->vel);
-						request_ballloop = TRUE;
+						break_planet = TRUE;
 						if (ball->type = TYPE_PARTICLE_BALL)
 						{
 							ChangeVolumeSoundMem(150, g_resources.sound_se[9]);
@@ -422,7 +438,7 @@ static void UpdatePlayTicks(void)
 					// 衝突したら速度変更
 					if (GameObject_IsHit(planet, &line)) {
 						ball->vel = Vec2_Scale(&planet->vel, .1f);
-						request_ballloop = TRUE;
+						break_planet = TRUE;
 						if (ball->type = TYPE_PARTICLE_BALL)
 						{
 							ChangeVolumeSoundMem(150, g_resources.sound_se[10]);
@@ -447,7 +463,7 @@ static void UpdatePlayTicks(void)
 						ball->vel = Vec2_Add(&vecA, &vecB);
 						ball->pos = Vec2_Add(&ball->pos, &ball->vel);
 
-						request_ballloop = TRUE;
+						break_planet = TRUE;
 						if (ball->type = TYPE_PARTICLE_BALL)
 							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
 					}
@@ -456,7 +472,6 @@ static void UpdatePlayTicks(void)
 					// 衝突したら加点
 					if (GameObject_IsHit(ball, planet))
 					{
-						VectorIterator_Remove(&itr_ball);
 						if (ball->type = TYPE_PARTICLE_BALL)
 						{
 							g_stage.score++;
@@ -465,19 +480,27 @@ static void UpdatePlayTicks(void)
 								g_tutorial_state = 3;
 							PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
 						}
-						request_ballloop = TRUE;
+						VectorIterator_Remove(&itr_ball);
+						break_planet = TRUE;
 					}
 					break;
 				}
-
-				if (request_ballloop)
-					break;
 			}
 		} foreach_end;
 
-		// 一番近いものを寄せる
-		if (nearest != NULL)
-			ball->vel = Vec2_Add(&ball->vel, &Vec2_Scale(&Vec2_Normalized(&Vec2_Sub(&nearest->pos, &ball->pos)), .1f));
+		if (break_ball)
+			break;
+
+		switch (ball->type)
+		{
+		case TYPE_PARTICLE_BALL:
+		case TYPE_PARTICLE_ACTIVE:
+		case TYPE_PARTICLE_GRAVITY:
+			// 一番近いものを寄せる
+			if (nearest != NULL)
+				ball->vel = Vec2_Add(&ball->vel, &Vec2_Scale(&Vec2_Normalized(&Vec2_Sub(&nearest->pos, &ball->pos)), .1f));
+			break;
+		}
 	} foreach_end;
 
 	/*
@@ -511,7 +534,7 @@ static void UpdatePlayTicks(void)
 			case TYPE_START:
 				if (GameTimer_IsFinished(&planet->count))
 				{
-					GameTimer_SetRemaining(&planet->count, .5f);
+					GameTimer_SetRemaining(&planet->count, .5f / (1 << g_speed_expo));
 					GameTimer_Resume(&planet->count);
 
 					{
@@ -522,6 +545,12 @@ static void UpdatePlayTicks(void)
 				}
 
 				break;
+			}
+
+			if (GameSpriteAnimation_Update(&planet->sprite) == ANIMATION_FINISHED && !planet->sprite.animation.loop_flag)
+			{
+				VectorIterator_Remove(&itr_planet);
+				continue;
 			}
 		}
 	} foreach_end;
@@ -540,14 +569,23 @@ static void UpdatePlayTicks(void)
 			// ワールドボーダー
 			if (GameObject_Field_CollisionHorizontal(&g_field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER) ||
 				GameObject_Field_CollisionVertical(&g_field_ball, ball, CONNECTION_NONE, EDGESIDE_OUTER))
+			{
 				VectorIterator_Remove(&itr_ball);
-		}
+				continue;
+			}
 
-		screen_start(g_field_ball.sprite.texture.texture)
-		{
-			Vec2 before = Vec2_Sub(&ball->pos, &ball->vel);
-			DrawLineAA(before.x - g_offset_shadow.x, before.y - g_offset_shadow.y, ball->pos.x - g_offset_shadow.x, ball->pos.y - g_offset_shadow.y, ball->sprite.color);
-		} screen_end;
+			screen_start(g_field_ball.sprite.texture.texture)
+			{
+				Vec2 before = Vec2_Sub(&ball->pos, &ball->vel);
+				DrawLineAA(before.x - g_offset_shadow.x, before.y - g_offset_shadow.y, ball->pos.x - g_offset_shadow.x, ball->pos.y - g_offset_shadow.y, ball->sprite.color);
+			} screen_end;
+
+			if (GameSpriteAnimation_Update(&ball->sprite) == ANIMATION_FINISHED && !ball->sprite.animation.loop_flag)
+			{
+				VectorIterator_Remove(&itr_ball);
+				continue;
+			}
+		}
 	} foreach_end;
 }
 

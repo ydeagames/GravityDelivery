@@ -216,7 +216,7 @@ static GameObject GameObject_Particles_GoalDoom_Create(const Vec2* base, const V
 {
 	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(50, 50));
 	obj.type = TYPE_PARTICLE_GOAL_DOOM;
-	GameTimer_SetRemaining(&obj.count, 4);
+	GameTimer_SetRemaining(&obj.count, 2);
 	GameTimer_Resume(&obj.count);
 	return obj;
 }
@@ -232,7 +232,7 @@ static GameObject GameObject_Particles_Doom_Create(const Vec2* base, const Vec2*
 	obj.sprite.animation = GameSpriteAnimation_Create(19, 22, 8);
 	obj.sprite.animation.loop_flag = FALSE;
 	GameObject_SetSize(&obj, 2, 32);
-	obj.type = TYPE_GOAL_DOOM;
+	obj.type = TYPE_PARTICLE_GOAL_DOOM;
 	return obj;
 }
 

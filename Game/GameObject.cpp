@@ -33,46 +33,55 @@ GameTexture GameTexture_CreateNone()
 // <<スプライトアニメーション>> ----------------------------------------
 
 // <スプライトアニメーション作成>
-GameSpriteAnimation GameSpriteAnimation_Create(int frames_start, int frames_end, int frame_duration)
+GameSpriteAnimation GameSpriteAnimation_Create(int frames_start, int frames_end, int frame_duration, BOOL pause)
 {
-	return{ frames_start, frames_end, frame_duration, 0, TRUE, ANIMATION_RUNNING };
+	return{ frames_start, frames_end, frame_duration, 0, TRUE, pause, ANIMATION_RUNNING };
 }
 
 // <スプライトアニメーションなし>
 GameSpriteAnimation GameSpriteAnimation_CreateNone()
 {
-	return GameSpriteAnimation_Create(0, 0, 1);
+	return GameSpriteAnimation_Create(-1, -1, 1, TRUE);
 }
 
 // <スプライトアニメーション更新>
 AnimationState GameSpriteAnimation_Update(GameSprite* animate_sprite)
 {
-	// アニメーションしているか
-	animate_sprite->animation.result = ANIMATION_RUNNING;
-	// 経過時間
-	animate_sprite->animation.elapsed_time++;
-	// 最初のフレーム以上
-	animate_sprite->frame_index = GetMax(animate_sprite->frame_index, animate_sprite->animation.frame_start);
-
-	// フレーム経過
-	if (animate_sprite->animation.elapsed_time > animate_sprite->animation.frame_duration)
+	if (!animate_sprite->animation.pause_flag && animate_sprite->animation.frame_start >= 0 && animate_sprite->animation.frame_end >= 0)
 	{
+		// アニメーションしているか
+		animate_sprite->animation.result = ANIMATION_RUNNING;
 		// 経過時間
-		animate_sprite->animation.elapsed_time = 0;
-		// フレーム番号
-		animate_sprite->frame_index++;
+		animate_sprite->animation.elapsed_time++;
+		// 最初のフレーム以上
+		animate_sprite->frame_index = GetMax(animate_sprite->frame_index, animate_sprite->animation.frame_start);
 
-		// 最初に戻る
-		if (animate_sprite->frame_index > animate_sprite->animation.frame_end)
+		// フレーム経過
+		if (animate_sprite->animation.elapsed_time > animate_sprite->animation.frame_duration)
 		{
-			// ループするなら
-			if (animate_sprite->animation.loop_flag)
-				// 最初に戻る
-				animate_sprite->frame_index = animate_sprite->animation.frame_start;
-			// アニメーション完了
-			animate_sprite->animation.result = ANIMATION_FINISHED;
+			// 経過時間
+			animate_sprite->animation.elapsed_time = 0;
+			// フレーム番号
+			animate_sprite->frame_index++;
+
+			// 最初に戻る
+			if (animate_sprite->frame_index > animate_sprite->animation.frame_end)
+			{
+				// ループするなら
+				if (animate_sprite->animation.loop_flag)
+					// 最初に戻る
+					animate_sprite->frame_index = animate_sprite->animation.frame_start;
+				else
+					// 最後のフレームで停止
+					animate_sprite->frame_index = animate_sprite->animation.frame_end;
+				// アニメーション完了
+				animate_sprite->animation.result = ANIMATION_FINISHED;
+			}
 		}
 	}
+	else
+		// アニメーションしているか
+		animate_sprite->animation.result = ANIMATION_IDLE;
 
 	return animate_sprite->animation.result;
 }
