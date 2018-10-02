@@ -372,8 +372,8 @@ void UpdatePlay(void)
 // 1ティックの更新
 static void UpdatePlayTicks(void)
 {
-	//BOOL particle_flag = FALSE;
-	//Vec2 particle_pos;
+	BOOL particle_flag = FALSE;
+	Vec2 particle_pos;
 
 	// 惑星, ボール作用
 	foreach_start(&g_stage.balls, GameObject, ball)
@@ -405,7 +405,7 @@ static void UpdatePlayTicks(void)
 
 						// 衝突したら消す
 						if (GameObject_IsHit(planet, ball)) {
-							if (ball->type = TYPE_PARTICLE_BALL)
+							if (ball->type == TYPE_PARTICLE_BALL)
 								PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
 							VectorIterator_Remove(&itr_ball);
 							break_planet = TRUE;
@@ -416,7 +416,7 @@ static void UpdatePlayTicks(void)
 				case TYPE_BEAM:
 					// 衝突したら消す
 					if (GameObject_IsHit(planet, &line)) {
-						if (ball->type = TYPE_PARTICLE_BALL)
+						if (ball->type == TYPE_PARTICLE_BALL)
 							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
 						VectorIterator_Remove(&itr_ball);
 						break_planet = TRUE;
@@ -427,7 +427,7 @@ static void UpdatePlayTicks(void)
 					if (GameObject_IsHit(planet, &line)) {
 						ball->pos = Vec2_Add(&planet->pos, &planet->vel);
 						break_planet = TRUE;
-						if (ball->type = TYPE_PARTICLE_BALL)
+						if (ball->type == TYPE_PARTICLE_BALL)
 						{
 							ChangeVolumeSoundMem(150, g_resources.sound_se[9]);
 							PlaySoundMem(g_resources.sound_se[9], DX_PLAYTYPE_BACK);
@@ -439,7 +439,7 @@ static void UpdatePlayTicks(void)
 					if (GameObject_IsHit(planet, &line)) {
 						ball->vel = Vec2_Scale(&planet->vel, .1f);
 						break_planet = TRUE;
-						if (ball->type = TYPE_PARTICLE_BALL)
+						if (ball->type == TYPE_PARTICLE_BALL)
 						{
 							ChangeVolumeSoundMem(150, g_resources.sound_se[10]);
 							PlaySoundMem(g_resources.sound_se[10], DX_PLAYTYPE_BACK);
@@ -464,7 +464,7 @@ static void UpdatePlayTicks(void)
 						ball->pos = Vec2_Add(&ball->pos, &ball->vel);
 
 						break_planet = TRUE;
-						if (ball->type = TYPE_PARTICLE_BALL)
+						if (ball->type == TYPE_PARTICLE_BALL)
 							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
 					}
 					break;
@@ -472,7 +472,7 @@ static void UpdatePlayTicks(void)
 					// 衝突したら加点
 					if (GameObject_IsHit(ball, planet))
 					{
-						if (ball->type = TYPE_PARTICLE_BALL)
+						if (ball->type == TYPE_PARTICLE_BALL)
 						{
 							g_stage.score++;
 							ChangeVolumeSoundMem(100, g_resources.sound_se[0]);
@@ -482,8 +482,8 @@ static void UpdatePlayTicks(void)
 							PlaySoundMem(g_resources.sound_se[12], DX_PLAYTYPE_BACK);
 						}
 						{
-							//particle_flag = TRUE;
-							//particle_pos = Vec2_Add(&ball->pos, &Vec2_Create(GetRandRangeF(-ball->size.x, ball->size.x), GetRandRangeF(-ball->size.y, ball->size.y)));
+							particle_flag = TRUE;
+							particle_pos = Vec2_Add(&ball->pos, &Vec2_Create(GetRandRangeF(-ball->size.x, ball->size.x), GetRandRangeF(-ball->size.y, ball->size.y)));
 							VectorIterator_Remove(&itr_ball);
 						}
 						break_planet = TRUE;
@@ -508,11 +508,11 @@ static void UpdatePlayTicks(void)
 		}
 	} foreach_end;
 
-	//if (particle_flag)
-	//{
-	//	GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_DOOM, &particle_pos, &Vec2_Create());
-	//	Vector_AddLast(&g_stage.balls, &doom);
-	//}
+	if (particle_flag)
+	{
+		GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_DOOM, &particle_pos, &Vec2_Create());
+		Vector_AddLast(&g_stage.balls, &doom);
+	}
 
 	/*
 	// ボール同士の判定
