@@ -65,7 +65,7 @@ void RenderPlay(void);      // ゲームの描画処理
 void FinalizePlay(void);    // ゲームの終了処理
 
 static void ShakeField(float magnification);
-static GameObject GetDoomObject(const Vec2* pos, float magnification);
+static GameObject GetRandomParticleObject(int type, const Vec2* pos, float magnification);
 static void UpdatePlayTicks(void);
 static void UpdateStageEdit(const Vec2* mouse);
 
@@ -330,7 +330,7 @@ void UpdatePlay(void)
 				switch (obj->type)
 				{
 				case TYPE_GOAL:
-					GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_GOAL_DOOM, &obj->pos, &Vec2_Create());
+					GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_GOAL_DOOM_SPAWNER, &obj->pos, &Vec2_Create());
 					Vector_AddLast(&g_stage.balls, &doom);
 
 					ChangeVolumeSoundMem(150, g_resources.sound_se[6]);
@@ -347,12 +347,12 @@ void UpdatePlay(void)
 			{
 				switch (obj->type)
 				{
-				case TYPE_PARTICLE_GOAL_DOOM:
+				case TYPE_PARTICLE_GOAL_DOOM_SPAWNER:
 					if (GameTimer_IsFinished(&obj->count))
 						RequestScene(SCENE_RESULT, COLOR_WHITE, 1.5f);
 					{
 						ShakeField(20);
-						VectorIterator_Add(&itr_obj, &GetDoomObject(&obj->pos, 20));
+						VectorIterator_Add(&itr_obj, &GetRandomParticleObject(TYPE_PARTICLE_GOAL_DOOM, &obj->pos, GameTimer_GetProgress(&obj->count) * 200));
 					}
 					break_obj = TRUE;
 					break;
@@ -373,12 +373,12 @@ static void ShakeField(float magnification)
 	g_offset_shake.pos = Vec2_Add(&g_offset_shake.pos, &delta_pos);
 }
 
-// 爆発オブジェクト
-static GameObject GetDoomObject(const Vec2* pos, float magnification)
+// ランダムオブジェクト
+static GameObject GetRandomParticleObject(int type, const Vec2* pos, float magnification)
 {
 	Vec2 delta_pos = Vec2_Scale(&Vec2_Create(GetRandRangeF(-1, 1), GetRandRangeF(-1, 1)), magnification);
 	Vec2 particle_pos = Vec2_Add(pos, &delta_pos);
-	return GameObject_Particles_Create(TYPE_PARTICLE_DOOM, &particle_pos, &Vec2_Create());
+	return GameObject_Particles_Create(type, &particle_pos, &Vec2_Create());
 }
 
 // 1ティックの更新
@@ -417,7 +417,7 @@ static void UpdatePlayTicks(void)
 					if (GameObject_IsHit(planet, ball)) {
 						if (ball->type == TYPE_PARTICLE_BALL)
 						{
-							VectorIterator_Set(&itr_ball, &GetDoomObject(&planet->pos, 5));
+							VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_DOOM, &planet->pos, 5));
 							ShakeField(5);
 							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
 						}
@@ -432,7 +432,7 @@ static void UpdatePlayTicks(void)
 					if (GameObject_IsHit(planet, &line)) {
 						if (ball->type == TYPE_PARTICLE_BALL)
 						{
-							VectorIterator_Set(&itr_ball, &GetDoomObject(&planet->pos, 20));
+							VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_DOOM, &planet->pos, 20));
 							ShakeField(10);
 
 							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
@@ -504,12 +504,8 @@ static void UpdatePlayTicks(void)
 							PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
 							PlaySoundMem(g_resources.sound_se[12], DX_PLAYTYPE_BACK);
 							{
-								Vec2 delta_pos = Vec2_Create(GetRandRangeF(-planet->size.x / 2, planet->size.x / 2), GetRandRangeF(-planet->size.y / 2, planet->size.y / 2));
-								Vec2 particle_pos = Vec2_Add(&planet->pos, &delta_pos);
-								GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_DOOM, &particle_pos, &Vec2_Create());
-
 								ShakeField(15);
-								VectorIterator_Set(&itr_ball, &doom);
+								VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_GOAL_DOOM, &planet->pos, 40));
 							}
 						}
 						break_planet = TRUE;

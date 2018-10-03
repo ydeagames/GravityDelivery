@@ -211,16 +211,6 @@ void GameObject_Planets_Serialize(const GameObject* obj, Vec2* base, Vec2* next)
 	}
 }
 
-// <ゴール爆発パーティクル>
-static GameObject GameObject_Particles_GoalDoom_Create(const Vec2* base, const Vec2* vec)
-{
-	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(50, 50));
-	obj.type = TYPE_PARTICLE_GOAL_DOOM;
-	GameTimer_SetRemaining(&obj.count, .75f);
-	GameTimer_Resume(&obj.count);
-	return obj;
-}
-
 // <爆発パーティクル>
 static GameObject GameObject_Particles_Doom_Create(const Vec2* base, const Vec2* vec)
 {
@@ -233,6 +223,31 @@ static GameObject GameObject_Particles_Doom_Create(const Vec2* base, const Vec2*
 	obj.sprite.animation.loop_flag = FALSE;
 	GameObject_SetSize(&obj, 2, 32);
 	obj.type = TYPE_PARTICLE_DOOM;
+	return obj;
+}
+
+// <ゴール爆発パーティクル>
+static GameObject GameObject_Particles_GoalDoomSpawner_Create(const Vec2* base, const Vec2* vec)
+{
+	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(50, 50));
+	obj.type = TYPE_PARTICLE_GOAL_DOOM_SPAWNER;
+	GameTimer_SetRemaining(&obj.count, .75f);
+	GameTimer_Resume(&obj.count);
+	return obj;
+}
+
+// <爆発パーティクル>
+static GameObject GameObject_Particles_GoalDoom_Create(const Vec2* base, const Vec2* vec)
+{
+	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(20, 20));
+	obj.shape = SHAPE_CIRCLE;
+	obj.sprite.color = COLOR_RED;
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[7], Vec2_Create(), Vec2_Create(35, 35)));
+	obj.sprite.num_columns = 7;
+	obj.sprite.animation = GameSpriteAnimation_Create(7, 10, 8);
+	obj.sprite.animation.loop_flag = FALSE;
+	GameObject_SetSize(&obj, 2, 32);
+	obj.type = TYPE_PARTICLE_GOAL_DOOM;
 	return obj;
 }
 
@@ -264,10 +279,12 @@ GameObject GameObject_Particles_Create(int type, const Vec2* base, const Vec2* v
 	default:
 	case TYPE_PARTICLE_BALL:
 		return GameObject_Ball_Create(base, vec);
-	case TYPE_PARTICLE_GOAL_DOOM:
-		return GameObject_Particles_GoalDoom_Create(base, vec);
 	case TYPE_PARTICLE_DOOM:
 		return GameObject_Particles_Doom_Create(base, vec);
+	case TYPE_PARTICLE_GOAL_DOOM:
+		return GameObject_Particles_GoalDoom_Create(base, vec);
+	case TYPE_PARTICLE_GOAL_DOOM_SPAWNER:
+		return GameObject_Particles_GoalDoomSpawner_Create(base, vec);
 	case TYPE_PARTICLE_GRAVITY:
 		return GameObject_Particles_Gravity_Create(base, vec);
 	case TYPE_PARTICLE_ACTIVE:

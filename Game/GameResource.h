@@ -11,7 +11,7 @@
 #define NUM_BGM 4
 #define NUM_SE 13
 
-#define NUM_TEXTURE 7
+#define NUM_TEXTURE 8
 
 // \‘¢‘Ì‚ÌéŒ¾ ============================================================
 

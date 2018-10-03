@@ -54,6 +54,7 @@ GameResource GameResource_Create(void)
 	res.texture[4] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_supplyBase.png");
 	res.texture[5] = LoadGraph("Resources/Textures/Protected/Xevious_OBJ_solvalou.png");
 	res.texture[6] = LoadGraph("Resources/Textures/gravity_switch.png");
+	res.texture[7] = LoadGraph("Resources/Textures/Protected/Xevious_OBJ_enemyBroken.png");
 
 	return res;
 }
