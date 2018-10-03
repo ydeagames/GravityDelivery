@@ -477,11 +477,12 @@ static void UpdatePlayTicks(void)
 								g_tutorial_state = 3;
 							PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
 							PlaySoundMem(g_resources.sound_se[12], DX_PLAYTYPE_BACK);
-						}
-						{
-							Vec2 particle_pos = Vec2_Add(&ball->pos, &Vec2_Create(GetRandRangeF(-ball->size.x, ball->size.x), GetRandRangeF(-ball->size.y, ball->size.y)));
-							GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_DOOM, &particle_pos, &Vec2_Create());
-							VectorIterator_Set(&itr_ball, &doom);
+							{
+								Vec2 particle_pos = Vec2_Add(&planet->pos,
+									&Vec2_Create(GetRandRangeF(-planet->size.x / 2, planet->size.x / 2), GetRandRangeF(-planet->size.y / 2, planet->size.y / 2)));
+								GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_DOOM, &particle_pos, &Vec2_Create());
+								VectorIterator_Set(&itr_ball, &doom);
+							}
 						}
 						break_planet = TRUE;
 					}
