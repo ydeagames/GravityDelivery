@@ -377,7 +377,7 @@ void VectorIterator_Add(VectorIterator* itr, const void* element)
 	assert(itr->current_size == Vector_GetSizeT(itr->list) && "Not a fresh iterator");
 	assert(itr->current_exists && "IllegalStateException: Not a fresh iterator");
 #endif
-	Vector_Add(itr->list, itr->current, element);
+	Vector_Add(itr->list, itr->current - itr->next, element);
 #ifdef VECTOR_DEBUG
 	itr->current_size = Vector_GetSizeT(itr->list);
 	itr->current_exists = FALSE;
@@ -387,7 +387,7 @@ void VectorIterator_Add(VectorIterator* itr, const void* element)
 // 現在の要素を置き換え
 void VectorIterator_Set(VectorIterator* itr, const void* element)
 {
-	Vector_Set(itr->list, itr->current, element);
+	Vector_Set(itr->list, itr->current - itr->next, element);
 }
 
 // 現在の要素を削除する (※一度のNextにつき、一度しか呼び出すことはできません)
