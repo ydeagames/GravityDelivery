@@ -27,7 +27,7 @@ void InitializeResult(void)
 {
 	Vec2 size = Vec2_Create(150, 50);
 	g_back_button = GameObject_Create(Vec2_Create(GameObject_GetX(&g_field, LEFT, -size.x / 2 - 50), GameObject_GetY(&g_field, BOTTOM, -size.y / 2 - 50)), Vec2_Create(), size);
-	g_back_button.fill = TRUE;
+	g_back_button.edge = 1;
 	g_back_button.sprite.color = COLOR_GRAY;
 
 	{
@@ -140,8 +140,8 @@ void RenderResult(void)
 	}
 
 	{
-		if (GameObject_IsHitPoint(&g_back_button, &g_raw_mouse))
-			GameObject_Render(&g_back_button);
+		g_back_button.fill = GameObject_IsHitPoint(&g_back_button, &g_raw_mouse);
+		GameObject_Render(&g_back_button);
 		DrawFormatStringToHandle((int)GameObject_GetX(&g_back_button, LEFT, -10), (int)GameObject_GetY(&g_back_button, TOP, -20), COLOR_WHITE, g_resources.font_main, "ƒ^ƒCƒgƒ‹‚Ö–ß‚é");
 	}
 }
