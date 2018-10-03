@@ -227,15 +227,15 @@ void UpdatePlay(void)
 				switch (obj->type)
 				{
 				case TYPE_PLANET:
-					mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(40, 40));
-					mouseobj.shape = SHAPE_CIRCLE;
-					if (GameObject_IsHit(&mouseobj, obj))
+					if (IsMouseReleased(MOUSE_INPUT_1))
 					{
-						// òfêØ ON/OFF
-						if (IsMouseReleased(MOUSE_INPUT_1))
+						Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
+						if (Vec2_LengthSquared(&diff) < 5 * 5)
 						{
-							Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
-							if (Vec2_LengthSquared(&diff) < 5 * 5)
+							// òfêØ ON/OFF
+							mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(40, 40));
+							mouseobj.shape = SHAPE_CIRCLE;
+							if (GameObject_IsHit(&mouseobj, obj))
 							{
 								obj->state = !obj->state;
 								//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
@@ -244,10 +244,10 @@ void UpdatePlay(void)
 									g_tutorial_state = 1;
 								switched = TRUE;
 							}
-							else if (g_tutorial_state == 1)
-								g_tutorial_state = 2;
+							mouse_on = TRUE;
 						}
-						mouse_on = TRUE;
+						else if (g_tutorial_state == 1)
+							g_tutorial_state = 2;
 					}
 					break;
 				default:
@@ -899,7 +899,7 @@ void RenderPlay(void)
 			switch (ball->type)
 			{
 			case TYPE_PARTICLE_GRAVITY:
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)(ClampF(Vec2_Length(&ball->vel), 0, 1) * (sinf(GameTimer_GetRemaining(&ball->count)*16)+1) * 128));
+				SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)(ClampF(Vec2_Length(&ball->vel), 0, 1) * (sinf(GameTimer_GetRemaining(&ball->count) * 16) + 1) * 128));
 				GameObject_Render(ball, &offset);
 				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 				break;
