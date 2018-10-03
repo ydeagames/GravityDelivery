@@ -73,7 +73,7 @@ static GameObject GameObject_Planets_Planet_Create(const Vec2* base, const Vec2*
 	obj.shape = SHAPE_CIRCLE;
 	obj.state = 0;
 	obj.sprite.color = COLOR_GRAY;
-	GameObject_SetSize(&obj, 2, 8);
+	GameObject_SetSize(&obj, 3, 4);
 	return obj;
 }
 

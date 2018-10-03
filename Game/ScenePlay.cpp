@@ -55,6 +55,8 @@ static int g_tutorial_flag = 0;
 
 static int g_speed_expo;
 
+static GameTimer g_planet_circle_timer;
+
 
 
 // 関数の宣言 ==============================================================
@@ -150,6 +152,10 @@ void InitializePlay(void)
 		sprintf(title, "%s - %s", GAME_TITLE, g_selected_stageinfo.title);
 		SetMainWindowText(title);		// ウインドウタイトルの設定
 	}
+
+	g_planet_circle_timer = GameTimer_Create();
+	GameTimer_SetRemaining(&g_planet_circle_timer, 2);
+	GameTimer_Resume(&g_planet_circle_timer);
 }
 
 
@@ -232,7 +238,7 @@ void UpdatePlay(void)
 							{
 								obj->state = !obj->state;
 								//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
-								GameObject_SetSize(obj, obj->state ? 4.f : 2.f, 8);
+								GameObject_SetSize(obj, obj->state ? 6.f : 3.f, 4);
 								if (g_tutorial_state == 0)
 									g_tutorial_state = 1;
 								switched = TRUE;
@@ -364,6 +370,10 @@ void UpdatePlay(void)
 	// 画面揺れ
 	GameObject_UpdatePosition(&g_offset_shake);
 	g_offset_shake.vel = Vec2_Add(&Vec2_Scale(&g_offset_shake.vel, .75f), &Vec2_Scale(&g_offset_shake.pos, -.85f));
+
+	// 惑星円タイマー
+	if (GameTimer_IsFinished(&g_planet_circle_timer))
+		GameTimer_ResetRemaining(&g_planet_circle_timer);
 }
 
 // 画面揺れ
@@ -814,6 +824,17 @@ void RenderPlay(void)
 						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "壁は触れるとバウンドするぞ！");
 					break;
 				case TYPE_PLANET:
+					{
+						GameObject circle = *obj;
+						circle.sprite = GameSprite_CreateNone();
+						circle.sprite.color = 0x6bd0ff;
+						circle.fill = TRUE;
+						circle.shape = SHAPE_CIRCLE;
+						circle.size = Vec2_Scale(&obj->size, GetEasingValueRange(ESG_LINEAR, GameTimer_GetProgress(&g_planet_circle_timer), 0, 2));
+						SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)GetEasingValueRange(ESG_OUTCIRC, GameTimer_GetProgress(&g_planet_circle_timer), 128, 0));
+						GameObject_Render(&circle, &offset);
+						SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+					}
 					GameObject_Render(obj, &offset);
 					{
 						GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(40, 40));
