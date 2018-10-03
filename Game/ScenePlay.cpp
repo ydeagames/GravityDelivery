@@ -394,6 +394,111 @@ static GameObject GetRandomParticleObject(int type, const Vec2* pos, float magni
 // 1ティックの更新
 static void UpdatePlayTicks(void)
 {
+	// 惑星, ボール当たり判定
+	foreach_start(&g_stage.balls, GameObject, ball)
+	{
+		foreach_start(&g_stage.planets, GameObject, planet)
+		{
+			if (GameObject_IsAlive(planet))
+			{
+				GameObject line = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
+				if (GameObject_IsHit(planet, &line))
+				{
+					switch (planet->type)
+					{
+					case TYPE_PLANET:
+						// 衝突したら消す
+						if (ball->type == TYPE_PARTICLE_BALL)
+						{
+							VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_DOOM, &planet->pos, 5));
+							ShakeField(5);
+							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
+						}
+						else if (ball->type != TYPE_PARTICLE_DOOM)
+							VectorIterator_Remove(&itr_ball);
+						break_planet = TRUE;
+						break;
+					case TYPE_BEAM:
+						// 衝突したら消す
+						if (ball->type == TYPE_PARTICLE_BALL)
+						{
+							VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_DOOM, &planet->pos, 20));
+							ShakeField(10);
+
+							ChangeVolumeSoundMem(120, g_resources.sound_se[14]);
+							PlaySoundMem(g_resources.sound_se[14], DX_PLAYTYPE_BACK);
+						}
+						else if (ball->type != TYPE_PARTICLE_DOOM)
+							VectorIterator_Remove(&itr_ball);
+						break_planet = TRUE;
+						break;
+					case TYPE_WARP:
+						// 衝突したらワープ
+						ball->pos = Vec2_Add(&planet->pos, &planet->vel);
+						if (ball->type == TYPE_PARTICLE_BALL)
+						{
+							ChangeVolumeSoundMem(150, g_resources.sound_se[9]);
+							PlaySoundMem(g_resources.sound_se[9], DX_PLAYTYPE_BACK);
+						}
+						break_planet = TRUE;
+						break;
+					case TYPE_VEL:
+						// 衝突したら速度変更
+						ball->vel = Vec2_Scale(&planet->vel, .1f);
+						if (ball->type == TYPE_PARTICLE_BALL)
+						{
+							ChangeVolumeSoundMem(110, g_resources.sound_se[10]);
+							PlaySoundMem(g_resources.sound_se[10], DX_PLAYTYPE_BACK);
+						}
+						break_planet = TRUE;
+						break;
+					case TYPE_BEAM_BOUNCE:
+						// 衝突したら消す
+						Vec2 planet_p1 = Vec2_Create(GameObject_GetRawX(planet, LEFT), GameObject_GetRawY(planet, TOP));
+						Vec2 planet_p2 = Vec2_Create(GameObject_GetRawX(planet, RIGHT), GameObject_GetRawY(planet, BOTTOM));
+						Vec2 planet_line = Vec2_Sub(&planet_p2, &planet_p1);
+
+						Vec2 vecA;
+						Vec2 vecB;
+
+						Vec2_Decompose(&ball->vel, &planet_line, &vecA, &vecB);
+
+						vecB = Vec2_Negate(&vecB);
+
+						ball->vel = Vec2_Add(&vecA, &vecB);
+						ball->pos = Vec2_Add(&ball->pos, &ball->vel);
+
+						if (ball->type == TYPE_PARTICLE_BALL)
+						{
+							//ShakeField(1);
+							ChangeVolumeSoundMem(150, g_resources.sound_se[13]);
+							PlaySoundMem(g_resources.sound_se[13], DX_PLAYTYPE_BACK);
+						}
+						break_planet = TRUE;
+						break;
+					case TYPE_GOAL:
+						// 衝突したら加点
+						if (ball->type == TYPE_PARTICLE_BALL)
+						{
+							g_stage.score++;
+							ChangeVolumeSoundMem(100, g_resources.sound_se[0]);
+							if (g_tutorial_state == 2)
+								g_tutorial_state = 3;
+							PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
+							PlaySoundMem(g_resources.sound_se[12], DX_PLAYTYPE_BACK);
+							{
+								ShakeField(15);
+								VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_GOAL_DOOM, &planet->pos, 40));
+							}
+						}
+						break_planet = TRUE;
+						break;
+					}
+				}
+			}
+		} foreach_end;
+	} foreach_end;
+
 	// 惑星, ボール作用
 	foreach_start(&g_stage.balls, GameObject, ball)
 	{
@@ -404,7 +509,6 @@ static void UpdatePlayTicks(void)
 		{
 			if (GameObject_IsAlive(planet))
 			{
-				GameObject line = GameObject_CreateLine(Vec2_Sub(&ball->pos, &ball->vel), ball->pos);
 				switch (planet->type)
 				{
 				case TYPE_PLANET:
@@ -422,113 +526,9 @@ static void UpdatePlayTicks(void)
 							}
 						}
 					}
-
-					// 衝突したら消す
-					if (GameObject_IsHit(planet, ball)) {
-						if (ball->type == TYPE_PARTICLE_BALL)
-						{
-							VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_DOOM, &planet->pos, 5));
-							ShakeField(5);
-							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
-						}
-						else if (ball->type != TYPE_PARTICLE_DOOM)
-							VectorIterator_Remove(&itr_ball);
-						break_planet = TRUE;
-					}
-
-					break;
-				case TYPE_BEAM:
-					// 衝突したら消す
-					if (GameObject_IsHit(planet, &line)) {
-						if (ball->type == TYPE_PARTICLE_BALL)
-						{
-							VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_DOOM, &planet->pos, 20));
-							ShakeField(10);
-
-							ChangeVolumeSoundMem(120, g_resources.sound_se[14]);
-							PlaySoundMem(g_resources.sound_se[14], DX_PLAYTYPE_BACK);
-						}
-						else if (ball->type != TYPE_PARTICLE_DOOM)
-							VectorIterator_Remove(&itr_ball);
-						break_planet = TRUE;
-					}
-					break;
-				case TYPE_WARP:
-					// 衝突したらワープ
-					if (GameObject_IsHit(planet, &line)) {
-						ball->pos = Vec2_Add(&planet->pos, &planet->vel);
-						break_planet = TRUE;
-						if (ball->type == TYPE_PARTICLE_BALL)
-						{
-							ChangeVolumeSoundMem(150, g_resources.sound_se[9]);
-							PlaySoundMem(g_resources.sound_se[9], DX_PLAYTYPE_BACK);
-						}
-					}
-					break;
-				case TYPE_VEL:
-					// 衝突したら速度変更
-					if (GameObject_IsHit(planet, &line)) {
-						ball->vel = Vec2_Scale(&planet->vel, .1f);
-						break_planet = TRUE;
-						if (ball->type == TYPE_PARTICLE_BALL)
-						{
-							ChangeVolumeSoundMem(110, g_resources.sound_se[10]);
-							PlaySoundMem(g_resources.sound_se[10], DX_PLAYTYPE_BACK);
-						}
-					}
-					break;
-				case TYPE_BEAM_BOUNCE:
-					// 衝突したら消す
-					if (GameObject_IsHit(planet, &line)) {
-						Vec2 planet_p1 = Vec2_Create(GameObject_GetRawX(planet, LEFT), GameObject_GetRawY(planet, TOP));
-						Vec2 planet_p2 = Vec2_Create(GameObject_GetRawX(planet, RIGHT), GameObject_GetRawY(planet, BOTTOM));
-						Vec2 planet_line = Vec2_Sub(&planet_p2, &planet_p1);
-
-						Vec2 vecA;
-						Vec2 vecB;
-
-						Vec2_Decompose(&ball->vel, &planet_line, &vecA, &vecB);
-
-						vecB = Vec2_Negate(&vecB);
-
-						ball->vel = Vec2_Add(&vecA, &vecB);
-						ball->pos = Vec2_Add(&ball->pos, &ball->vel);
-
-						break_planet = TRUE;
-						if (ball->type == TYPE_PARTICLE_BALL)
-						{
-							//ShakeField(1);
-							ChangeVolumeSoundMem(150, g_resources.sound_se[13]);
-							PlaySoundMem(g_resources.sound_se[13], DX_PLAYTYPE_BACK);
-						}
-					}
-					break;
-				case TYPE_GOAL:
-					// 衝突したら加点
-					if (GameObject_IsHit(ball, planet))
-					{
-						if (ball->type == TYPE_PARTICLE_BALL)
-						{
-							g_stage.score++;
-							ChangeVolumeSoundMem(100, g_resources.sound_se[0]);
-							if (g_tutorial_state == 2)
-								g_tutorial_state = 3;
-							PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
-							PlaySoundMem(g_resources.sound_se[12], DX_PLAYTYPE_BACK);
-							{
-								ShakeField(15);
-								VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_GOAL_DOOM, &planet->pos, 40));
-							}
-						}
-						break_planet = TRUE;
-					}
-					break;
 				}
 			}
 		} foreach_end;
-
-		if (break_ball)
-			break;
 
 		switch (ball->type)
 		{
@@ -613,16 +613,41 @@ static void UpdatePlayTicks(void)
 				continue;
 			}
 
-			screen_start(g_field_ball.sprite.texture.texture)
+			switch (ball->type)
 			{
-				Vec2 before = Vec2_Sub(&ball->pos, &ball->vel);
-				DrawLineAA(before.x - g_offset_shadow.x, before.y - g_offset_shadow.y, ball->pos.x - g_offset_shadow.x, ball->pos.y - g_offset_shadow.y, ball->sprite.color);
-			} screen_end;
+			case TYPE_PARTICLE_BALL:
+				screen_start(g_field_ball.sprite.texture.texture)
+				{
+					Vec2 before = Vec2_Sub(&ball->pos, &ball->vel);
+					GameObject line = GameObject_CreateLine(before, ball->pos);
+					line.sprite.color = ball->sprite.color;
+					line.edge = 1;
+					GameObject_Render(&line, &Vec2_Negate(&g_offset_shadow));
+				} screen_end;
+				break;
+			}
 
 			if (GameSpriteAnimation_Update(&ball->sprite) == ANIMATION_FINISHED && !ball->sprite.animation.loop_flag)
 			{
 				VectorIterator_Remove(&itr_ball);
 				continue;
+			}
+		}
+	} foreach_end;
+	foreach_start(&g_stage.balls, GameObject, ball)
+	{
+		if (GameObject_IsAlive(ball))
+		{
+			switch (ball->type)
+			{
+			case TYPE_PARTICLE_BALL:
+				if (GetRand(100) == 0)
+				{
+					GameObject active = GetRandomParticleObject(TYPE_PARTICLE_GRAVITY, &ball->pos, 30);
+
+					VectorIterator_Add(&itr_ball, &active);
+				}
+				break;
 			}
 		}
 	} foreach_end;
@@ -826,35 +851,35 @@ void RenderPlay(void)
 						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "壁は触れるとバウンドするぞ！");
 					break;
 				case TYPE_PLANET:
+				{
+					GameObject circle = *obj;
+					circle.sprite = GameSprite_CreateNone();
+					circle.sprite.color = 0x6bd0ff;
+					circle.fill = TRUE;
+					circle.shape = SHAPE_CIRCLE;
+					circle.size = Vec2_Scale(&obj->size, GetEasingValueRange(ESG_LINEAR, GameTimer_GetProgress(&g_planet_circle_timer), 0, 4));
+					SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)GetEasingValueRange(ESG_OUTCIRC, GameTimer_GetProgress(&g_planet_circle_timer), 192, 0));
+					GameObject_Render(&circle, &offset);
+					SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				}
+				GameObject_Render(obj, &offset);
+				{
+					GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(40, 40));
+					mouseobj.shape = SHAPE_CIRCLE;
+					if (GameObject_IsHit(&mouseobj, obj))
 					{
-						GameObject circle = *obj;
-						circle.sprite = GameSprite_CreateNone();
-						circle.sprite.color = 0x6bd0ff;
-						circle.fill = TRUE;
-						circle.shape = SHAPE_CIRCLE;
-						circle.size = Vec2_Scale(&obj->size, GetEasingValueRange(ESG_LINEAR, GameTimer_GetProgress(&g_planet_circle_timer), 0, 2));
-						SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)GetEasingValueRange(ESG_OUTCIRC, GameTimer_GetProgress(&g_planet_circle_timer), 128, 0));
-						GameObject_Render(&circle, &offset);
-						SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+						GameObject cursor = *obj;
+						cursor.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[5], Vec2_Create(), Vec2_Create(18, 18)));
+						cursor.sprite.num_columns = 5;
+						GameSprite_SetFrame(&cursor.sprite, obj->state ? 5 : 7);
+						GameObject_SetSize(&cursor, 4);
+						GameObject_Render(&cursor, &offset);
 					}
-					GameObject_Render(obj, &offset);
-					{
-						GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(40, 40));
-						mouseobj.shape = SHAPE_CIRCLE;
-						if (GameObject_IsHit(&mouseobj, obj))
-						{
-							GameObject cursor = *obj;
-							cursor.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[5], Vec2_Create(), Vec2_Create(18, 18)));
-							cursor.sprite.num_columns = 5;
-							GameSprite_SetFrame(&cursor.sprite, obj->state ? 5 : 7);
-							GameObject_SetSize(&cursor, 4);
-							GameObject_Render(&cursor, &offset);
-						}
-					}
-					if (g_tutorial_state == 0 && first_planet)
-						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "惑星をクリックして重力のスイッチをON/OFFしてみよう！");
-					first_planet = FALSE;
-					break;
+				}
+				if (g_tutorial_state == 0 && first_planet)
+					GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "惑星をクリックして重力のスイッチをON/OFFしてみよう！");
+				first_planet = FALSE;
+				break;
 				default:
 					GameObject_Render(obj, &offset);
 					break;

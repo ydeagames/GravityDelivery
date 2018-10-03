@@ -378,6 +378,7 @@ void VectorIterator_Add(VectorIterator* itr, const void* element)
 	assert(itr->current_exists && "IllegalStateException: Not a fresh iterator");
 #endif
 	Vector_Add(itr->list, itr->current - itr->next, element);
+	itr->current += itr->next;
 #ifdef VECTOR_DEBUG
 	itr->current_size = Vector_GetSizeT(itr->list);
 	itr->current_exists = FALSE;
@@ -397,7 +398,8 @@ void VectorIterator_Remove(VectorIterator* itr)
 	assert(itr->current_size == Vector_GetSize(itr->list) && "ConcurrentModificationException");
 	assert(itr->current_exists && "IllegalStateException: Not a fresh iterator");
 #endif
-	Vector_Remove(itr->list, itr->current -= itr->next);
+	Vector_Remove(itr->list, itr->current - itr->next);
+	itr->current -= itr->next;
 #ifdef VECTOR_DEBUG
 	itr->current_size = Vector_GetSizeT(itr->list);
 	itr->current_exists = FALSE;
