@@ -22,6 +22,7 @@ static GameObject g_menu;
 static char* g_menu_items[NUM_MENU_ITEMS] = { "ゲームに戻る", "タイトルに戻る", "スクリーンショットを撮る", "スクリーンショットを見る", "ゲームを終了する" };
 static int g_last_select = -1;
 static BOOL screenshot_task = FALSE;
+static BOOL mouse_on_menu = FALSE;
 
 // 関数の宣言 ==============================================================
 
@@ -85,6 +86,13 @@ void UpdateGamePause(void)
 			case 4:
 				RequestClose();
 				break;
+			default:
+				if (!mouse_on_menu)
+				{
+					g_paused = FALSE;
+					PlaySoundMem(g_resources.sound_se[5], DX_PLAYTYPE_BACK);
+				}
+				break;
 			}
 			ConsumeMouse(MOUSE_INPUT_1);
 		}
@@ -138,6 +146,8 @@ void RenderGamePause(void)
 			pos++;
 		}
 	}
+
+	mouse_on_menu = GameObject_IsHitPoint(&g_menu, &mouse);
 
 	if (g_paused && GetSceneID() == SCENE_PLAY)
 		DrawFormatStringToHandle(SCREEN_CENTER_X - 100, SCREEN_CENTER_Y - 50, COLOR_WHITE, g_resources.font_main, "Paused");
