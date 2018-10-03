@@ -10,6 +10,7 @@
 #include "GameStage.h"
 #include "GamePause.h"
 #include <assert.h>
+#include <math.h>
 
 
 // ’è”‚Ì’è‹` ==============================================================
@@ -643,7 +644,7 @@ static void UpdatePlayTicks(void)
 			case TYPE_PARTICLE_BALL:
 				if (GetRand(100) == 0)
 				{
-					GameObject active = GetRandomParticleObject(TYPE_PARTICLE_GRAVITY, &ball->pos, 30);
+					GameObject active = GetRandomParticleObject(TYPE_PARTICLE_GRAVITY, &ball->pos, 2);
 
 					VectorIterator_Add(&itr_ball, &active);
 				}
@@ -898,7 +899,7 @@ void RenderPlay(void)
 			switch (ball->type)
 			{
 			case TYPE_PARTICLE_GRAVITY:
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)(Vec2_Length(&ball->vel) * 128));
+				SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)(ClampF(Vec2_Length(&ball->vel), 0, 1) * (sinf(GameTimer_GetRemaining(&ball->count)*16)+1) * 128));
 				GameObject_Render(ball, &offset);
 				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 				break;

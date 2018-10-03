@@ -257,7 +257,9 @@ static GameObject GameObject_Particles_Gravity_Create(const Vec2* base, const Ve
 	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(2, 2));
 	obj.type = TYPE_PARTICLE_GRAVITY;
 	obj.fill = TRUE;
-	obj.sprite.color = COLOR_WHITE;
+	obj.sprite.color = COLOR_YELLOW;
+	GameTimer_SetRemaining(&obj.count, GetRandF(4));
+	GameTimer_Resume(&obj.count);
 	return obj;
 }
 
