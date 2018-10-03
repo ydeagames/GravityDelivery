@@ -222,14 +222,21 @@ void UpdatePlay(void)
 					mouseobj.shape = SHAPE_CIRCLE;
 					if (GameObject_IsHit(&mouseobj, obj))
 					{
-						if (IsMousePressed(MOUSE_INPUT_1))
+						// òfêØ ON/OFF
+						if (IsMouseReleased(MOUSE_INPUT_1))
 						{
-							obj->state = !obj->state;
-							//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
-							GameObject_SetSize(obj, obj->state ? 4.f : 2.f, 8);
-							if (g_tutorial_state == 0)
-								g_tutorial_state = 1;
-							switched = TRUE;
+							Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
+							if (Vec2_LengthSquared(&diff) < 5 * 5)
+							{
+								obj->state = !obj->state;
+								//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
+								GameObject_SetSize(obj, obj->state ? 4.f : 2.f, 8);
+								if (g_tutorial_state == 0)
+									g_tutorial_state = 1;
+								switched = TRUE;
+							}
+							else if (g_tutorial_state == 1)
+								g_tutorial_state = 2;
 						}
 						mouse_on = TRUE;
 					}
@@ -270,23 +277,6 @@ void UpdatePlay(void)
 		if (mouse_on && !g_mouse_on_last)
 			PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
 		g_mouse_on_last = mouse_on;
-	}
-
-	// òfêØ ON/OFF
-	if (IsMouseReleased(MOUSE_INPUT_1))
-	{
-		Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
-		if (Vec2_LengthSquared(&diff) < 5 * 5)
-		{
-			foreach_start(&g_stage.planets, GameObject, obj)
-			{
-				if (GameObject_IsAlive(obj))
-				{
-				}
-			} foreach_end;
-		}
-		else if (g_tutorial_state == 1)
-			g_tutorial_state = 2;
 	}
 
 	// TickÇÃçXêV
