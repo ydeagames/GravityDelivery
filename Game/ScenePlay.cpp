@@ -42,6 +42,7 @@ static Vec2 g_offset_location;
 static int g_edit_mode;
 
 static Vec2 g_offset_shadow;
+static GameObject g_offset_shake;
 
 static BOOL g_mouse_on_last;
 static BOOL g_mouse_down;
@@ -129,6 +130,8 @@ void InitializePlay(void)
 
 	g_offset_shadow = Vec2_Create(GameObject_GetX(&g_field_ball, LEFT) - GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field_ball, TOP) - GameObject_GetY(&g_field, TOP));
 
+	g_offset_shake = GameObject_Create();
+
 	g_speed_expo = 0;
 
 	g_stage = GameStage_Create();
@@ -162,7 +165,7 @@ void UpdatePlay(void)
 	Vec2 offset, mouse, mouse_last;
 
 	// 座標系
-	offset = Vec2_Sub(&g_view.pos, &g_field.pos);
+	offset = Vec2_Add(&Vec2_Sub(&g_view.pos, &g_field.pos), &g_offset_shake.pos);
 	mouse = Vec2_Sub(&g_raw_mouse, &offset);
 	mouse_last = Vec2_Sub(&g_raw_mouse_last, &offset);
 
@@ -355,10 +358,11 @@ void UpdatePlay(void)
 				case TYPE_PARTICLE_GOAL_DOOM:
 					if (GameTimer_IsFinished(&obj->count))
 						RequestScene(SCENE_RESULT, COLOR_WHITE, 1.5f);
-					else if (GameTimer_GetProgress(&obj->count) < .5f)
 					{
-						GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_DOOM,
-							&Vec2_Add(&obj->pos, &Vec2_Create(GetRandRangeF(-obj->size.x, obj->size.x), GetRandRangeF(-obj->size.y, obj->size.y))), &Vec2_Create());
+						Vec2 delta_pos = Vec2_Create(GetRandRangeF(-obj->size.x, obj->size.x), GetRandRangeF(-obj->size.y, obj->size.y));
+						Vec2 particle_pos = Vec2_Add(&obj->pos, &delta_pos);
+						GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_DOOM, &particle_pos, &Vec2_Create());
+						g_offset_shake.pos = Vec2_Add(&g_offset_shake.pos, &Vec2_Scale(&delta_pos, .95f));
 						VectorIterator_Add(&itr_obj, &doom);
 					}
 					break_obj = TRUE;
@@ -367,6 +371,10 @@ void UpdatePlay(void)
 			}
 		} foreach_end;
 	}
+
+	// 画面揺れ
+	GameObject_UpdatePosition(&g_offset_shake);
+	g_offset_shake.vel = Vec2_Add(&Vec2_Scale(&g_offset_shake.vel, .75f), &Vec2_Scale(&g_offset_shake.pos, -.85f));
 }
 
 // 1ティックの更新
@@ -478,8 +486,9 @@ static void UpdatePlayTicks(void)
 							PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
 							PlaySoundMem(g_resources.sound_se[12], DX_PLAYTYPE_BACK);
 							{
-								Vec2 particle_pos = Vec2_Add(&planet->pos,
-									&Vec2_Create(GetRandRangeF(-planet->size.x / 2, planet->size.x / 2), GetRandRangeF(-planet->size.y / 2, planet->size.y / 2)));
+								Vec2 delta_pos = Vec2_Create(GetRandRangeF(-planet->size.x / 2, planet->size.x / 2), GetRandRangeF(-planet->size.y / 2, planet->size.y / 2));
+								Vec2 particle_pos = Vec2_Add(&planet->pos, &delta_pos);
+								g_offset_shake.pos = Vec2_Add(&g_offset_shake.pos, &Vec2_Scale(&delta_pos, .95f));
 								GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_DOOM, &particle_pos, &Vec2_Create());
 								VectorIterator_Set(&itr_ball, &doom);
 							}
@@ -712,7 +721,7 @@ static void UpdateStageEdit(const Vec2* mouse)
 //----------------------------------------------------------------------
 void RenderPlay(void)
 {
-	Vec2 offset = Vec2_Sub(&g_view.pos, &g_field.pos);
+	Vec2 offset = Vec2_Add(&Vec2_Sub(&g_view.pos, &g_field.pos), &g_offset_shake.pos);
 	Vec2 mouse = Vec2_Sub(&g_raw_mouse, &offset);
 
 	{
