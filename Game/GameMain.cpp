@@ -14,6 +14,7 @@
 #include "InputManager.h"
 #include "SceneManager.h"
 #include "GameObject.h"
+#include "GameObjectHit.h"
 #include "GameResource.h"
 #include "ScreenShot.h"
 #include "GameStage.h"
@@ -115,6 +116,9 @@ void UpdateGame(void)
 	// マウスの更新
 	g_raw_mouse_last = g_raw_mouse;
 	g_raw_mouse = GetMousePosition();
+
+	// カーソル表示非表示
+	SetMouseDispFlag(!GameObject_IsHitPoint(&g_field, &g_raw_mouse));
 
 	// ポーズを更新
 	UpdateGamePause();
