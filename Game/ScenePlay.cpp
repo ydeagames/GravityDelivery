@@ -445,7 +445,8 @@ static void UpdatePlayTicks(void)
 							VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_DOOM, &planet->pos, 20));
 							ShakeField(10);
 
-							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
+							ChangeVolumeSoundMem(120, g_resources.sound_se[14]);
+							PlaySoundMem(g_resources.sound_se[14], DX_PLAYTYPE_BACK);
 						}
 						else if (ball->type != TYPE_PARTICLE_DOOM)
 							VectorIterator_Remove(&itr_ball);
@@ -471,7 +472,7 @@ static void UpdatePlayTicks(void)
 						break_planet = TRUE;
 						if (ball->type == TYPE_PARTICLE_BALL)
 						{
-							ChangeVolumeSoundMem(150, g_resources.sound_se[10]);
+							ChangeVolumeSoundMem(110, g_resources.sound_se[10]);
 							PlaySoundMem(g_resources.sound_se[10], DX_PLAYTYPE_BACK);
 						}
 					}
@@ -496,8 +497,9 @@ static void UpdatePlayTicks(void)
 						break_planet = TRUE;
 						if (ball->type == TYPE_PARTICLE_BALL)
 						{
-							ShakeField(2);
-							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
+							//ShakeField(1);
+							ChangeVolumeSoundMem(150, g_resources.sound_se[13]);
+							PlaySoundMem(g_resources.sound_se[13], DX_PLAYTYPE_BACK);
 						}
 					}
 					break;

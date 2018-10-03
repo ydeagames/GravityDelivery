@@ -42,9 +42,11 @@ GameResource GameResource_Create(void)
 	res.sound_se[7] = LoadSoundMem("Resources/Audio/Protected/dig_music_StageClear.wav");
 	res.sound_se[8] = LoadSoundMem("Resources/Audio/Protected/genpei_se_12.wav");
 	res.sound_se[9] = LoadSoundMem("Resources/Audio/Protected/map_se_trampoline_jump.wav");
-	res.sound_se[10] = LoadSoundMem("Resources/Audio/Protected/wonder_se_14.wav");
+	res.sound_se[10] = LoadSoundMem("Resources/Audio/Protected/gax_Shot.wav");
 	res.sound_se[11] = LoadSoundMem("Resources/Audio/Protected/drb_se_jump.wav");
 	res.sound_se[12] = LoadSoundMem("Resources/Audio/Protected/xev_se_EnemyStriken_Blaster.wav");
+	res.sound_se[13] = LoadSoundMem("Resources/Audio/Protected/sky_se_baron_max_damege_sound.wav");
+	res.sound_se[14] = LoadSoundMem("Resources/Audio/Protected/dru_se_sword_sheathing.wav");
 
 	// テクスチャ
 	res.texture[0] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_other.png");
