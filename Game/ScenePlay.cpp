@@ -64,6 +64,8 @@ void UpdatePlay(void);      // ゲームの更新処理
 void RenderPlay(void);      // ゲームの描画処理
 void FinalizePlay(void);    // ゲームの終了処理
 
+static void ShakeField(float magnification);
+static GameObject GetDoomObject(const Vec2* pos, float magnification);
 static void UpdatePlayTicks(void);
 static void UpdateStageEdit(const Vec2* mouse);
 
@@ -349,11 +351,8 @@ void UpdatePlay(void)
 					if (GameTimer_IsFinished(&obj->count))
 						RequestScene(SCENE_RESULT, COLOR_WHITE, 1.5f);
 					{
-						Vec2 delta_pos = Vec2_Create(GetRandRangeF(-obj->size.x, obj->size.x), GetRandRangeF(-obj->size.y, obj->size.y));
-						Vec2 particle_pos = Vec2_Add(&obj->pos, &delta_pos);
-						GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_DOOM, &particle_pos, &Vec2_Create());
-						g_offset_shake.pos = Vec2_Add(&g_offset_shake.pos, &Vec2_Scale(&delta_pos, .95f));
-						VectorIterator_Add(&itr_obj, &doom);
+						ShakeField(20);
+						VectorIterator_Add(&itr_obj, &GetDoomObject(&obj->pos, 20));
 					}
 					break_obj = TRUE;
 					break;
@@ -365,6 +364,21 @@ void UpdatePlay(void)
 	// 画面揺れ
 	GameObject_UpdatePosition(&g_offset_shake);
 	g_offset_shake.vel = Vec2_Add(&Vec2_Scale(&g_offset_shake.vel, .75f), &Vec2_Scale(&g_offset_shake.pos, -.85f));
+}
+
+// 画面揺れ
+static void ShakeField(float magnification)
+{
+	Vec2 delta_pos = Vec2_Scale(&Vec2_Create(GetRandRangeF(-1, 1), GetRandRangeF(-1, 1)), magnification);
+	g_offset_shake.pos = Vec2_Add(&g_offset_shake.pos, &delta_pos);
+}
+
+// 爆発オブジェクト
+static GameObject GetDoomObject(const Vec2* pos, float magnification)
+{
+	Vec2 delta_pos = Vec2_Scale(&Vec2_Create(GetRandRangeF(-1, 1), GetRandRangeF(-1, 1)), magnification);
+	Vec2 particle_pos = Vec2_Add(pos, &delta_pos);
+	return GameObject_Particles_Create(TYPE_PARTICLE_DOOM, &particle_pos, &Vec2_Create());
 }
 
 // 1ティックの更新
@@ -397,14 +411,19 @@ static void UpdatePlayTicks(void)
 								length2_min = length2;
 							}
 						}
+					}
 
-						// 衝突したら消す
-						if (GameObject_IsHit(planet, ball)) {
-							if (ball->type == TYPE_PARTICLE_BALL)
-								PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
-							VectorIterator_Remove(&itr_ball);
-							break_planet = TRUE;
+					// 衝突したら消す
+					if (GameObject_IsHit(planet, ball)) {
+						if (ball->type == TYPE_PARTICLE_BALL)
+						{
+							VectorIterator_Set(&itr_ball, &GetDoomObject(&planet->pos, 5));
+							ShakeField(5);
+							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
 						}
+						else if (ball->type != TYPE_PARTICLE_DOOM)
+							VectorIterator_Remove(&itr_ball);
+						break_planet = TRUE;
 					}
 
 					break;
@@ -412,8 +431,14 @@ static void UpdatePlayTicks(void)
 					// 衝突したら消す
 					if (GameObject_IsHit(planet, &line)) {
 						if (ball->type == TYPE_PARTICLE_BALL)
+						{
+							VectorIterator_Set(&itr_ball, &GetDoomObject(&planet->pos, 20));
+							ShakeField(10);
+
 							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
-						VectorIterator_Remove(&itr_ball);
+						}
+						else if (ball->type != TYPE_PARTICLE_DOOM)
+							VectorIterator_Remove(&itr_ball);
 						break_planet = TRUE;
 					}
 					break;
@@ -460,7 +485,10 @@ static void UpdatePlayTicks(void)
 
 						break_planet = TRUE;
 						if (ball->type == TYPE_PARTICLE_BALL)
+						{
+							ShakeField(2);
 							PlaySoundMem(g_resources.sound_se[8], DX_PLAYTYPE_BACK);
+						}
 					}
 					break;
 				case TYPE_GOAL:
@@ -478,8 +506,9 @@ static void UpdatePlayTicks(void)
 							{
 								Vec2 delta_pos = Vec2_Create(GetRandRangeF(-planet->size.x / 2, planet->size.x / 2), GetRandRangeF(-planet->size.y / 2, planet->size.y / 2));
 								Vec2 particle_pos = Vec2_Add(&planet->pos, &delta_pos);
-								g_offset_shake.pos = Vec2_Add(&g_offset_shake.pos, &Vec2_Scale(&delta_pos, .95f));
 								GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_DOOM, &particle_pos, &Vec2_Create());
+
+								ShakeField(15);
 								VectorIterator_Set(&itr_ball, &doom);
 							}
 						}
