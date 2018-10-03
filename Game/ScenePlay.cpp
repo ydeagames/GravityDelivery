@@ -815,6 +815,19 @@ void RenderPlay(void)
 					break;
 				case TYPE_PLANET:
 					GameObject_Render(obj, &offset);
+					{
+						GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(40, 40));
+						mouseobj.shape = SHAPE_CIRCLE;
+						if (GameObject_IsHit(&mouseobj, obj))
+						{
+							GameObject cursor = *obj;
+							cursor.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[5], Vec2_Create(), Vec2_Create(18, 18)));
+							cursor.sprite.num_columns = 5;
+							GameSprite_SetFrame(&cursor.sprite, obj->state ? 5 : 7);
+							GameObject_SetSize(&cursor, 4);
+							GameObject_Render(&cursor, &offset);
+						}
+					}
 					if (g_tutorial_state == 0 && first_planet)
 						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "惑星をクリックして重力のスイッチをON/OFFしてみよう！");
 					first_planet = FALSE;
@@ -854,27 +867,6 @@ void RenderPlay(void)
 			} screen_end;
 		} foreach_end;
 	}
-	foreach_start(&g_stage.planets, GameObject, obj)
-	{
-		if (GameObject_IsAlive(obj))
-		{
-			switch (obj->type)
-			{
-			case TYPE_PLANET:
-				GameObject mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(40, 40));
-				mouseobj.shape = SHAPE_CIRCLE;
-				if (GameObject_IsHit(&mouseobj, obj))
-				{
-					GameObject cursor = *obj;
-					cursor.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[5], Vec2_Create(), Vec2_Create(18, 18)));
-					cursor.sprite.num_columns = 5;
-					GameSprite_SetFrame(&cursor.sprite, obj->state ? 5 : 7);
-					GameObject_SetSize(&cursor, 4);
-					GameObject_Render(&cursor, &offset);
-				}
-			}
-		}
-	} foreach_end;
 
 	if (DEBUG_HITBOX)
 	{
