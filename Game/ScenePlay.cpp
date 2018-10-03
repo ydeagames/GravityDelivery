@@ -565,11 +565,24 @@ static void UpdatePlayTicks(void)
 	{
 		if (GameObject_IsAlive(planet))
 		{
+			if (GameSpriteAnimation_Update(&planet->sprite) == ANIMATION_FINISHED && !planet->sprite.animation.loop_flag)
+			{
+				VectorIterator_Remove(&itr_planet);
+				continue;
+			}
+
 			switch (planet->type)
 			{
 			case TYPE_PLANET:
 				if (planet->state)
+				{
 					planet->sprite.angle += ToRadians(1);
+					{
+						Vec2 particle_pos = Vec2_Add(&planet->pos, &Vec2_Scale(&Vec2_Create(cosf(planet->sprite.angle*21.8f), sinf(planet->sprite.angle*21.8f)), 80));
+						GameObject particle = GameObject_Particles_Create(TYPE_PARTICLE_ACTIVE, &particle_pos, &Vec2_Create());
+						Vector_AddLast(&g_stage.balls, &particle);
+					}
+				}
 				break;
 			case TYPE_START:
 				if (GameTimer_IsFinished(&planet->count))
@@ -585,12 +598,6 @@ static void UpdatePlayTicks(void)
 				}
 
 				break;
-			}
-
-			if (GameSpriteAnimation_Update(&planet->sprite) == ANIMATION_FINISHED && !planet->sprite.animation.loop_flag)
-			{
-				VectorIterator_Remove(&itr_planet);
-				continue;
 			}
 		}
 	} foreach_end;
