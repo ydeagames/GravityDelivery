@@ -422,7 +422,7 @@ static void UpdatePlayTicks(void)
 						// Õ“Ë‚µ‚½‚çÁ‚·
 						if (ball->type == TYPE_PARTICLE_BALL)
 						{
-							VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_DOOM, &planet->pos, 20));
+							VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_DOOM, &ball->pos, 20));
 							ShakeField(10);
 
 							ChangeVolumeSoundMem(120, g_resources.sound_se[14]);
@@ -895,7 +895,17 @@ void RenderPlay(void)
 	{
 		if (GameObject_IsAlive(ball))
 		{
-			GameObject_Render(ball, &offset);
+			switch (ball->type)
+			{
+			case TYPE_PARTICLE_GRAVITY:
+				SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)(Vec2_Length(&ball->vel) * 128));
+				GameObject_Render(ball, &offset);
+				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				break;
+			default:
+				GameObject_Render(ball, &offset);
+				break;
+			}
 		}
 	} foreach_end;
 
