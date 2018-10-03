@@ -314,10 +314,21 @@ void UpdatePlay(void)
 			g_mouse_down = FALSE;
 			RequestPause();
 		}
-		// ‘¬“x
-		if (GameObject_IsHitPoint(&g_speed_button, &g_raw_mouse))
-		{
+	}
+	// ‘¬“x
+	if (GameObject_IsHitPoint(&g_speed_button, &g_raw_mouse))
+	{
+		BOOL changed = TRUE;
+		if (IsMousePressed(MOUSE_INPUT_1))
 			g_speed_expo = GetLoop(g_speed_expo + 1, SPEED_MAX_EXPO + 1);
+		else if (IsMousePressed(MOUSE_INPUT_2))
+			g_speed_expo = GetLoop(g_speed_expo - 1, SPEED_MAX_EXPO + 1);
+		else if (IsMousePressed(MOUSE_INPUT_3))
+			g_speed_expo = 0;
+		else
+			changed = FALSE;
+		if (changed)
+		{
 			ChangeVolumeSoundMem(140, g_resources.sound_se[11]);
 			PlaySoundMem(g_resources.sound_se[11], DX_PLAYTYPE_BACK);
 		}
