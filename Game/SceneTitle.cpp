@@ -129,7 +129,7 @@ void UpdateTitle(void)
 		}
 	}
 
-	if (g_select != g_last_select)
+	if (g_select != -1 && g_select != g_last_select)
 		PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
 	g_last_select = g_select;
 

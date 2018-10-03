@@ -227,28 +227,33 @@ void UpdatePlay(void)
 				switch (obj->type)
 				{
 				case TYPE_PLANET:
-					if (IsMouseReleased(MOUSE_INPUT_1))
+					BOOL hit, released, dragged;
+					// òfêØ ON/OFF
+					{
+						mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(40, 40));
+						mouseobj.shape = SHAPE_CIRCLE;
+						hit = GameObject_IsHit(&mouseobj, obj);
+					}
 					{
 						Vec2 diff = Vec2_Sub(&g_raw_mouse, &g_offset_mouse);
-						if (Vec2_LengthSquared(&diff) < 5 * 5)
-						{
-							// òfêØ ON/OFF
-							mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(40, 40));
-							mouseobj.shape = SHAPE_CIRCLE;
-							if (GameObject_IsHit(&mouseobj, obj))
-							{
-								obj->state = !obj->state;
-								//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
-								GameObject_SetSize(obj, obj->state ? 6.f : 3.f, 4);
-								if (g_tutorial_state == 0)
-									g_tutorial_state = 1;
-								switched = TRUE;
-							}
-							mouse_on = TRUE;
-						}
-						else if (g_tutorial_state == 1)
-							g_tutorial_state = 2;
+						dragged = Vec2_LengthSquared(&diff) >= 5 * 5;
 					}
+					{
+						released = IsMouseReleased(MOUSE_INPUT_1);
+					}
+					if (!dragged && released && hit)
+					{
+						obj->state = !obj->state;
+						//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
+						GameObject_SetSize(obj, obj->state ? 6.f : 3.f, 4);
+						if (g_tutorial_state == 0)
+							g_tutorial_state = 1;
+						switched = TRUE;
+					}
+					if (hit)
+						mouse_on = TRUE;
+					if (dragged && released && g_tutorial_state == 1)
+						g_tutorial_state = 2;
 					break;
 				default:
 					mouseobj = GameObject_Create(mouse, Vec2_Create(), Vec2_Create(300, 300));
