@@ -47,7 +47,7 @@ GameObject GameObject_Planets_Start_Create(const Vec2* base, const Vec2* next)
 	obj.sprite.num_columns = 8;
 	GameSprite_SetFrame(&obj.sprite, 12);
 	obj.type = TYPE_START;
-	GameObject_SetSize(&obj, 3, 5);
+	GameObject_SetSize(&obj, 3, 25);
 	GameTimer_SetRemaining(&obj.count, .5f);
 	GameTimer_Resume(&obj.count);
 	return obj;

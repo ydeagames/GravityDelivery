@@ -71,6 +71,7 @@ static void ShakeField(float magnification);
 static GameObject GetRandomParticleObject(int type, const Vec2* pos, float magnification);
 static void UpdatePlayTicks(void);
 static void UpdateStageEdit(const Vec2* mouse);
+static void RenderBalloon(const GameObject* field, const GameObject* obj, const Vec2* offset);
 
 
 
@@ -846,11 +847,13 @@ void RenderPlay(void)
 					GameObject_Render(obj, &offset);
 					if (g_tutorial_state == 2)
 						GameObject_Msg_Render(&Vec2_Add(&obj->pos, &Vec2_Create(0, -10)), &offset, "ゴールはここ。うまく導こう！");
+					RenderBalloon(&g_field, obj, &offset);
 					break;
 				case TYPE_START:
 					GameObject_Render(obj, &offset);
 					if (DEBUG_HITBOX)
 						Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
+					RenderBalloon(&g_field, obj, &offset);
 					break;
 				case TYPE_BEAM:
 					GameObject_Render(obj, &offset);
@@ -1002,6 +1005,35 @@ void RenderPlay(void)
 		} screen_end;
 	}
 }
+
+// 場外吹き出し表示
+static void RenderBalloon(const GameObject* field, const GameObject* obj, const Vec2* offset)
+{
+	GameObject hitrect = *field;
+	hitrect.pos = Vec2_Sub(&field->pos, offset);
+	if (!GameObject_IsHit(&hitrect, obj))
+	{
+		Vec2 planet_pos_disp = Vec2_Add(&obj->pos, offset);
+		Vec2 vec = Vec2_Sub(&planet_pos_disp, &field->pos);
+		Vec2 size = Vec2_Sub(&Vec2_Scale(&g_view.size, .5f), &Vec2_Create(30, 30));
+		Vec2 trace = (size.y / size.x < GetAbsF(vec.y / vec.x)) ? Vec2_Scale(&vec, GetAbsF(size.y / vec.y)) : Vec2_Scale(&vec, GetAbsF(size.x / vec.x));
+		Vec2 point = Vec2_Add(&field->pos, &trace);
+		{
+			Vec2 p1 = Vec2_Scale(&Vec2_Normalized(&trace), 30);
+			Vec2 p2 = Vec2_Scale(&Vec2_Normalized(&Vec2_Rotate(&trace, ToRadians(90))), 20);
+			Vec2 p3 = Vec2_Scale(&Vec2_Normalized(&Vec2_Rotate(&trace, ToRadians(-90))), 20);
+			DrawTriangleAA(p1.x + point.x, p1.y + point.y, p2.x + point.x, p2.y + point.y, p3.x + point.x, p3.y + point.y, COLOR_WHITE, TRUE);
+		}
+		DrawCircleAA(point.x, point.y, 20, 20, COLOR_WHITE, TRUE);
+		{
+			GameObject disp = *obj;
+			disp.pos = point;
+			GameObject_SetSize(&disp, 1);
+			GameObject_Render(&disp);
+		}
+	}
+}
+
 
 
 
