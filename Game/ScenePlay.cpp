@@ -742,7 +742,7 @@ static void UpdateStageEdit(const Vec2* mouse)
 		screen_start(DX_SCREEN_FRONT)
 		{
 			DrawFormatStringFToHandle(GameObject_GetX(&g_field, CENTER_X, -200), GameObject_GetY(&g_field, BOTTOM, -230),
-				COLOR_YELLOW, g_resources.font_main, "BGM IDを入力してください");
+				COLOR_YELLOW, g_resources.font_main, "BGM IDを入力してください (0 ～ %d)", NUM_BGM - 1);
 		} screen_end;
 		{
 			int num = KeyInputNumber((int)GameObject_GetX(&g_field, CENTER_X, -200), (int)GameObject_GetY(&g_field, BOTTOM, -200), NUM_BGM - 1, 0, TRUE);
@@ -967,6 +967,7 @@ void RenderPlay(void)
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[W]+右クリック      - ワープ");
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[V]+右クリック      - ランチャー");
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "[Delete]+右クリック - 撤去");
+		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "Ctrl+[A]            - BGM変更");
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "Ctrl+[O]            - ロード");
 		DrawFormatStringF(GameObject_GetX(&g_field, LEFT), GameObject_GetY(&g_field, TOP, -20.f * pos++), COLOR_GRAY, "Ctrl+[S]            - セーブ");
 	}
