@@ -411,6 +411,9 @@ static GameObject GetRandomParticleObject(int type, const Vec2* pos, float magni
 // 1ティックの更新
 static void UpdatePlayTicks(void)
 {
+	// 重力が存在するか
+	BOOL gravity_exists = TRUE;
+
 	// 惑星, ボール当たり判定
 	foreach_start(&g_stage.balls, GameObject, ball)
 	{
@@ -598,6 +601,8 @@ static void UpdatePlayTicks(void)
 						GameObject particle = GameObject_Particles_Create(TYPE_PARTICLE_ACTIVE, &particle_pos, &Vec2_Create());
 						Vector_AddLast(&g_stage.balls, &particle);
 					}
+
+					gravity_exists = TRUE;
 				}
 				break;
 			case TYPE_START:
@@ -665,7 +670,7 @@ static void UpdatePlayTicks(void)
 			switch (ball->type)
 			{
 			case TYPE_PARTICLE_BALL:
-				if (GetRand(100) == 0)
+				if (gravity_exists && GetRand(100) == 0)
 				{
 					GameObject active = GetRandomParticleObject(TYPE_PARTICLE_GRAVITY, &ball->pos, 2);
 
