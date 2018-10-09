@@ -57,6 +57,23 @@ static void UpdateCurrentDir(void)
 	}
 }
 
+// <プログラムの終了ポイント>
+LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+	switch (msg)
+	{
+	case WM_CLOSE:
+		if (GetWindowModeFlag())
+		{
+			ShowWindow(hWnd, SW_MINIMIZE);
+			Sleep(500);
+		}
+		break;
+	}
+
+	return 0;
+}
+
 //----------------------------------------------------------------------
 //! @brief プログラムのエントリーポイント
 //!
@@ -97,6 +114,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetMainWindowText(GAME_TITLE);		// ウインドウタイトルの設定
 	SetWindowIconID(IDI_ICON1);			// ウインドウアイコンの設定
 
+	// 終了フック
+	SetHookWinProc(WndProc);
 
 	// 初期状態の画面モードの設定
 	SetGraphMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32);
@@ -105,7 +124,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// DXライブラリの初期化処理
 	if (DxLib_Init() == -1)
 	{
-		return -1;    // エラーが起きたら直ちに終了
+		return -1;						// エラーが起きたら直ちに終了
 	}
 
 	// ウィンドウ取得
@@ -116,25 +135,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	
 	// ゲームの処理
-	InitializeGame();    // ゲームの初期化処理
+	InitializeGame();					// ゲームの初期化処理
 	
 	while (!ProcessMessage() && !g_close_request)
 	{ 
-		UpdateSystem();        // システムの更新
+		UpdateSystem();					// システムの更新
 		
-		UpdateGame();          // ゲームの更新処理
-		RenderGame();          // ゲームの描画処理
+		UpdateGame();					// ゲームの更新処理
+		RenderGame();					// ゲームの描画処理
 
-		ScreenFlip();          // 裏画面の内容を表画面に反映
-		ClearDrawScreen();     // 裏画面の消去
+		ScreenFlip();					// 裏画面の内容を表画面に反映
+		ClearDrawScreen();				// 裏画面の消去
 	}
 
-	FinalizeGame();      // ゲームの終了処理
+	FinalizeGame();						// ゲームの終了処理
 
 
 	// DXライブラリの終了処理
 	DxLib_End();
 
 
-	return 0;    // 正常終了
+	return 0;							// 正常終了
 }
