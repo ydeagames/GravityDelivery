@@ -109,6 +109,9 @@ void UpdateTitle(void)
 		}
 	}
 
+	if (IsKeyDown(KEY_INPUT_LCONTROL) && IsKeyPressed(KEY_INPUT_R))
+		RequestScene(SCENE_LOGO);
+
 	if (IsKeyDown(KEY_INPUT_LCONTROL) && IsKeyPressed(KEY_INPUT_O))
 	{
 		char str[MAX_PATH];
