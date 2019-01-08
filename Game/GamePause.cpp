@@ -166,9 +166,8 @@ void FinalizeGamePause(void)
 // ポーズ要求
 void RequestPause(void)
 {
-	g_paused = TRUE;
-	ChangeVolumeSoundMem(100, g_resources.sound_se[3]);
 	PlaySoundMem(g_resources.sound_se[3], DX_PLAYTYPE_BACK);
+	g_paused = TRUE;
 }
 
 // ポーズ中か

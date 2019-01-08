@@ -220,6 +220,7 @@ void UpdatePlay(void)
 	{
 		BOOL mouse_on = FALSE;
 		BOOL switched = FALSE;
+		BOOL switch_on = FALSE;
 		foreach_start(&g_stage.planets, GameObject, obj)
 		{
 			if (GameObject_IsAlive(obj))
@@ -250,6 +251,7 @@ void UpdatePlay(void)
 						if (g_tutorial_state == 0)
 							g_tutorial_state = 1;
 						switched = TRUE;
+						switch_on = obj->state;
 					}
 					if (hit)
 						mouse_on = TRUE;
@@ -287,7 +289,7 @@ void UpdatePlay(void)
 			{
 				VectorIterator_Remove(&itr_obj);
 			} foreach_end;
-			PlaySoundMem(g_resources.sound_se[2], DX_PLAYTYPE_BACK);
+			PlaySoundMem(g_resources.sound_se[switch_on ? 2 : 15], DX_PLAYTYPE_BACK);
 		}
 		if (mouse_on && !g_mouse_on_last)
 			PlaySoundMem(g_resources.sound_se[1], DX_PLAYTYPE_BACK);
@@ -330,7 +332,6 @@ void UpdatePlay(void)
 			changed = FALSE;
 		if (changed)
 		{
-			ChangeVolumeSoundMem(140, g_resources.sound_se[11]);
 			PlaySoundMem(g_resources.sound_se[11], DX_PLAYTYPE_BACK);
 		}
 	}
@@ -357,7 +358,6 @@ void UpdatePlay(void)
 					GameObject doom = GameObject_Particles_Create(TYPE_PARTICLE_GOAL_DOOM_SPAWNER, &obj->pos, &Vec2_Create());
 					Vector_AddLast(&g_stage.balls, &doom);
 
-					ChangeVolumeSoundMem(150, g_resources.sound_se[6]);
 					PlaySoundMem(g_resources.sound_se[6], DX_PLAYTYPE_BACK);
 
 					VectorIterator_Remove(&itr_obj);
@@ -446,7 +446,6 @@ static void UpdatePlayTicks(void)
 							VectorIterator_Set(&itr_ball, &GetRandomParticleObject(TYPE_PARTICLE_DOOM, &ball->pos, 20));
 							ShakeField(10);
 
-							ChangeVolumeSoundMem(120, g_resources.sound_se[14]);
 							PlaySoundMem(g_resources.sound_se[14], DX_PLAYTYPE_BACK);
 						}
 						else if (ball->type != TYPE_PARTICLE_DOOM)
@@ -458,7 +457,6 @@ static void UpdatePlayTicks(void)
 						ball->pos = Vec2_Add(&planet->pos, &planet->vel);
 						if (ball->type == TYPE_PARTICLE_BALL)
 						{
-							ChangeVolumeSoundMem(150, g_resources.sound_se[9]);
 							PlaySoundMem(g_resources.sound_se[9], DX_PLAYTYPE_BACK);
 						}
 						break_planet = TRUE;
@@ -468,7 +466,6 @@ static void UpdatePlayTicks(void)
 						ball->vel = Vec2_Scale(&planet->vel, .1f);
 						if (ball->type == TYPE_PARTICLE_BALL)
 						{
-							ChangeVolumeSoundMem(110, g_resources.sound_se[10]);
 							PlaySoundMem(g_resources.sound_se[10], DX_PLAYTYPE_BACK);
 						}
 						break_planet = TRUE;
@@ -492,7 +489,6 @@ static void UpdatePlayTicks(void)
 						if (ball->type == TYPE_PARTICLE_BALL)
 						{
 							//ShakeField(1);
-							ChangeVolumeSoundMem(150, g_resources.sound_se[13]);
 							PlaySoundMem(g_resources.sound_se[13], DX_PLAYTYPE_BACK);
 						}
 						break_planet = TRUE;
@@ -502,7 +498,6 @@ static void UpdatePlayTicks(void)
 						if (ball->type == TYPE_PARTICLE_BALL)
 						{
 							g_stage.score++;
-							ChangeVolumeSoundMem(100, g_resources.sound_se[0]);
 							if (g_tutorial_state == 2)
 								g_tutorial_state = 3;
 							PlaySoundMem(g_resources.sound_se[0], DX_PLAYTYPE_BACK);
@@ -1026,11 +1021,11 @@ static void RenderBalloon(const GameObject* field, const GameObject* obj, const 
 	{
 		Vec2 planet_pos_disp = Vec2_Add(&obj->pos, offset);
 		Vec2 vec = Vec2_Sub(&planet_pos_disp, &field->pos);
-		Vec2 size = Vec2_Sub(&Vec2_Scale(&g_view.size, .5f), &Vec2_Create(30, 30));
+		Vec2 size = Vec2_Sub(&Vec2_Scale(&g_view.size, .5f), &Vec2_Create(40, 40));
 		Vec2 trace = (size.y / size.x < GetAbsF(vec.y / vec.x)) ? Vec2_Scale(&vec, GetAbsF(size.y / vec.y)) : Vec2_Scale(&vec, GetAbsF(size.x / vec.x));
 		Vec2 point = Vec2_Add(&field->pos, &trace);
 		{
-			Vec2 p1 = Vec2_Scale(&Vec2_Normalized(&trace), 30);
+			Vec2 p1 = Vec2_Scale(&Vec2_Normalized(&trace), 50);
 			Vec2 p2 = Vec2_Scale(&Vec2_Normalized(&Vec2_Rotate(&trace, ToRadians(90))), 20);
 			Vec2 p3 = Vec2_Scale(&Vec2_Normalized(&Vec2_Rotate(&trace, ToRadians(-90))), 20);
 			DrawTriangleAA(p1.x + point.x, p1.y + point.y, p2.x + point.x, p2.y + point.y, p3.x + point.x, p3.y + point.y, COLOR_WHITE, TRUE);

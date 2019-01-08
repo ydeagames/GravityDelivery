@@ -50,7 +50,6 @@ void InitializeResult(void)
 	g_title_logo.pos.x -= 150;
 	g_title_logo.pos.y -= 200;
 
-	ChangeVolumeSoundMem(150, g_resources.sound_se[7]);
 	PlaySoundMem(g_resources.sound_se[7], DX_PLAYTYPE_BACK);
 
 	{
