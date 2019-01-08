@@ -145,7 +145,6 @@ void InitializePlay(void)
 
 	if (0 <= g_stage.bgm && g_stage.bgm < NUM_BGM)
 	{
-		ChangeVolumeSoundMem(100, g_resources.sound_bgm[g_stage.bgm]);
 		PlaySoundMem(g_resources.sound_bgm[g_stage.bgm], DX_PLAYTYPE_LOOP);
 	}
 
@@ -755,7 +754,6 @@ static void UpdateStageEdit(const Vec2* mouse)
 			{
 				StopSoundMem(g_resources.sound_bgm[g_stage.bgm]);
 				g_stage.bgm = num;
-				ChangeVolumeSoundMem(100, g_resources.sound_bgm[g_stage.bgm]);
 				PlaySoundMem(g_resources.sound_bgm[g_stage.bgm], DX_PLAYTYPE_LOOP);
 			}
 		}

@@ -28,10 +28,15 @@ GameResource GameResource_Create(void)
 		res.font_main = CreateFontToHandle(FONT_NAME, FONT_SIZE_MAIN, 1, DX_FONTTYPE_ANTIALIASING_4X4);
 
 	// ƒTƒEƒ“ƒh
-	res.sound_bgm[0] = LoadSoundMem("Resources/Audio/Protected/bab_music_01.mp3");
-	res.sound_bgm[1] = LoadSoundMem("Resources/Audio/Protected/drb_music_catacomb.wav");
-	res.sound_bgm[2] = LoadSoundMem("Resources/Audio/Protected/drb_music_brick_dungeon.wav");
-	res.sound_bgm[3] = LoadSoundMem("Resources/Audio/Protected/dru_music_ishtar_theme.wav");
+	res.sound_bgm[0] = LoadSoundMem("Resources/Audio/BGM/michi-tono-kaikou.mp3");
+	ChangeVolumeSoundMem(130, res.sound_bgm[0]);
+	res.sound_bgm[1] = LoadSoundMem("Resources/Audio/BGM/game_maoudamashii_3_theme01.mp3");
+	ChangeVolumeSoundMem(120, res.sound_bgm[1]);
+	res.sound_bgm[2] = LoadSoundMem("Resources/Audio/BGM/bgm_maoudamashii_healing17.mp3");
+	ChangeVolumeSoundMem(100, res.sound_bgm[2]);
+	res.sound_bgm[3] = LoadSoundMem("Resources/Audio/BGM/uchuu-tanken.mp3");
+	ChangeVolumeSoundMem(130, res.sound_bgm[3]);
+
 	res.sound_se[0] = LoadSoundMem("Resources/Audio/Protected/xev_se_Zakato_DethoutSound.wav");
 	ChangeVolumeSoundMem(100, res.sound_se[0]);
 	res.sound_se[1] = LoadSoundMem("Resources/Audio/button45.mp3");
