@@ -37,8 +37,8 @@ GameResource GameResource_Create(void)
 	res.sound_bgm[3] = LoadSoundMem("Resources/Audio/BGM/uchuu-tanken.mp3");
 	ChangeVolumeSoundMem(130, res.sound_bgm[3]);
 
-	res.sound_se[0] = LoadSoundMem("Resources/Audio/Protected/xev_se_Zakato_DethoutSound.wav");
-	ChangeVolumeSoundMem(100, res.sound_se[0]);
+	res.sound_se[0] = LoadSoundMem("Resources/Audio/coin.mp3");
+	ChangeVolumeSoundMem(150, res.sound_se[0]);
 	res.sound_se[1] = LoadSoundMem("Resources/Audio/button45.mp3");
 	res.sound_se[2] = LoadSoundMem("Resources/Audio/activate.mp3");
 	ChangeVolumeSoundMem(150, res.sound_se[2]);
