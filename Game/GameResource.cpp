@@ -49,14 +49,16 @@ GameResource GameResource_Create(void)
 	res.sound_se[14] = LoadSoundMem("Resources/Audio/Protected/dru_se_sword_sheathing.wav");
 
 	// テクスチャ
-	res.texture[0] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_other.png");
-	res.texture[1] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_enemy.png");
-	res.texture[2] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_enemy_big.png");
-	res.texture[3] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_photonTorpedo.png");
-	res.texture[4] = LoadGraph("Resources/Textures/Protected/StarLuster_OBJ_supplyBase.png");
-	res.texture[5] = LoadGraph("Resources/Textures/Protected/Xevious_OBJ_solvalou.png");
-	res.texture[6] = LoadGraph("Resources/Textures/gravity_switch.png");
-	res.texture[7] = LoadGraph("Resources/Textures/Protected/Xevious_OBJ_enemyBroken.png");
+	res.texture[0] = LoadGraph("Resources/Textures/bomb.png");
+	res.texture[1] = LoadGraph("Resources/Textures/goal.png");
+	res.texture[2] = LoadGraph("Resources/Textures/planets.png");
+	res.texture[3] = LoadGraph("Resources/Textures/start.png");
+	res.texture[4] = LoadGraph("Resources/Textures/warp.png");
+	res.texture[5] = LoadGraph("Resources/Textures/launcher.png");
+	res.texture[6] = LoadGraph("Resources/Textures/doom.png");
+	res.texture[7] = LoadGraph("Resources/Textures/goal_doom.png");
+	res.texture[8] = LoadGraph("Resources/Textures/gravity_switch.png");
+	res.texture[9] = LoadGraph("Resources/Textures/cursor.png");
 
 	return res;
 }
@@ -85,6 +87,6 @@ void GameResource_Delete(GameResource* res)
 	{
 		int i;
 		for (i = 0; i < NUM_TEXTURE; i++)
-			DeleteSoundMem(res->texture[i]);
+			DeleteGraph(res->texture[i]);
 	}
 }

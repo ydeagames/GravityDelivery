@@ -12,9 +12,11 @@ GameObject GameObject_Ball_Create(const Vec2* pos, const Vec2* vec)
 {
 	GameObject obj = GameObject_Create(*pos, *vec, Vec2_Create(5, 5));
 	obj.type = TYPE_PARTICLE_BALL;
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[1], Vec2_Create(), Vec2_Create(26, 26)));
-	obj.sprite.num_columns = 9;
-	GameSprite_SetFrame(&obj.sprite, 11);
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(32, 32)));
+	obj.sprite.num_columns = 6;
+	GameSprite_SetFrame(&obj.sprite, 6);
+	obj.sprite.animation = GameSpriteAnimation_Create(7, 8, 8);
+	obj.sprite.animation.loop_flag = TRUE;
 	return obj;
 }
 
@@ -22,13 +24,14 @@ GameObject GameObject_Ball_Create(const Vec2* pos, const Vec2* vec)
 static GameObject GameObject_Planets_Goal_Create(const Vec2* base, const Vec2* next)
 {
 	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(20, 20));
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[2], Vec2_Create(), Vec2_Create(34, 34)));
-	obj.sprite.num_columns = 6;
-	GameSprite_SetFrame(&obj.sprite, 17);
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[1], Vec2_Create(), Vec2_Create(64, 96)));
+	//obj.sprite.num_columns = 1;
+	//GameSprite_SetFrame(&obj.sprite, 0);
 	obj.type = TYPE_GOAL;
+	obj.sprite.texture.center.y = 64;
 	obj.shape = SHAPE_CIRCLE;
 	obj.sprite.color = COLOR_RED;
-	GameObject_SetSize(&obj, 2, 32);
+	GameObject_SetSize(&obj, 1, 64);
 	return obj;
 }
 
@@ -43,11 +46,12 @@ static void GameObject_Planets_Goal_Serialize(const GameObject* obj, Vec2* base,
 GameObject GameObject_Planets_Start_Create(const Vec2* base, const Vec2* next)
 {
 	GameObject obj = GameObject_Create(*base, Vec2_Sub(next, base), Vec2_Create(10, 10));
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
-	obj.sprite.num_columns = 8;
-	GameSprite_SetFrame(&obj.sprite, 12);
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[3], Vec2_Create(), Vec2_Create(64, 96)));
+	//obj.sprite.num_columns = 1;
+	//GameSprite_SetFrame(&obj.sprite, 0);
 	obj.type = TYPE_START;
-	GameObject_SetSize(&obj, 3, 25);
+	obj.sprite.texture.center.y = 64;
+	GameObject_SetSize(&obj, 1.f, 25);
 	GameTimer_SetRemaining(&obj.count, .5f);
 	GameTimer_Resume(&obj.count);
 	return obj;
@@ -64,16 +68,16 @@ static void GameObject_Planets_Start_Serialize(const GameObject* obj, Vec2* base
 static GameObject GameObject_Planets_Planet_Create(const Vec2* base, const Vec2* next)
 {
 	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(10, 10));
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
-	obj.sprite.texture.center.x -= 0;
-	obj.sprite.texture.center.y += 1.5f;
-	obj.sprite.num_columns = 8;
-	GameSprite_SetFrame(&obj.sprite, GetRand(7));
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[2], Vec2_Create(), Vec2_Create(64, 64)));
+	//obj.sprite.texture.center.x += 0;
+	//obj.sprite.texture.center.y += 0;
+	obj.sprite.num_columns = 5;
+	GameSprite_SetFrame(&obj.sprite, GetRandRange(5, 11));
 	obj.type = TYPE_PLANET;
 	obj.shape = SHAPE_CIRCLE;
 	obj.state = 0;
 	obj.sprite.color = COLOR_GRAY;
-	GameObject_SetSize(&obj, 3, 4);
+	GameObject_SetSize(&obj, .5f, 24);
 	return obj;
 }
 
@@ -105,11 +109,11 @@ static void GameObject_Planets_Beam_Serialize(const GameObject* obj, Vec2* base,
 static GameObject GameObject_Planets_Warp_Create(const Vec2* base, const Vec2* next)
 {
 	GameObject obj = GameObject_Create(*base, Vec2_Sub(next, base), Vec2_Create(10, 10));
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[4], Vec2_Create(), Vec2_Create(202 / 4, 54 / 2)));
-	obj.sprite.num_columns = 4;
-	GameSprite_SetFrame(&obj.sprite, 6);
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[4], Vec2_Create(), Vec2_Create(128, 128)));
+	obj.sprite.num_columns = 2;
+	GameSprite_SetFrame(&obj.sprite, 0);
 	obj.type = TYPE_WARP;
-	GameObject_SetSize(&obj, 2, 30);
+	GameObject_SetSize(&obj, .5f, 120);
 	obj.shape = SHAPE_CIRCLE;
 	return obj;
 }
@@ -125,11 +129,12 @@ static void GameObject_Planets_Warp_Serialize(const GameObject* obj, Vec2* base,
 static GameObject GameObject_Planets_Launcher_Create(const Vec2* base, const Vec2* next)
 {
 	GameObject obj = GameObject_Create(*base, Vec2_Sub(next, base), Vec2_Create(10, 10));
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[3], Vec2_Create(), Vec2_Create(20, 20)));
-	obj.sprite.num_columns = 6;
-	GameSprite_SetFrame(&obj.sprite, 0);
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[5], Vec2_Create(), Vec2_Create(128, 128)));
+	obj.sprite.angle = atan2f(obj.vel.y, obj.vel.x);
+	//obj.sprite.num_columns = 1;
+	//GameSprite_SetFrame(&obj.sprite, 0);
 	obj.type = TYPE_VEL;
-	GameObject_SetSize(&obj, 4, 15);
+	GameObject_SetSize(&obj, .5f, 128);
 	obj.shape = SHAPE_CIRCLE;
 	return obj;
 }
@@ -217,9 +222,9 @@ static GameObject GameObject_Particles_Doom_Create(const Vec2* base, const Vec2*
 	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(20, 20));
 	obj.shape = SHAPE_CIRCLE;
 	obj.sprite.color = COLOR_RED;
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(26, 26)));
-	obj.sprite.num_columns = 8;
-	obj.sprite.animation = GameSpriteAnimation_Create(19, 22, 8);
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(32, 32)));
+	obj.sprite.num_columns = 6;
+	obj.sprite.animation = GameSpriteAnimation_Create(37, 40, 8);
 	obj.sprite.animation.loop_flag = FALSE;
 	GameObject_SetSize(&obj, 2, 32);
 	obj.type = TYPE_PARTICLE_DOOM;
@@ -242,9 +247,9 @@ static GameObject GameObject_Particles_GoalDoom_Create(const Vec2* base, const V
 	GameObject obj = GameObject_Create(*base, Vec2_Create(), Vec2_Create(20, 20));
 	obj.shape = SHAPE_CIRCLE;
 	obj.sprite.color = COLOR_RED;
-	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[7], Vec2_Create(), Vec2_Create(35, 35)));
-	obj.sprite.num_columns = 7;
-	obj.sprite.animation = GameSpriteAnimation_Create(7, 10, 8);
+	obj.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[0], Vec2_Create(), Vec2_Create(32, 32)));
+	obj.sprite.num_columns = 6;
+	obj.sprite.animation = GameSpriteAnimation_Create(34, 39, 8);
 	obj.sprite.animation.loop_flag = FALSE;
 	GameObject_SetSize(&obj, 2, 32);
 	obj.type = TYPE_PARTICLE_GOAL_DOOM;

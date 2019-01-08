@@ -246,7 +246,7 @@ void UpdatePlay(void)
 					{
 						obj->state = !obj->state;
 						//GameSprite_SetFrame(&obj->sprite, obj->state ? 12 : 9);
-						GameObject_SetSize(obj, obj->state ? 6.f : 3.f, 4);
+						GameObject_SetSize(obj, obj->state ? 1.f : .5f, 24);
 						if (g_tutorial_state == 0)
 							g_tutorial_state = 1;
 						switched = TRUE;
@@ -620,6 +620,10 @@ static void UpdatePlayTicks(void)
 				}
 
 				break;
+			case TYPE_WARP:
+				if (planet->state)
+					planet->sprite.angle -= ToRadians(1);
+				break;
 			}
 		}
 	} foreach_end;
@@ -862,9 +866,16 @@ void RenderPlay(void)
 					break;
 				case TYPE_WARP:
 					GameObject_Render(obj, &offset);
-					SetDrawBright(255 - 10, 255 - 140, 255 - 140);
-					GameObject_Render(obj, &Vec2_Add(&obj->vel, &offset));
-					SetDrawBright(255, 255, 255);
+					//SetDrawBright(255 - 10, 255 - 140, 255 - 140);
+					//GameObject_Render(obj, &Vec2_Add(&obj->vel, &offset));
+					//SetDrawBright(255, 255, 255);
+					{
+						GameObject out = *obj;
+						GameSprite_SetFrame(&out.sprite, 1);
+						out.sprite.angle *= -1;
+						out.pos = Vec2_Add(&out.pos, &obj->vel);
+						GameObject_Render(&out, &offset);
+					}
 					if (DEBUG_HITBOX)
 						Vec2_Render(&obj->vel, &Vec2_Add(&obj->pos, &offset), obj->sprite.color);
 					if (~g_tutorial_flag & TUTORIAL_FLAG_TYPE_WARP && GameObject_IsHit(&mouseobj, obj))
@@ -889,8 +900,8 @@ void RenderPlay(void)
 					circle.sprite.color = 0x6bd0ff;
 					circle.fill = TRUE;
 					circle.shape = SHAPE_CIRCLE;
-					circle.size = Vec2_Scale(&obj->size, GetEasingValueRange(ESG_LINEAR, GameTimer_GetProgress(&g_planet_circle_timer), 0, 4));
-					SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)GetEasingValueRange(ESG_OUTCIRC, GameTimer_GetProgress(&g_planet_circle_timer), 192, 0));
+					circle.size = Vec2_Scale(&obj->size, GetEasingValueRange(ESG_LINEAR, GameTimer_GetProgress(&g_planet_circle_timer), 0, 6));
+					SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)GetEasingValueRange(ESG_OUTQUAD, GameTimer_GetProgress(&g_planet_circle_timer), 192, 0));
 					GameObject_Render(&circle, &offset);
 					SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 				}
@@ -901,9 +912,9 @@ void RenderPlay(void)
 					if (GameObject_IsHit(&mouseobj, obj))
 					{
 						GameObject cursor = *obj;
-						cursor.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[5], Vec2_Create(), Vec2_Create(18, 18)));
-						cursor.sprite.num_columns = 5;
-						GameSprite_SetFrame(&cursor.sprite, obj->state ? 5 : 7);
+						cursor.sprite = GameSprite_Create(GameTexture_Create(g_resources.texture[9], Vec2_Create(), Vec2_Create(18, 18)));
+						cursor.sprite.num_columns = 2;
+						GameSprite_SetFrame(&cursor.sprite, obj->state ? 0 : 1);
 						GameObject_SetSize(&cursor, 4);
 						GameObject_Render(&cursor, &offset);
 					}
