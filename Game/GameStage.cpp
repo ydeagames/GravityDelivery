@@ -63,7 +63,7 @@ static int stagecmp(const StageInfo* a, const StageInfo* b)
 }
 
 // クイックソート実装
-static void quicksort_impl(Vector* array, int left, int right) {
+static void QuickSortImpl(Vector* array, int left, int right) {
 	if (left >= right) return;
 
 	int l = left;
@@ -87,13 +87,13 @@ static void quicksort_impl(Vector* array, int left, int right) {
 	}
 
 	// pivotより小さい領域と大きい領域をそれぞれ再帰的にソート
-	quicksort_impl(array, left, r);
-	quicksort_impl(array, l, right);
+	QuickSortImpl(array, left, r);
+	QuickSortImpl(array, l, right);
 }
 
 // クイックソート
-static void quicksort(Vector* array) {
-	quicksort_impl(array, 1, Vector_GetSize(array) - 1);
+static void QuickSort(Vector* array) {
+	QuickSortImpl(array, 1, Vector_GetSize(array) - 1);
 }
 
 // <ステージ情報検索>
@@ -116,7 +116,7 @@ void StageInfo_SearchFiles(Vector* stageinfos, char* path, char* filter)
 		_findclose(fh);
 	}
 
-	quicksort(stageinfos);
+	QuickSort(stageinfos);
 }
 
 // <ステージフォルダ作成>
